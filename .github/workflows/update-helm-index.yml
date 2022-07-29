@@ -1,0 +1,25 @@
+name: Update Helm Index
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'charts/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Helm Installation
+        uses: azure/setup-helm@v3
+      - name: Git Checkout
+        uses: actions/checkout@v2
+      - name: Update Helm Index
+        run: |
+          helm package ./charts/elCicdChart --version '0.1.0' -d charts
+          helm repo index ./charts
+          git config --global user.email "elcicd@donotreply.com
+          git config --global user.name "el-CICD"
+          git add .
+          git commit -m "Update Helm index and package for elCicdChart"
+          git push
