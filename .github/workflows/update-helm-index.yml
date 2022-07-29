@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Update Helm Index
         run: |
-          helm package ./charts/elCicdChart --version '0.1.0' -d charts
+          helm package ./charts/elCicdChart -d ./charts
           helm repo index ./charts
           git config --global user.email "elcicd@donotreply.com"
           git config --global user.name "el-CICD"
