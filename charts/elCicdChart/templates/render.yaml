@@ -1,0 +1,41 @@
+{{- if $.Values.profiles }}
+  {{- if not (kindIs "slice" $.Values.profiles) }}
+    {{- fail (printf "Profiles must be specified as an array: %s" $.Values.profiles) }}
+  {{- end }}
+{{- end }}
+
+{{- $_ := set $.Values "parameters" ($.Values.parameters | default dict) }}
+{{- include "elCicdChart.initParameters" $ }}
+{{- include "elCicdChart.interpolateTemplates" (list $ $.Values.templates $.Values.parameters) }}
+
+{{- $skippedList := list }}
+{{- $_ := set $.Values "templates" ($.Values.templates | default dict) }}
+{{- range $template := $.Values.templates }}
+  {{- $render := true }}
+  {{- range $profile := $template.anyProfiles }}
+    {{- $render = or $render (has $profile $.Values.profiles) }}
+  {{- end }}
+  {{- range $profile := $template.allProfiles }}
+    {{- $render = and $render (has $profile $.Values.profiles) }}
+  {{- end }}
+  {{- range $profile := $template.ignoreProfiles }}
+    {{- $render = and $render (not (has $profile $.Values.profiles)) }}
+  {{- end }}
+  
+  {{- if $render }}
+    {{- $templateName := printf "elCicdChart.%s" $template.templateName }}
+    {{- include $templateName (list $ $template) }}
+  {{- else }}
+    {{- $skippedList = append $skippedList (list $ $template.templateName $template.appName) }}
+  {{- end}}
+{{- end }}
+
+{{- if $.Values.microService }}
+ {{- include "elCicdChart.microServiceMetaInfo" . }}
+{{- end }}
+
+---
+# Profiles: {{ $.Values.profiles }}
+{{- range $skipped := $skippedList }}
+  {{- include "elCicdChart.skippedTemplate" $skipped }}
+{{- end }}
