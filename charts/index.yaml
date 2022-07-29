@@ -2,13 +2,18 @@ apiVersion: v1
 entries:
   elCicdChart:
   - apiVersion: v2
-    appVersion: 1.16.0
-    created: "2022-07-29T18:57:57.700323843Z"
-    description: A Helm chart for Kubernetes
-    digest: 6edc6c2b32a6c78ffbbf7db291e551534606096195a4d21e12e48dbf713b3018
+    created: "2022-07-29T19:48:50.924224844Z"
+    description: A chart meant to be added as a dependency for rendering parameterized
+      values.yml files with profiles.
+    digest: 1945e0d872fb20bbd108ce58cfc6dcf049f8a39d0f95a753da9085d058e693a8
+    keywords:
+    - parameterized
+    - profiles
     name: elCicdChart
+    sources:
+    - https://github.com/elcicd/el-CICD-deploy/tree/main/charts
     type: application
     urls:
     - elCicdChart-0.1.0.tgz
     version: 0.1.0
-generated: "2022-07-29T18:57:57.699697237Z"
+generated: "2022-07-29T19:48:50.92350534Z"
