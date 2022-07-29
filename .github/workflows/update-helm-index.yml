@@ -20,7 +20,7 @@ jobs:
         run: |
           helm package ./charts/elCicdChart --version '0.1.0' -d charts
           helm repo index ./charts
-          git config --global user.email "elcicd@donotreply.com:"
+          git config --global user.email "elcicd@donotreply.com"
           git config --global user.name "el-CICD"
           git add .
           git commit -m "Update Helm index and package for elCicdChart"
