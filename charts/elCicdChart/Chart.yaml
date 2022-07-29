@@ -5,7 +5,7 @@ keywords:
 - parameterized
 - profiles
 
-sources: https://github.com/elcicd/el-CICD-deploy/tree/main/charts
+sources: [https://github.com/elcicd/el-CICD-deploy/tree/main/charts]
 
 type: application
 
