@@ -23,5 +23,5 @@ jobs:
           git config --global user.email "elcicd@donotreply.com"
           git config --global user.name "el-CICD"
           git add .
-          git commit -m "Update Helm index and package for elCicdChart"
+          git commit -m "Update Helm Index Workflow: update index and package for elCicdChart"
           git push
