@@ -44,7 +44,7 @@ matchExpressions:
 - key: app
   operator: Exists
 matchLabels:
-  {{- include "elCicdChart.selectorLabels" $ | nindent 2 }}
+  {{- include "elCicdChart.selectorLabels" $appName | nindent 2 }}
 {{- end }}
 
 {{/*
@@ -65,7 +65,7 @@ Create chart name and version as used by the chart label.
 Common labels
 */}}
 {{- define "elCicdChart.labels" -}}
-{{ include "elCicdChart.selectorLabels" $ }}
+{{ include "elCicdChart.selectorLabels" $appName }}
 helm.sh/chart: {{ include "elCicdChart.chart" $ }}
 {{- if $.Chart.AppVersion }}
 app.kubernetes.io/version: {{ $.Chart.AppVersion | quote }}
@@ -77,8 +77,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "elCicdChart.selectorLabels" -}}
-{{- $appName := index . 1 }}
-app: {{ $appName }}
+app: {{ . }}
 {{- end }}
 
 {{/*
