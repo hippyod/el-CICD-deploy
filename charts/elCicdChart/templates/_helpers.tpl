@@ -77,6 +77,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "elCicdChart.selectorLabels" -}}
+{{- $appName := index . 1 }}
 app: {{ $appName }}
 {{- end }}
 
