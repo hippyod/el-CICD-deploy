@@ -22,7 +22,7 @@
     {{- $render = and $render (not (has $profile $.Values.profiles)) }}
   {{- end }}
   
-  {{- $_ := set $templateValues "appName" ($templateValues.appName | default $.Values.microService) }}
+  {{- $_ := set $template "appName" ($template.appName | default $.Values.microService) }}
   {{- if $render }}
     {{- $templateName := printf "elCicdChart.%s" $template.templateName }}
     {{- include $templateName (list $ $template) }}
