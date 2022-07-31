@@ -12,14 +12,12 @@ Service
   {{- $_ := set $svcValues "labels" ($svcValues.labels  | default dict) }}
   {{- $_ := set $svcValues.labels "discovery.3scale.net" true }}
 {{- end }}
----
 {{- $_ := set $svcValues "kind" "Service" }}
 {{- $_ := set $svcValues "apiVersion" "v1" }}
 {{- include "elCicdChart.apiObjectHeader" . }}
 spec:
   selector:
-    {{- include "elCicdChart.selectorLabels" $ | nindent 4 }}
-    app: {{ $svcValues.appName }}
+    {{- include "elCicdChart.selectorLabels" . | nindent 4 }}
   ports:
   {{- if and (or ($svcValues.service).ports $svcValues.ports) $svcValues.port }}
     {{- fail "A Service cannot define both port and ports values (perhaps a merge caused this?)!" }}
@@ -51,7 +49,6 @@ Ingress
 {{- define "elCicdChart.ingress" }}
 {{- $ := index . 0 }}
 {{- $ingressValues := index . 1 }}
----
 {{- $_ := set $ingressValues "kind" "Ingress" }}
 {{- $_ := set $ingressValues "apiVersion" "networking.k8s.io/v1" }}
 {{- $_ := set $ingressValues "annotations" ($ingressValues.annotations | default dict) }}

@@ -24,16 +24,20 @@
   
   {{- if $render }}
     {{- $templateName := printf "elCicdChart.%s" $template.templateName }}
+---
     {{- include $templateName (list $ $template) }}
+# Rendered -> {{ $template.templateName }} {{ $template.appName }}
   {{- else }}
     {{- $skippedList = append $skippedList (list $ $template.templateName $template.appName) }}
   {{- end}}
 {{- end }}
 
-{{- if $.Values.microService }}
- {{- include "elCicdChart.microServiceMetaInfo" . }}
+{{- if $.Values.renderValuesForKust }}
+---
+# __VALUES_START__
+{{ $.Values | toYaml }}
+# __VALUES_END__
 {{- end }}
-
 ---
 # Profiles: {{ $.Values.profiles }}
 {{- range $skipped := $skippedList }}

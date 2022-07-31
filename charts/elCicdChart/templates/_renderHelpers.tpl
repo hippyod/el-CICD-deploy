@@ -4,7 +4,7 @@
   {{- if kindIs "slice" $.Values.profiles }}
     {{- $sdlcEnv := first $.Values.profiles }}
     {{- $_ := set $.Values.parameters "SDLC_ENV" $sdlcEnv }}
-    {{- include "elCicdChart.mergeProfileParameters" (list $ $.Values.parameters $.Values) }}
+    {{- include "elCicdChart.mergeProfileParameters" (list $ $.Values $.Values.parameters) }}
   {{- end }}
   
   {{- if $.Values.projectId }}
@@ -23,8 +23,8 @@
 
 {{- define "elCicdChart.mergeProfileParameters" }}
   {{- $ := index . 0 }}
-  {{- $parameters := index . 1 }}
-  {{- $profileParamMaps := index . 2 }}
+  {{- $profileParamMaps := index . 1 }}
+  {{- $parameters := index . 2 }}
   
   {{- range $profile := $.Values.profiles }}
     {{- $profileParameters := get $profileParamMaps (printf "parameters-%s" $profile) }}
@@ -39,12 +39,13 @@
   
   {{- range $template := $templates }}
     {{- $_ := set $template "appName" ($template.appName | default $.Values.microService) }}
-    {{- $_ := set $parameters "APP_NAME" $template.appName }}
+    {{- $_ := set $parameters "APP_NAME" ($parameters.APP_NAME | default $template.appName) }}
     {{- $templateParams := deepCopy $parameters }}
     
     {{- include "elCicdChart.mergeMapInto" (list $ $template.parameters $templateParams) }}
-    {{- include "elCicdChart.mergeProfileParameters" (list $ $templateParams $template) }}
+    {{- include "elCicdChart.mergeProfileParameters" (list $ $template $templateParams) }}
     {{- include "elCicdChart.interpolateMap" (list $ $template $templateParams) }}
+    {{- $_ := unset $parameters "APP_NAME" }}
   {{- end }}
 {{- end }}
 
@@ -57,6 +58,7 @@
     {{- if not $value }}
       {{- $_ := unset $map $key }}
     {{- else }}
+      {{- $args := (list $ $map $key $parameters) }}
       {{- if (kindIs "map" $value) }}
         {{- include "elCicdChart.interpolateMap" (list $ $value $parameters) }}
       {{- else if (kindIs "slice" $value) }}
@@ -86,7 +88,7 @@
     {{- $param := regexReplaceAll $.Values.PARAM_REGEX $paramRef "${1}" }}
     
     {{- $paramVal := get $parameters $param }}
-    {{ if or (kindIs "string" $paramVal)}}
+    {{ if or (kindIs "string" $paramVal) }}
       {{- $value = replace $paramRef (toString $paramVal) $value }}
     {{- else }}
       {{- if (kindIs "map" $paramVal) }}
@@ -114,7 +116,7 @@
       {{- else if (kindIs "slice" $value) }}
         {{- include "elCicdChart.interpolateSlice" (list $ $map $key $parameters) }}
       {{- else if (kindIs "string" $value) }}
-        {{- include "elCicdChart.interpolateValue" (list $ $map $value $parameters) }}
+        {{- include "elCicdChart.interpolateValue" (list $ $map $key $parameters) }}
       {{- end }}
     {{- else }}
       {{- $_ := unset $map $key }}

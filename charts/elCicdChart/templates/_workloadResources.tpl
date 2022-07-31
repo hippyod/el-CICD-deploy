@@ -4,7 +4,6 @@ Deployment
 {{- define "elCicdChart.deployment" }}
 {{- $ := index . 0 }}
 {{- $deployValues := index . 1 }}
----
 {{- $_ := set $deployValues "kind" "Deployment" }}
 {{- $_ := set $deployValues "apiVersion" "apps/v1" }}
 {{- include "elCicdChart.apiObjectHeader" . }}
@@ -17,7 +16,7 @@ spec:
   {{- end }}
   replicas: {{ $deployValues.replicas | default $.Values.defaultReplicas }}
   revisionHistoryLimit: {{ $deployValues.revisionHistoryLimit | default $.Values.defaultDeploymentRevisionHistoryLimit }}
-  selector: {{ include "elCicdChart.selector" (list $ $deployValues.appName) | indent 4 }}
+  selector: {{ include "elCicdChart.selector" . | indent 4 }}
   {{- if $deployValues.strategyType }}
   strategy:
     {{- if (eq $deployValues.strategyType "RollingUpdate") }}
@@ -36,7 +35,6 @@ Job
 {{- define "elCicdChart.job" }}
 {{- $ := index . 0 }}
 {{- $jobValues := index . 1 }}
----
 {{- $_ := set $jobValues "kind" "Job" }}
 {{- $_ := set $jobValues "apiVersion" "batch/v1" }}
 {{- include "elCicdChart.apiObjectHeader" . }}
@@ -49,8 +47,7 @@ CronJob
 */}}
 {{- define "elCicdChart.cronjob" }}
 {{- $ := index . 0 }}
-{{- $cjValues := index .1 }}
----
+{{- $cjValues := index . 1 }}
 {{- $_ := set $cjValues "kind" "CronJob" }}
 {{- $_ := set $cjValues "apiVersion" "batch/v1" }}
 {{- include "elCicdChart.apiObjectHeader" . }}
@@ -81,7 +78,6 @@ Stateful Set
   {{- $_ := set $stsValues "clusterIP" "None" }}
   {{- include "elCicdChart.service" $stsValues }}
 {{- end }}
----
 {{- $_ := set $stsValues "kind" "StatefulSet" }}
 {{- $_ := set $stsValues "apiVersion" "apps/v1" }}
 {{- include "elCicdChart.apiObjectHeader" . }}
@@ -98,7 +94,7 @@ spec:
   replicas: {{ $stsValues.replicas | default $.Values.defaultReplicas }}
   {{- if $stsValues.revisionHistoryLimit }}
   revisionHistoryLimit: {{ $stsValues.revisionHistoryLimit }}
-  selector: {{ include "elCicdChart.selector" (list $ $stsValues.appName) | indent 4 }}
+  selector: {{ include "elCicdChart.selector" . | indent 4 }}
   serviceName: {{ $stsValues.appName }}
   {{- end }}
   template:
@@ -118,7 +114,6 @@ HorizontalPodAutoscaler
 {{- define "elCicdChart.horizontalPodAutoscaler" }}
 {{- $ := index . 0 }}
 {{- $hpaValues := index . 1 }}
----
 {{- $_ := set $hpaValues "kind" "HorizontalPodAutoscaler" }}
 {{- $_ := set $hpaValues "apiVersion" "autoscaling/v2" }}
 {{- include "elCicdChart.apiObjectHeader" . }}

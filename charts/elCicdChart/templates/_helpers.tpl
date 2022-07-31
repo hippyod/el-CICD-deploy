@@ -25,8 +25,7 @@ metadata:
     {{- end }}
   {{- end }}
   labels:
-    {{- include "elCicdChart.labels" $ | nindent 4 }}
-    app: {{ $metadataValues.appName }}
+    {{- include "elCicdChart.labels" . | indent 4 }}
     {{- if $metadataValues.labels}}{{- $metadataValues.labels | indent 4 }}{{- end }}
     {{- if $.Values.labels}}{{- $.Values.labels | indent 4 }}{{- end }}
     {{- if $.Values.defaultLabels}}{{- $.Values.defaultLabels | toYaml | indent 4 }}{{- end }}
@@ -44,7 +43,7 @@ matchExpressions:
 - key: app
   operator: Exists
 matchLabels:
-  {{- include "elCicdChart.selectorLabels" $appName | nindent 2 }}
+  {{- include "elCicdChart.selectorLabels" . | indent 2 }}
 {{- end }}
 
 {{/*
@@ -65,19 +64,23 @@ Create chart name and version as used by the chart label.
 Common labels
 */}}
 {{- define "elCicdChart.labels" -}}
-{{ include "elCicdChart.selectorLabels" $appName }}
+{{- $ := index . 0 }}
+{{- $template := index . 1 }}
+{{- include "elCicdChart.selectorLabels" . }}
 helm.sh/chart: {{ include "elCicdChart.chart" $ }}
 {{- if $.Chart.AppVersion }}
 app.kubernetes.io/version: {{ $.Chart.AppVersion | quote }}
 {{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/managed-by: {{ $.Release.Service }}
 {{- end }}
 
 {{/*
 Selector labels
 */}}
 {{- define "elCicdChart.selectorLabels" -}}
-app: {{ . }}
+{{- $ := index . 0 }}
+{{- $template := index . 1 }}
+app: {{ $template.appName }}
 {{- end }}
 
 {{/*

@@ -4,7 +4,6 @@ ConfigMap
 {{- define "elCicdChart.configMap" }}
 
 {{- $cmValues := index . 1 }}
----
 {{- $_ := set $cmValues "kind" "ConfigMap" }}
 {{- $_ := set $cmValues "apiVersion" "v1" }}
 {{- include "elCicdChart.apiObjectHeader" . }}
@@ -20,34 +19,10 @@ immutable: {{ $cmValues.immutable }}
 {{- end }}
 
 {{/*
-Microservice meta-info ConfigMap
-*/}}
-{{- define "elCicdChart.microServiceMetaInfo" }}
----
-kind: ConfigMap
-apiVersion: v1
-{{- $appName := printf "%s-%s-meta-info" $.Values.projectId $.Values.microService }}
-{{- $metaInfoDict := (dict "appName" $appName) }}
-{{- include "elCicdChart.apiMetadata" (list $ $metaInfoDict) }}
-data:
-  projectid: {{ $.Values.projectId | quote }}
-  microservice: {{ $.Values.microService | quote }}
-  profiles: {{ join "." $.Values.profiles | quote }}
-  git-repo: {{ $.Values.gitRepoName }}
-  src-commit-hash: {{ $.Values.srcCommitHash | quote }}
-  deployment-branch: {{ ($.Values.deploymentBranch | default $.Values.UNDEFINED) | quote }}
-  deployment-commit-hash: {{ $.Values.deploymentCommitHash | quote }}
-  release-version: {{ ($.Values.releaseVersionTag  | default $.Values.UNDEFINED) | quote }}
-  build-number: {{ $.Values.buildNumber | quote }}
-  deploy-time: {{ now | date "2006-01-02-15:04:05" | quote }}
-{{- end }}
-
-{{/*
 PersistentVolume
 */}}
 {{- define "elCicdChart.PersistentVolume" }}
 {{- $pvValues := index . 1 }}
----
 kind: PersistentVolume
 apiVersion: v1
 metadata:
@@ -83,7 +58,6 @@ PersistentVolumeClaim
 */}}
 {{- define "elCicdChart.PersistentVolumeClaim" }}
 {{- $pvcValues := index . 1 }}
----
 {{- $_ := set $pvcValues "kind" "PersistentVolumeClaim" }}
 {{- $_ := set $pvcValues "apiVersion" "v1" }}
 {{- include "elCicdChart.apiObjectHeader" . }}

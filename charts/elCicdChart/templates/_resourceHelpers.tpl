@@ -5,6 +5,7 @@ Deployment and Service combination
 */}}
 {{- define "elCicdChart.deploymentService" }}
   {{- include "elCicdChart.deployment" . }}
+---
   {{- include "elCicdChart.service" . }}
 {{- end }}
 
