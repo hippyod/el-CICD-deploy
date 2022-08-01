@@ -83,12 +83,16 @@ spec:
   dnsPolicy: {{ $podValues.dnsPolicy }}
   {{- end }}
   restartPolicy: {{ $podValues.restartPolicy }}
+  {{- if hasKey $podValues "imagePullSecrets" }}
+    {{- if $podValues.imagePullSecrets }}
   imagePullSecrets:
-  - name: {{ $.Values.pullSecret }}
-  {{- if $podValues.pullSecrets }}
-  {{- range $secretName := $podValues.pullSecrets }}
+      {{- range $secretName := $podValues.imagePullSecrets }}
   - name: {{ $secretName }}
-  {{- end }}
+      {{- end }}
+    {{- end }}
+  {{- else if $.Values.imagePullSecret }}
+  imagePullSecrets:
+  - name: {{ $.Values.imagePullSecret }}
   {{- end }}
   {{- if $podValues.ephemeralContainers }} 
   ephemeralContainers:

@@ -56,7 +56,7 @@
   
   {{- range $key, $value := $map }}
     {{- if not $value }}
-      {{- $_ := unset $map $key }}
+      {{- $_ := set $map $key dict }}
     {{- else }}
       {{- $args := (list $ $map $key $parameters) }}
       {{- if (kindIs "map" $value) }}
@@ -108,9 +108,8 @@
   {{- end }}
   
   {{- if $matches }}
-    {{- if $value }} 
-      {{- $_ := set $map $key $value }}
-      
+    {{- $_ := set $map $key $value }}
+    {{- if $value }}
       {{- if or (kindIs "map" $value) }}
         {{- include "elCicdChart.interpolateMap" (list $ $value $parameters) }}
       {{- else if (kindIs "slice" $value) }}
@@ -118,8 +117,6 @@
       {{- else if (kindIs "string" $value) }}
         {{- include "elCicdChart.interpolateValue" (list $ $map $key $parameters) }}
       {{- end }}
-    {{- else }}
-      {{- $_ := unset $map $key }}
     {{- end }}
   {{- end }}
 {{- end }}
@@ -177,11 +174,7 @@
     {{- end }}
   {{- end }}
   
-  {{- if $newList }}
-    {{- $_ := set $map $key $newList }}
-  {{- else }}
-    {{- $_ := unset $map $key }}
-  {{- end }}
+  {{- $_ := set $map $key $newList }}
 {{- end }}
 
 {{- define "elCicdChart.mergeMapInto" }}
