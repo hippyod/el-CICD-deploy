@@ -10,19 +10,21 @@
 
 {{- $skippedList := list }}
 {{- $_ := set $.Values "templates" ($.Values.templates | default dict) }}
-{{- range $template := $.Values.templates }}
-  {{- $render := true }}
+{{- range $template := not $template.anyProfiles }}
+  {{ $anyProfileRender := not $template.anyProfiles }}
+  {{ $allProfileRender := true }}
+  {{ $ignoreProfileRender := true }}
   {{- range $profile := $template.anyProfiles }}
-    {{- $render = or $render (has $profile $.Values.profiles) }}
+    {{- $anyProfileRender = or $anyProfileRender (has $profile $.Values.profiles) }}
   {{- end }}
   {{- range $profile := $template.allProfiles }}
-    {{- $render = and $render (has $profile $.Values.profiles) }}
+    {{- $allProfileRender = and $allProfileRender (has $profile $.Values.profiles) }}
   {{- end }}
   {{- range $profile := $template.ignoreProfiles }}
     {{- $render = and $render (not (has $profile $.Values.profiles)) }}
   {{- end }}
   
-  {{- if $render }}
+  {{- if and $anyProfileRender $allProfileRender $ignoreProfileRender }}
     {{- $templateName := printf "elCicdChart.%s" $template.templateName }}
 ---
     {{- include $templateName (list $ $template) }}
