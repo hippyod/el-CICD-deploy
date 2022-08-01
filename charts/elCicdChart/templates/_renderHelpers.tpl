@@ -39,13 +39,12 @@
   
   {{- range $template := $templates }}
     {{- $_ := set $template "appName" ($template.appName | default $.Values.microService) }}
-    {{- $_ := set $parameters "APP_NAME" ($parameters.APP_NAME | default $template.appName) }}
     {{- $templateParams := deepCopy $parameters }}
     
     {{- include "elCicdChart.mergeMapInto" (list $ $template.parameters $templateParams) }}
     {{- include "elCicdChart.mergeProfileParameters" (list $ $template $templateParams) }}
+    {{- $_ := set $templateParams "APP_NAME" ($templateParams.APP_NAME | default $template.appName) }}
     {{- include "elCicdChart.interpolateMap" (list $ $template $templateParams) }}
-    {{- $_ := unset $parameters "APP_NAME" }}
   {{- end }}
 {{- end }}
 
