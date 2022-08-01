@@ -81,7 +81,7 @@ spec:
   {{- $_ := set $podValues "restartPolicy" ($podValues.restartPolicy | default "Always") }}
   {{- if $podValues.dnsPolicy }}
   dnsPolicy: {{ $podValues.dnsPolicy }}
-  {{-end }}
+  {{- end }}
   restartPolicy: {{ $podValues.restartPolicy }}
   imagePullSecrets:
   - name: {{ $.Values.pullSecret }}
@@ -103,7 +103,7 @@ spec:
     {{- include "elCicdChart.containers" (list $ $containers) | trim | nindent 2 }}
   {{- if $podValues.schedulerName }}
   schedulerName: {{ $podValues.schedulerName }}
-  {{-end }}
+  {{- end }}
   {{- if $podValues.volumes }}
   volumes: {{- $podValues.volumes | toYaml | nindent 2 }}
   {{- end }}
