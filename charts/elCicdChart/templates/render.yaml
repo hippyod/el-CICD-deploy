@@ -11,15 +11,19 @@
 {{- $skippedList := list }}
 {{- $_ := set $.Values "templates" ($.Values.templates | default dict) }}
 {{- range $template := $.Values.templates  }}
-  {{ $anyProfileRender := not $template.anyProfiles }}
-  {{ $allProfileRender := true }}
-  {{ $ignoreProfileRender := true }}
-  {{- range $profile := $template.anyProfiles }}
-    {{- $anyProfileRender = or $anyProfileRender (has $profile $.Values.profiles) }}
+  {{- $anyProfileRender := false }}
+  {{- if $template.anyProfiles }}
+    {{- range $profile := $template.anyProfiles }}
+      {{- $anyProfileRender = or $anyProfileRender (has $profile $.Values.profiles) }}
+    {{- end }}
+  {{- else }}
+    {{- $anyProfileRender = true }}
   {{- end }}
+  {{- $allProfileRender := true }}
   {{- range $profile := $template.allProfiles }}
     {{- $allProfileRender = and $allProfileRender (has $profile $.Values.profiles) }}
   {{- end }}
+  {{- $ignoreProfileRender := true }}
   {{- range $profile := $template.ignoreProfiles }}
     {{- $render = and $render (not (has $profile $.Values.profiles)) }}
   {{- end }}
