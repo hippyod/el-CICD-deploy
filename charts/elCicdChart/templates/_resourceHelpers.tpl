@@ -79,6 +79,9 @@ spec:
   affinity: {{ $podValues.affinity | toYaml | nindent 4 }}
   {{- end }}
   {{- $_ := set $podValues "restartPolicy" ($podValues.restartPolicy | default "Always") }}
+  {{- if $podValues.dnsPolicy }}
+  dnsPolicy: {{ $podValues.dnsPolicy }}
+  {{-end }}
   restartPolicy: {{ $podValues.restartPolicy }}
   imagePullSecrets:
   - name: {{ $.Values.pullSecret }}
@@ -98,6 +101,9 @@ spec:
   containers:
     {{- $containers := prepend ($podValues.sidecars | default list) $podValues }}
     {{- include "elCicdChart.containers" (list $ $containers) | trim | nindent 2 }}
+  {{- if $podValues.schedulerName }}
+  schedulerName: {{ $podValues.schedulerName }}
+  {{-end }}
   {{- if $podValues.volumes }}
   volumes: {{- $podValues.volumes | toYaml | nindent 2 }}
   {{- end }}
@@ -170,6 +176,12 @@ Container definition
   {{- end }}
   {{- if $containerVals.stdinOnce }}
   stdinOnce: {{ $containerVals.stdinOnce }}
+  {{- end }}
+  {{- if $containerVals.terminationMessagePath }}
+  terminationMessagePath: {{ $containerVals.terminationMessagePath }}
+  {{- end }}
+  {{- if $containerVals.terminationMessagePolicy }}
+  terminationMessagePolicy: {{ $containerVals.terminationMessagePolicy }}
   {{- end }}
   {{- if $containerVals.tty }}
   tty: {{ $containerVals.tty }}
