@@ -13,7 +13,9 @@
 {{- range $template := $.Values.templates  }}
   {{- $anyProfileRender := false }}
   {{- if $template.anyProfiles }}
+# Rendered -> $anyProfileRender: {{ $anyProfileRender }}
     {{- range $profile := $template.anyProfiles }}
+# Rendered -> or $anyProfileRender (has $profile $.Values.profiles) : {{ or $anyProfileRender (has $profile $.Values.profiles) }}
       {{- $anyProfileRender = or $anyProfileRender (has $profile $.Values.profiles) }}
     {{- end }}
   {{- else }}
@@ -27,9 +29,6 @@
   {{- range $profile := $template.ignoreProfiles }}
     {{- $render = and $render (not (has $profile $.Values.profiles)) }}
   {{- end }}
-# Rendered -> $anyProfileRender: {{ $anyProfileRender }}
-# Rendered -> $allProfileRender: {{ $allProfileRender }}
-# Rendered -> $ignoreProfileRender: {{ $ignoreProfileRender }}  
   {{- if and $anyProfileRender $allProfileRender $ignoreProfileRender }}
     {{- $templateName := printf "elCicdChart.%s" $template.templateName }}
 ---
