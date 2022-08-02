@@ -55,8 +55,10 @@
   
   {{- range $key, $value := $map }}
     
-    {{- if and (eq $key "appName") (eq $value "postgresql") }}
-# Rendered -> {{ $key }} {{ $value }} {{ kindIs $value }}
+    {{- if kindIs "string" $value }}
+      {{- if and (eq $key "appName") (eq $value "postgresql") }}
+  # Rendered -> {{ $key }} {{ $value }} {{ kindOf $value }}
+      {{- end }}
     {{- end }}
   
     {{- if not $value }}
