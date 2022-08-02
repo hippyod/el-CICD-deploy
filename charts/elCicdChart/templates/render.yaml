@@ -11,16 +11,9 @@
 {{- $skippedList := list }}
 {{- $_ := set $.Values "templates" ($.Values.templates | default dict) }}
 {{- range $template := $.Values.templates  }}
-  {{- $anyProfileRender := false }}
-# Rendered -> $template.anyProfiles: {{ $template.anyProfiles }}
-  {{- if $template.anyProfiles }}
-# Rendered -> $anyProfileRender: {{ $anyProfileRender }}
-    {{- range $profile := $template.anyProfiles }}
-# Rendered -> or $anyProfileRender (has $profile $.Values.profiles) : {{ or $anyProfileRender (has $profile $.Values.profiles) }}
-      {{- $anyProfileRender = or $anyProfileRender (has $profile $.Values.profiles) }}
-    {{- end }}
-  {{- else }}
-    {{- $anyProfileRender = true }}
+  {{- $anyProfileRender := not $template.anyProfiles }}
+  {{- range $profile := $template.anyProfiles }}
+    {{- $anyProfileRender = or $anyProfileRender (has $profile $.Values.profiles) }}
   {{- end }}
   {{- $allProfileRender := true }}
   {{- range $profile := $template.allProfiles }}

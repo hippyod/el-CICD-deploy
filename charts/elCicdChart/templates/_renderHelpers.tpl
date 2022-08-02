@@ -168,11 +168,16 @@
         {{- end }}
       {{- end }}
     {{- end }}
+
     {{- if $element }}
       {{- $newList = append $newList $element }}
     {{- end }}
   {{- end }}
   
+  {{- if eq $key "anyProfile" }}
+# Rendered -> list {{ $list }}
+# Rendered -> newList {{ $newList }}
+  {{- end }}
   {{- $_ := set $map $key $newList }}
 {{- end }}
 
