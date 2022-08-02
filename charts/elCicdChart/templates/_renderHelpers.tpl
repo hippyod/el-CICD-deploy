@@ -55,9 +55,8 @@
   
   {{- range $key, $value := $map }}
     
-    {{- if eq $key "anyProfiles" }}
-# Rendered -> {{ $key }} {{ $value }}
-# Rendered -> anyProfiles: {{ kindIs $value }}
+    {{- if and (eq $key "appName") (eq $value "postgresql") }}
+# Rendered -> {{ $key }} {{ $value }} {{ kindIs $value }}
     {{- end }}
   
     {{- if not $value }}
