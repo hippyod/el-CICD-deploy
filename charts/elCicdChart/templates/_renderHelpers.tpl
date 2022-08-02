@@ -54,11 +54,6 @@
   {{- $parameters := index . 2 }}
   
   {{- range $key, $value := $map }}
-    
-    {{- if eq (get $map "appName") "postgresql" }}
-# Rendered -> {{ $key }} {{ $value }} {{ kindOf $value }}
-    {{- end }}
-  
     {{- if not $value }}
       {{- $_ := set $map $key dict }}
     {{- else }}
