@@ -54,6 +54,12 @@
   {{- $parameters := index . 2 }}
   
   {{- range $key, $value := $map }}
+    
+    {{- if eq $key "anyProfiles" }}
+# Rendered -> {{ $key }} {{ $value }}
+# Rendered -> anyProfiles: {{ kindIs $value }}
+    {{- end }}
+  
     {{- if not $value }}
       {{- $_ := set $map $key dict }}
     {{- else }}
@@ -174,7 +180,7 @@
     {{- end }}
   {{- end }}
   
-  {{- if eq $key "anyProfile" }}
+  {{- if eq $key "anyProfiles" }}
 # Rendered -> list {{ $list }}
 # Rendered -> newList {{ $newList }}
   {{- end }}
