@@ -27,8 +27,22 @@
   {{- $parameters := index . 2 }}
   
   {{- range $profile := $.Values.profiles }}
+    {{- if $profileParamMaps.appName }}
+      {{- $appNameParametersKey := printf "parameters-%s" $profileParamMaps.appName }}
+      
+      {{- $appNameParameters := get $.Values $appNameParametersKey }}
+      {{- include "elCicdChart.mergeMapInto" (list $ $appNameParameters $parameters) }}
+      
+      {{- $appNameParameters := get $profileParamMaps $appNameParametersKey }}
+      {{- include "elCicdChart.mergeMapInto" (list $ $appNameParameters $parameters) }}
+    {{- end }}
+    
     {{- $profileParameters := get $profileParamMaps (printf "parameters-%s" $profile) }}
     {{- include "elCicdChart.mergeMapInto" (list $ $profileParameters $parameters) }}
+    
+    {{- $appNameProfileParametersKey := printf "parameters-%s-%s" $profileParamMaps.appName $profile }}
+    {{- $appNameProfileParameters := get $profileParamMaps $appNameProfileParametersKey }}
+    {{- include "elCicdChart.mergeMapInto" (list $ $appNameProfileParameters $parameters) }}
   {{- end }}
 {{- end }}
 
@@ -40,9 +54,11 @@
   {{- range $template := $templates }}
     {{- $_ := set $template "appName" ($template.appName | default $.Values.microService) }}
     {{- $templateParams := deepCopy $parameters }}
+    {{- $_ := set $templateParams "APP_NAME" ($templateParams.APP_NAME | default $template.appName) }}
     
     {{- include "elCicdChart.mergeMapInto" (list $ $template.parameters $templateParams) }}
     {{- include "elCicdChart.mergeProfileParameters" (list $ $template $templateParams) }}
+    
     {{- $_ := set $templateParams "APP_NAME" ($templateParams.APP_NAME | default $template.appName) }}
     {{- include "elCicdChart.interpolateMap" (list $ $template $templateParams) }}
   {{- end }}

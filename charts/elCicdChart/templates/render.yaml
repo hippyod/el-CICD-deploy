@@ -4,26 +4,46 @@
   {{- end }}
 {{- end }}
 
+{{- $allTemplates := list }}
+{{- range $template := $.Values.templates  }}
+  {{- if $template.appNames }}
+    {{- range $appName := $template.appNames }}
+      {{- $newTemplate := deepCopy $template }}
+      {{- $_ := set $newTemplate "appName" $appName }}
+      {{- $allTemplates = append $allTemplates $newTemplate }}
+    {{- end }}
+  {{- else }}
+    {{- $allTemplates = append $allTemplates $template }}
+  {{- end }}
+{{- end }}
+
 {{- $_ := set $.Values "parameters" ($.Values.parameters | default dict) }}
 {{- include "elCicdChart.initParameters" $ }}
-{{- include "elCicdChart.interpolateTemplates" (list $ $.Values.templates $.Values.parameters) }}
+{{- include "elCicdChart.interpolateTemplates" (list $ $allTemplates $.Values.parameters) }}
 
 {{- $skippedList := list }}
-{{- $_ := set $.Values "templates" ($.Values.templates | default dict) }}
-{{- range $template := $.Values.templates  }}
-  {{- $anyProfileRender := not $template.anyProfiles }}
+{{- range $template := $allTemplates  }}
+  {{- $anyProfile := not $template.anyProfiles }}
   {{- range $profile := $template.anyProfiles }}
-    {{- $anyProfileRender = or $anyProfileRender (has $profile $.Values.profiles) }}
+    {{- $anyProfile = or $anyProfile (has $profile $.Values.profiles) }}
   {{- end }}
-  {{- $allProfileRender := true }}
-  {{- range $profile := $template.allProfiles }}
-    {{- $allProfileRender = and $allProfileRender (has $profile $.Values.profiles) }}
+  
+  {{- $ignoreExactlyProfiles := $template.ignoreExactlyProfiles }}
+  {{- range $profile := $template.ignoreExactlyProfilesProfiles }}
+    {{- $ignoreExactlyProfiles = and $ignoreExactlyProfiles (has $profile $.Values.profiles) }}
   {{- end }}
-  {{- $ignoreProfileRender := true }}
-  {{- range $profile := $template.ignoreProfiles }}
-    {{- $render = and $render (not (has $profile $.Values.profiles)) }}
+
+  {{- $mustHaveProfiles := true }}
+  {{- range $profile := $template.mustHaveProfiles }}
+    {{- $mustHaveRender = and $mustHaveRender (has $profile $.Values.profiles) }}
   {{- end }}
-  {{- if and $anyProfileRender $allProfileRender $ignoreProfileRender }}
+  
+  {{- $ignoreAnyProfiles := false }}
+  {{- range $profile := $template.ignoreAnyProfiles }}
+    {{- $ignoreAnyProfiles = or $ignoreAnyProfiles (has $profile $.Values.profiles) }}
+  {{- end }}
+  
+  {{- if and $anyProfile $mustHaveProfiles (not $ignoreExactlyProfiles) (not $ignoreAnyProfiles) }}
     {{- $templateName := printf "elCicdChart.%s" $template.templateName }}
 ---
     {{- include $templateName (list $ $template) }}

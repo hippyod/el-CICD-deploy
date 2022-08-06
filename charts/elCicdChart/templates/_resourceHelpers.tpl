@@ -100,7 +100,7 @@ spec:
   {{- end }}
   {{- if $podValues.initContainers }} 
   initContainers:
-    {{- include "elCicdChart.initContainers" (list $ $podValues.initContainers false) | trim | nindent 2 }}
+    {{- include "elCicdChart.containers" (list $ $podValues.initContainers false) | trim | nindent 2 }}
   {{- end }}
   containers:
     {{- $containers := prepend ($podValues.sidecars | default list) $podValues }}

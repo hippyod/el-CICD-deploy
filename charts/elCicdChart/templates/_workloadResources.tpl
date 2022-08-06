@@ -94,9 +94,9 @@ spec:
   replicas: {{ $stsValues.replicas | default $.Values.defaultReplicas }}
   {{- if $stsValues.revisionHistoryLimit }}
   revisionHistoryLimit: {{ $stsValues.revisionHistoryLimit }}
+  {{- end }}
   selector: {{ include "elCicdChart.selector" . | indent 4 }}
   serviceName: {{ $stsValues.appName }}
-  {{- end }}
   template:
   {{- include "elCicdChart.selector" $stsValues.appName | indent 2 }}
   {{- include "elCicdChart.podTemplate" (list $ $stsValues) | indent 4 }}
