@@ -19,7 +19,7 @@
 
 {{- $_ := set $.Values "parameters" ($.Values.parameters | default dict) }}
 {{- include "elCicdChart.initParameters" $ }}
-{{- include "elCicdChart.interpolateTemplates" (list $ $allTemplates $.Values.parameters) }}
+{{- include "elCicdChart.hydrateTemplates" (list $ $allTemplates $.Values.parameters) }}
 
 {{- $skippedList := list }}
 {{- range $template := $allTemplates  }}

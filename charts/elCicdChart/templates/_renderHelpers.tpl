@@ -46,7 +46,7 @@
   {{- end }}
 {{- end }}
 
-{{- define "elCicdChart.interpolateTemplates" }}
+{{- define "elCicdChart.hydrateTemplates" }}
   {{- $ := index . 0 }}
   {{- $templates := index . 1 }}
   {{- $parameters := index . 2 }}
@@ -60,11 +60,11 @@
     {{- include "elCicdChart.mergeProfileParameters" (list $ $template $templateParams) }}
     
     {{- $_ := set $templateParams "APP_NAME" ($templateParams.APP_NAME | default $template.appName) }}
-    {{- include "elCicdChart.interpolateMap" (list $ $template $templateParams) }}
+    {{- include "elCicdChart.hydrateMap" (list $ $template $templateParams) }}
   {{- end }}
 {{- end }}
 
-{{- define "elCicdChart.interpolateMap" }}
+{{- define "elCicdChart.hydrateMap" }}
   {{- $ := index . 0 }}
   {{- $map := index . 1 }}
   {{- $parameters := index . 2 }}
@@ -75,15 +75,15 @@
     {{- else }}
       {{- $args := (list $ $map $key $parameters) }}
       {{- if (kindIs "map" $value) }}
-        {{- include "elCicdChart.interpolateMap" (list $ $value $parameters) }}
+        {{- include "elCicdChart.hydrateMap" (list $ $value $parameters) }}
       {{- else if (kindIs "slice" $value) }}
-        {{- include "elCicdChart.interpolateSlice" (list $ $map $key $parameters) }}
+        {{- include "elCicdChart.hydrateSlice" (list $ $map $key $parameters) }}
       {{- else if (kindIs "string" $value) }}
-          {{- include "elCicdChart.interpolateValue" (list $ $map $key $parameters) }}
+          {{- include "elCicdChart.hydrateValue" (list $ $map $key $parameters) }}
       {{- end  }}
       
       {{- if (get $map $key) }}
-        {{- include "elCicdChart.interpolateKey" (list $ $map $key $parameters) }}
+        {{- include "elCicdChart.hydrateKey" (list $ $map $key $parameters) }}
       {{- else }}
         {{- $_ := unset $map $key }}
       {{- end }}
@@ -91,7 +91,7 @@
   {{- end }}
 {{- end }}
 
-{{- define "elCicdChart.interpolateValue" }}
+{{- define "elCicdChart.hydrateValue" }}
   {{- $ := index . 0 }}
   {{- $map := index . 1 }}
   {{- $key := index . 2 }}
@@ -126,17 +126,17 @@
     {{- $_ := set $map $key $value }}
     {{- if $value }}
       {{- if or (kindIs "map" $value) }}
-        {{- include "elCicdChart.interpolateMap" (list $ $value $parameters) }}
+        {{- include "elCicdChart.hydrateMap" (list $ $value $parameters) }}
       {{- else if (kindIs "slice" $value) }}
-        {{- include "elCicdChart.interpolateSlice" (list $ $map $key $parameters) }}
+        {{- include "elCicdChart.hydrateSlice" (list $ $map $key $parameters) }}
       {{- else if (kindIs "string" $value) }}
-        {{- include "elCicdChart.interpolateValue" (list $ $map $key $parameters) }}
+        {{- include "elCicdChart.hydrateValue" (list $ $map $key $parameters) }}
       {{- end }}
     {{- end }}
   {{- end }}
 {{- end }}
 
-{{- define "elCicdChart.interpolateKey" }}
+{{- define "elCicdChart.hydrateKey" }}
   {{- $ := index . 0 }}
   {{- $map := index . 1 }}
   {{- $key := index . 2 }}
@@ -156,11 +156,11 @@
   {{- end }}
   {{- if and $matches (ne $oldKey $key) $key }}
     {{- $_ := set $map $key $value }}
-    {{- include "elCicdChart.interpolateKey" (list $ $map $key $parameters) }}
+    {{- include "elCicdChart.hydrateKey" (list $ $map $key $parameters) }}
   {{- end }}
 {{- end }}
 
-{{- define "elCicdChart.interpolateSlice" }}
+{{- define "elCicdChart.hydrateSlice" }}
   {{- $ := index . 0 }}
   {{- $map := index . 1 }}
   {{- $key := index . 2 }}
@@ -170,7 +170,7 @@
   {{- $newList := list }}
   {{- range $element := $list }}
     {{- if and (kindIs "map" $element) }}
-      {{- include "elCicdChart.interpolateMap" (list $ $element $parameters) }}
+      {{- include "elCicdChart.hydrateMap" (list $ $element $parameters) }}
     {{- else if (kindIs "string" $element) }}
       {{- $matches := regexFindAll $.Values.PARAM_REGEX $element -1 }}
       {{- range $paramRef := $matches }}
@@ -179,7 +179,7 @@
         {{- if (kindIs "string" $paramVal) }}
           {{- $element = replace $paramRef (toString $paramVal) $element }}
         {{- else if and (kindIs "map" $paramVal) }}
-          {{- include "elCicdChart.interpolateMap" (list $ $paramVal $parameters) }}
+          {{- include "elCicdChart.hydrateMap" (list $ $paramVal $parameters) }}
           {{- $element = $paramVal }}
         {{- end }}
       {{- end }}

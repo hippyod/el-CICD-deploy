@@ -147,7 +147,7 @@ Container definition
   {{- if or $containerVals.ports $containerVals.port $.Values.defaultPort $containerVals.usePrometheus }}
   ports:
     {{- if and $containerVals.ports $containerVals.port }}
-      {{- fail "A Container cannot define both port and ports values (perhaps a merge caused this?)!" }}
+      {{- fail "A Container cannot define both port and ports values!" }}
     {{- end }}
     {{- if $containerVals.ports }}
       {{- $containerVals.ports | toYaml | nindent 2 }}
@@ -158,8 +158,8 @@ Container definition
     {{- end }}
     {{- if or ($containerVals.prometheus).port $.Values.defaultPrometheusPort }}
   - name: prometheus-port
-    containerPort: {{ $containerVals.prometheus.port | default $.Values.defaultPrometheusPort }}
-    protocol: {{ $containerVals.prometheus.protocol | default ($.Values.defaultPrometheusProtocol | default $.Values.defaultProtocol) }}
+    containerPort: {{ ($containerVals.prometheus).port | default $.Values.defaultPrometheusPort }}
+    protocol: {{ ($containerVals.prometheus).protocol | default ($.Values.defaultPrometheusProtocol | default $.Values.defaultProtocol) }}
     {{- end }}
   {{- end }}
   {{- if $containerVals.readinessProbe }}

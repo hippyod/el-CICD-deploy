@@ -21,10 +21,7 @@ defaultIngressRulePathType: "Prefix"
 defaultPvReclaimPolicy: "Reclaim"
 defaultPvAccessMode: "ReadWriteOnce"
 
-ingressRulesMergeKey: "host"
-ingressTlsMergeKey: "secretName"
-
-
+defaultPrometheusPort: "9090"
 defaultPrometheusPath: "/metrics"
 defaultPrometheusScheme: "https"
 defaultPrometheusScrape: "false"

@@ -1,4 +1,30 @@
 {{/*
+CronJob
+*/}}
+{{- define "elCicdChart.cronjob" }}
+{{- $ := index . 0 }}
+{{- $cjValues := index . 1 }}
+{{- $_ := set $cjValues "kind" "CronJob" }}
+{{- $_ := set $cjValues "apiVersion" "batch/v1" }}
+{{- include "elCicdChart.apiObjectHeader" . }}
+spec:
+  {{- if $cjValues.concurrencyPolicy }}
+  concurrencyPolicy: {{ $cjValues.concurrencyPolicy }}
+  {{- end }}
+  {{- if $cjValues.failedJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ $cjValues.failedJobsHistoryLimit }}
+  {{- end }}
+  schedule: "{{ $cjValues.schedule }}"
+  {{- if $cjValues.startingDeadlineSeconds }}
+  startingDeadlineSeconds: {{ $cjValues.startingDeadlineSeconds }}
+  {{- end }}
+  {{- if $cjValues.successfulJobsHistoryLimit }}
+  successfulJobsHistoryLimit: {{ $cjValues.successfulJobsHistoryLimit }}
+  {{- end }}
+  jobTemplate: {{ include "elCicdChart.jobTemplate" . | indent 4 }}
+{{- end }}
+
+{{/*
 Deployment
 */}}
 {{- define "elCicdChart.deployment" }}
@@ -27,85 +53,6 @@ spec:
     type: {{ $deployValues.strategyType }}
   {{- end }}
   template: {{ include "elCicdChart.podTemplate" (list $ $deployValues) | indent 4 }}
-{{- end }}
-
-{{/*
-Job
-*/}}
-{{- define "elCicdChart.job" }}
-{{- $ := index . 0 }}
-{{- $jobValues := index . 1 }}
-{{- $_ := set $jobValues "kind" "Job" }}
-{{- $_ := set $jobValues "apiVersion" "batch/v1" }}
-{{- include "elCicdChart.apiObjectHeader" . }}
-spec:
-{{- include "elCicdChart.jobTemplate" . }}
-{{- end }}
-
-{{/*
-CronJob
-*/}}
-{{- define "elCicdChart.cronjob" }}
-{{- $ := index . 0 }}
-{{- $cjValues := index . 1 }}
-{{- $_ := set $cjValues "kind" "CronJob" }}
-{{- $_ := set $cjValues "apiVersion" "batch/v1" }}
-{{- include "elCicdChart.apiObjectHeader" . }}
-spec:
-  {{- if $cjValues.concurrencyPolicy }}
-  concurrencyPolicy: {{ $cjValues.concurrencyPolicy }}
-  {{- end }}
-  {{- if $cjValues.failedJobsHistoryLimit }}
-  failedJobsHistoryLimit: {{ $cjValues.failedJobsHistoryLimit }}
-  {{- end }}
-  schedule: "{{ $cjValues.schedule }}"
-  {{- if $cjValues.startingDeadlineSeconds }}
-  startingDeadlineSeconds: {{ $cjValues.startingDeadlineSeconds }}
-  {{- end }}
-  {{- if $cjValues.successfulJobsHistoryLimit }}
-  successfulJobsHistoryLimit: {{ $cjValues.successfulJobsHistoryLimit }}
-  {{- end }}
-  jobTemplate: {{ include "elCicdChart.jobTemplate" . | indent 4 }}
-{{- end }}
-
-{{/*
-Stateful Set
-*/}}
-{{- define "elCicdChart.statefulset" }}
-{{- $ := index . 0 }}
-{{- $stsValues := index . 1 }}
-{{- if ($stsValues.createService | default true) }}
-  {{- $_ := set $stsValues "clusterIP" "None" }}
-  {{- include "elCicdChart.service" $stsValues }}
-{{- end }}
-{{- $_ := set $stsValues "kind" "StatefulSet" }}
-{{- $_ := set $stsValues "apiVersion" "apps/v1" }}
-{{- include "elCicdChart.apiObjectHeader" . }}
-spec:
-  {{- if $stsValues.minReadySeconds }}
-  minReadySeconds: {{ $stsValues.minReadySeconds }}
-  {{- end }}
-  {{- if $stsValues.pvcRetentionPolicy }}
-  persistentVolumeClaimRetentionPolicy: {{- $stsValues.pvcRetentionPolicy | toYaml | nindent 4 }}
-  {{- end }}
-  {{- if $stsValues.podManagementPolicy }}
-  podManagementPolicy: {{ $stsValues.podManagementPolicy }}
-  {{- end }}
-  replicas: {{ $stsValues.replicas | default $.Values.defaultReplicas }}
-  {{- if $stsValues.revisionHistoryLimit }}
-  revisionHistoryLimit: {{ $stsValues.revisionHistoryLimit }}
-  {{- end }}
-  selector: {{ include "elCicdChart.selector" . | indent 4 }}
-  serviceName: {{ $stsValues.appName }}
-  template:
-  {{- include "elCicdChart.selector" $stsValues.appName | indent 2 }}
-  {{- include "elCicdChart.podTemplate" (list $ $stsValues) | indent 4 }}
-  {{- if $stsValues.updateStrategy }}
-  updateStrategy: {{- $stsValues.updateStrategy | toYaml | nindent 4 }}
-  {{- end }}
-  {{- if $stsValues.volumeClaimTemplates }}
-  volumeClaimTemplates: {{- $stsValues.volumeClaimTemplates | toYaml | nindent 4 }}
-  {{- end }}
 {{- end }}
 
 {{/*
@@ -157,4 +104,57 @@ spec:
     {{- end }}
     kind: {{ ($hpaValues.scaleTargetRef).kind | default "Deployment" }}
     name: {{ ($hpaValues.scaleTargetRef).name | default $hpaValues.appName }}
+{{- end }}
+
+{{/*
+Job
+*/}}
+{{- define "elCicdChart.job" }}
+{{- $ := index . 0 }}
+{{- $jobValues := index . 1 }}
+{{- $_ := set $jobValues "kind" "Job" }}
+{{- $_ := set $jobValues "apiVersion" "batch/v1" }}
+{{- include "elCicdChart.apiObjectHeader" . }}
+spec:
+{{- include "elCicdChart.jobTemplate" . }}
+{{- end }}
+
+{{/*
+Stateful Set
+*/}}
+{{- define "elCicdChart.statefulset" }}
+{{- $ := index . 0 }}
+{{- $stsValues := index . 1 }}
+{{- if ($stsValues.createService | default true) }}
+  {{- $_ := set $stsValues "clusterIP" "None" }}
+  {{- include "elCicdChart.service" $stsValues }}
+{{- end }}
+{{- $_ := set $stsValues "kind" "StatefulSet" }}
+{{- $_ := set $stsValues "apiVersion" "apps/v1" }}
+{{- include "elCicdChart.apiObjectHeader" . }}
+spec:
+  {{- if $stsValues.minReadySeconds }}
+  minReadySeconds: {{ $stsValues.minReadySeconds }}
+  {{- end }}
+  {{- if $stsValues.pvcRetentionPolicy }}
+  persistentVolumeClaimRetentionPolicy: {{- $stsValues.pvcRetentionPolicy | toYaml | nindent 4 }}
+  {{- end }}
+  {{- if $stsValues.podManagementPolicy }}
+  podManagementPolicy: {{ $stsValues.podManagementPolicy }}
+  {{- end }}
+  replicas: {{ $stsValues.replicas | default $.Values.defaultReplicas }}
+  {{- if $stsValues.revisionHistoryLimit }}
+  revisionHistoryLimit: {{ $stsValues.revisionHistoryLimit }}
+  {{- end }}
+  selector: {{ include "elCicdChart.selector" . | indent 4 }}
+  serviceName: {{ $stsValues.appName }}
+  template:
+  {{- include "elCicdChart.selector" $stsValues.appName | indent 2 }}
+  {{- include "elCicdChart.podTemplate" (list $ $stsValues) | indent 4 }}
+  {{- if $stsValues.updateStrategy }}
+  updateStrategy: {{- $stsValues.updateStrategy | toYaml | nindent 4 }}
+  {{- end }}
+  {{- if $stsValues.volumeClaimTemplates }}
+  volumeClaimTemplates: {{- $stsValues.volumeClaimTemplates | toYaml | nindent 4 }}
+  {{- end }}
 {{- end }}
