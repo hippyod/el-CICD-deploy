@@ -3,23 +3,28 @@
   {{- $profileParamMaps := index . 1 }}
   {{- $parameters := index . 2 }}
   
-  {{- range $profile := $.Values.profiles }}
-    {{- if $profileParamMaps.appName }}
-      {{- $appNameParametersKey := printf "parameters-%s" $profileParamMaps.appName }}
-      
-      {{- $appNameParameters := get $.Values $appNameParametersKey }}
-      {{- include "elCicdChart.mergeMapInto" (list $ $appNameParameters $parameters) }}
-      
-      {{- $appNameParameters := get $profileParamMaps $appNameParametersKey }}
+  {{- $appName := $profileParamMaps.appName }}
+  
+  {{- if $appName }}
+    {{- include "elCicdChart.mergeMapInto" (list $ $profileParamMaps.parameters $parameters) }}
+  {{- end }}
+  
+  {{- range $profile := $.Values.profiles }}    
+    {{- $profileParameters := get $profileParamMaps (printf "parameters-%s" $profile) }}
+    {{- include "elCicdChart.mergeMapInto" (list $ $profileParameters $parameters) }}
+  {{- end }}
+    
+  {{- if $appName }}
+    {{- $appNameParamMapName := printf "parameters-%s" $appName }}
+    {{- $appNameParamMaps := tuple (deepCopy (get $.Values $appNameParamMapName)) (get $profileParamMaps $appNameParamMapName ) }}
+    {{- range $appNameParameters := $appNameParamMaps }}
       {{- include "elCicdChart.mergeMapInto" (list $ $appNameParameters $parameters) }}
     {{- end }}
     
-    {{- $profileParameters := get $profileParamMaps (printf "parameters-%s" $profile) }}
-    {{- include "elCicdChart.mergeMapInto" (list $ $profileParameters $parameters) }}
-    
-    {{- $appNameProfileParametersKey := printf "parameters-%s-%s" $profileParamMaps.appName $profile }}
-    {{- $appNameProfileParameters := get $profileParamMaps $appNameProfileParametersKey }}
-    {{- include "elCicdChart.mergeMapInto" (list $ $appNameProfileParameters $parameters) }}
+    {{- range $profile := $.Values.profiles }}    
+      {{- $profileParameters := get $profileParamMaps (printf "parameters-%s-%s" $appName $profile) }}
+      {{- include "elCicdChart.mergeMapInto" (list $ $profileParameters $parameters) }}
+    {{- end }}
   {{- end }}
 {{- end }}
 
