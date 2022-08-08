@@ -18,7 +18,7 @@
 {{- end }}
 
 {{- $_ := set $.Values "parameters" ($.Values.parameters | default dict) }}
-{{- include "elCicdChart.initParameters" $ }}
+{{- include "elCicdChart.mergeProfileParameters" (list $ $.Values $.Values.parameters) }}
 {{- include "elCicdChart.hydrateTemplates" (list $ $allTemplates $.Values.parameters) }}
 
 {{- $skippedList := list }}

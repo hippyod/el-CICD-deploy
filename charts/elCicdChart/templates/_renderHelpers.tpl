@@ -1,26 +1,3 @@
-{{- define "elCicdChart.initParameters" }}
-  {{- $ := . }}
-  
-  {{- if kindIs "slice" $.Values.profiles }}
-    {{- $sdlcEnv := first $.Values.profiles }}
-    {{- $_ := set $.Values.parameters "SDLC_ENV" $sdlcEnv }}
-    {{- include "elCicdChart.mergeProfileParameters" (list $ $.Values $.Values.parameters) }}
-  {{- end }}
-  
-  {{- if $.Values.projectId }}
-    {{- $_ := set $.Values.parameters "PROJECT_ID" $.Values.projectId }}
-  {{- end }}
-  {{- if $.Values.microService }}
-    {{- $_ := set $.Values.parameters "MICROSERVICE_NAME" $.Values.microService }}
-  {{- end }}
-  {{- if $.Values.imageRepository }}
-    {{- $_ := set $.Values.parameters "IMAGE_REPOSITORY" $.Values.imageRepository }}
-  {{- end }}
-  {{- if $.Values.imageTag }}
-    {{- $_ := set $.Values.parameters "IMAGE_TAG" $.Values.imageRepository }}
-  {{- end }}
-{{- end }}
-
 {{- define "elCicdChart.mergeProfileParameters" }}
   {{- $ := index . 0 }}
   {{- $profileParamMaps := index . 1 }}
