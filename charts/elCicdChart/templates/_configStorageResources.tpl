@@ -26,7 +26,6 @@ PersistentVolume
 kind: PersistentVolume
 apiVersion: v1
 metadata:
-  projectid: {{ $.Values.projectid }}
   name: {{ required "pv name required!" $pvValues.name }}
 spec:
   capacity:

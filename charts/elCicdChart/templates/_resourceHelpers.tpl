@@ -90,9 +90,11 @@ spec:
   - name: {{ $secretName }}
       {{- end }}
     {{- end }}
-  {{- else if $.Values.imagePullSecret }}
+  {{- else if $.Values.imagePullSecrets }}
   imagePullSecrets:
-  - name: {{ $.Values.imagePullSecret }}
+    {{- range $secretName := $.Values.imagePullSecrets }}
+  - name: {{ $secretName }}
+    {{- end }}
   {{- end }}
   {{- if $podValues.ephemeralContainers }} 
   ephemeralContainers:
@@ -121,7 +123,7 @@ Container definition
 {{- $containers := index . 1 }}
 {{- range $containerVals := $containers }}
 - name: {{ $containerVals.appName }}
-  image: {{ $containerVals.image | default (include "elCicdChart.microServiceImage" $) }}
+  image: {{ $containerVals.image | default $.Values.appImage }}
  {{- if $containerVals.activeDeadlineSeconds }}
   activeDeadlineSeconds: {{ $containerVals.activeDeadlineSeconds | toYaml | nindent 2 }}
   {{- end }}
@@ -203,14 +205,6 @@ Container definition
     {{- $containerVals.supplemental | toYaml | nindent 2 }}
   {{- end }}
 {{- end }}
-{{- end }}
-
-
-{{/*
-Default image definition
-*/}}
-{{- define "elCicdChart.microServiceImage" }}
-  {{- $.Values.imageRepository }}/{{- $.Values.projectId }}-{{- $.Values.microService }}:{{- $.Values.imageTag }}
 {{- end }}
 
 {{/*

@@ -34,14 +34,14 @@
   {{- $parameters := index . 2 }}
   
   {{- range $template := $templates }}
-    {{- $_ := set $template "appName" ($template.appName | default $.Values.microService) }}
+    {{- $_ := required "elCicdChart must define template.appName or $.Values.appName!" ($template.appName | default $.Values.appName) }}
+    {{- $_ := set $template "appName" ($template.appName | default $.Values.appName) }}
     {{- $templateParams := deepCopy $parameters }}
     {{- $_ := set $templateParams "APP_NAME" ($templateParams.APP_NAME | default $template.appName) }}
     
     {{- include "elCicdChart.mergeMapInto" (list $ $template.parameters $templateParams) }}
     {{- include "elCicdChart.mergeProfileParameters" (list $ $template $templateParams) }}
     
-    {{- $_ := set $templateParams "APP_NAME" ($templateParams.APP_NAME | default $template.appName) }}
     {{- include "elCicdChart.hydrateMap" (list $ $template $templateParams) }}
   {{- end }}
 {{- end }}
