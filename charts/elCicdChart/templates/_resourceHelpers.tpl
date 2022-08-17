@@ -98,7 +98,7 @@ spec:
   {{- end }}
   {{- if $podValues.ephemeralContainers }} 
   ephemeralContainers:
-    {{- include "elCicdChart.ephemeralContainers" (list $ $podValues.ephemeralContainers false) | trim | nindent 2 }}
+    {{- include "elCicdChart.containers" (list $ $podValues.ephemeralContainers false) | trim | nindent 2 }}
   {{- end }}
   {{- if $podValues.initContainers }} 
   initContainers:
@@ -167,6 +167,10 @@ Container definition
   {{- if $containerVals.readinessProbe }}
   readinessProbe: {{ $containerVals.readinessProbe | toYaml | nindent 4 }}
   {{- end }}
+  {{- if $containerVals.resources }}
+  resources: {{ $containerVals.livenessProbe | toYaml | nindent 4 }}
+  {{- else if or $containerVals.limitsCpu $containerVals.limitsMemory $containerVals.requestsCpu $containerVals.requestsMemory
+                 $.Values.defaultLimitsCpu $.Values.defaultLimitsMemory $.Values.defaultRequestsCpu $.Values.defaultRequestsMemory }}
   resources:
     limits:
       cpu: {{ $containerVals.limitsCpu | default $.Values.defaultLimitsCpu }}
