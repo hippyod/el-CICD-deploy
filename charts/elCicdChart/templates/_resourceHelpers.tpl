@@ -168,9 +168,8 @@ Container definition
   readinessProbe: {{ $containerVals.readinessProbe | toYaml | nindent 4 }}
   {{- end }}
   {{- if $containerVals.resources }}
-  resources: {{ $containerVals.livenessProbe | toYaml | nindent 4 }}
-  {{- else if or $containerVals.limitsCpu $containerVals.limitsMemory $containerVals.requestsCpu $containerVals.requestsMemory
-                 $.Values.defaultLimitsCpu $.Values.defaultLimitsMemory $.Values.defaultRequestsCpu $.Values.defaultRequestsMemory }}
+  resources: {{ $containerVals.resources | toYaml | nindent 4 }}
+  {{- else }}
   resources:
     limits:
       cpu: {{ $containerVals.limitsCpu | default $.Values.defaultLimitsCpu }}
@@ -178,6 +177,7 @@ Container definition
     requests:
       cpu: {{ $containerVals.requestsCpu | default $.Values.defaultRequestsCpu }}
       memory: {{ $containerVals.requestsMemory | default $.Values.defaultRequestsMemory }}
+  {{- end }}
   {{- if $containerVals.startupProbe }}
   startupProbe: {{ $containerVals.startupProbe | toYaml | nindent 4 }}
   {{- end }}
