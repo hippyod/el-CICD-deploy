@@ -2,7 +2,7 @@
 ConfigMap
 */}}
 {{- define "elCicdChart.configMap" }}
-
+{{- $ := index . 0 }}
 {{- $cmValues := index . 1 }}
 {{- $_ := set $cmValues "kind" "ConfigMap" }}
 {{- $_ := set $cmValues "apiVersion" "v1" }}
@@ -22,6 +22,7 @@ immutable: {{ $cmValues.immutable }}
 PersistentVolume
 */}}
 {{- define "elCicdChart.PersistentVolume" }}
+{{- $ := index . 0 }}
 {{- $pvValues := index . 1 }}
 kind: PersistentVolume
 apiVersion: v1
@@ -55,7 +56,8 @@ spec:
 {{/*
 PersistentVolumeClaim
 */}}
-{{- define "elCicdChart.PersistentVolumeClaim" }}
+{{- define "elCicdChart.persistentVolumeClaim" }}
+{{- $ := index . 0 }}
 {{- $pvcValues := index . 1 }}
 {{- $_ := set $pvcValues "kind" "PersistentVolumeClaim" }}
 {{- $_ := set $pvcValues "apiVersion" "v1" }}
@@ -63,9 +65,12 @@ PersistentVolumeClaim
 spec:
   accessModes:
   {{- if $pvcValues.accessModes }}
-  {{- $pvcValues.accessModes | toYaml | indent 2 }}
+    {{- $pvcValues.accessModes | toYaml | indent 2 }}
   {{- else }}
-  -  {{ $pvcValues.accessMode | $.Values.defaultPvAccessMode }}
+  - {{ $pvcValues.accessMode | default $.Values.defaultPvAccessMode }}
+  {{- end }}
+  {{- if $pvcValues.dataSource }}
+  dataSourceRef: {{ $pvcValues.dataSource | toYaml| nindent 4 }}
   {{- end }}
   {{- if $pvcValues.dataSourceRef }}
   dataSourceRef: {{ $pvcValues.dataSourceRef | toYaml| nindent 4 }}
@@ -75,7 +80,7 @@ spec:
   {{- else }}
   resources:
     requests:
-      storage: {{ $pvcValues.capacity }}
+      storage: {{ $pvcValues.storageCapacity }}
   {{- end }}
   {{- if $pvcValues.selector }}
   selector: {{ $pvcValues.selector | toYaml| nindent 4 }}
@@ -86,7 +91,9 @@ spec:
   {{- if $pvcValues.volumeMode }}
   volumeMode: {{ $pvcValues.volumeMode }}
   {{- end }}
+  {{- if $pvcValues.volumeName }}
   volumeName: {{ $pvcValues.volumeName }}
+  {{- end }}
 {{- end }}
     
     

@@ -8,6 +8,16 @@ Deployment and Service combination
 ---
   {{- include "elCicdChart.service" . }}
 {{- end }}
+{{/*
+Deployment and Service combination
+*/}}
+{{- define "elCicdChart.deploymentServiceIngress" }}
+  {{- include "elCicdChart.deployment" . }}
+---
+  {{- include "elCicdChart.service" . }}
+---
+  {{- include "elCicdChart.ingress" . }}
+{{- end }}
 
 {{/*
 HorizontalPodAutoscaler Metrics
@@ -78,35 +88,79 @@ spec:
   {{- if $podValues.affinity }}
   affinity: {{ $podValues.affinity | toYaml | nindent 4 }}
   {{- end }}
-  {{- $_ := set $podValues "restartPolicy" ($podValues.restartPolicy | default "Always") }}
+  containers:
+    {{- $containers := prepend ($podValues.sidecars | default list) $podValues }}
+    {{- include "elCicdChart.containers" (list $ $containers) | trim | nindent 2 }}
+  {{- if $podValues.dnsConfig }}
+  dnsConfig: {{ $podValues.dnsConfig | toYaml | nindent 4 }}
+  {{- end }}
   {{- if $podValues.dnsPolicy }}
   dnsPolicy: {{ $podValues.dnsPolicy }}
-  {{- end }}
-  restartPolicy: {{ $podValues.restartPolicy }}
-  {{- if hasKey $podValues "imagePullSecrets" }}
-    {{- if $podValues.imagePullSecrets }}
-  imagePullSecrets:
-      {{- range $secretName := $podValues.imagePullSecrets }}
-  - name: {{ $secretName }}
-      {{- end }}
-    {{- end }}
-  {{- else if $.Values.imagePullSecrets }}
-  imagePullSecrets:
-    {{- range $secretName := $.Values.imagePullSecrets }}
-  - name: {{ $secretName }}
-    {{- end }}
   {{- end }}
   {{- if $podValues.ephemeralContainers }} 
   ephemeralContainers:
     {{- include "elCicdChart.containers" (list $ $podValues.ephemeralContainers false) | trim | nindent 2 }}
   {{- end }}
+  {{- if $podValues.hostIPC }}
+  hostIPC: {{ $podValues.hostIPC }}
+  {{- end }}
+  {{- if $podValues.hostNetwork }}
+  hostNetwork: {{ $podValues.hostNetwork }}
+  {{- end }}
+  {{- if $podValues.hostName }}
+  hostname: {{ $podValues.hostName }}
+  {{- end }}
+  {{- if $podValues.imagePullSecrets }}
+  imagePullSecrets:
+    {{- range $secretName := $podValues.imagePullSecrets }}
+  - name: {{ $secretName }}
+    {{- end }}
+  {{- else if $podValues.imagePullSecret }}
+  imagePullSecrets:
+  - name: {{ $podValues.imagePullSecret }}
+  {{- end }}
   {{- if $podValues.initContainers }} 
   initContainers:
     {{- include "elCicdChart.containers" (list $ $podValues.initContainers false) | trim | nindent 2 }}
   {{- end }}
-  containers:
-    {{- $containers := prepend ($podValues.sidecars | default list) $podValues }}
-    {{- include "elCicdChart.containers" (list $ $containers) | trim | nindent 2 }}
+  {{- if $podValues.os }}
+  os: {{ $podValues.os }}
+  {{- end }}
+  {{- if $podValues.preemptionPolicy }}
+  preemptionPolicy: {{ $podValues.preemptionPolicy }}
+  {{- end }}
+  {{- if $podValues.priority }}
+  priority: {{ $podValues.priority }}
+  {{- end }}
+  {{- if $podValues.priorityClassName }}
+  priorityClassName: {{ $podValues.priorityClassName }}
+  {{- end }}
+  {{- if $podValues.readinessGates }}
+  readinessGates: {{ $podValues.readinessGates | toYaml | nindent 2 }}
+  {{- end }}
+  {{- if $podValues.runtimeClassName }}
+  runtimeClassName: {{ $podValues.runtimeClassName }}
+  {{- end }}
+  {{- if $podValues.securityContext }}
+  securityContext: {{ $podValues.securityContext | toYaml | nindent 4 }}
+  {{- end }}
+  {{- if $podValues.serviceAccountName }}
+  serviceAccountName: {{ $podValues.serviceAccountName }}
+  {{- end }}
+  {{- if $podValues.setHostnameAsFQDN }}
+  setHostnameAsFQDN: {{ $podValues.setHostnameAsFQDN }}
+  {{- end }}
+  {{- if $podValues.shareProcessNamespace }}
+  shareProcessNamespace: {{ $podValues.shareProcessNamespace }}
+  {{- end }}
+  {{- if $podValues.subdomain }}
+  subdomain: {{ $podValues.subdomain }}
+  {{- end }}
+  {{- if $podValues.terminationGracePeriodSeconds }}
+  terminationGracePeriodSeconds: {{ $podValues.terminationGracePeriodSeconds }}
+  {{- end }}
+  {{- $_ := set $podValues "restartPolicy" ($podValues.restartPolicy | default "Always") }}
+  restartPolicy: {{ $podValues.restartPolicy }}
   {{- if $podValues.schedulerName }}
   schedulerName: {{ $podValues.schedulerName }}
   {{- end }}

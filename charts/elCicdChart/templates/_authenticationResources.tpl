@@ -1,5 +1,21 @@
 
 {{/*
+Role Binding
+*/}}
+{{- define "elCicdChart.roleBinding" }}
+{{- $ := index . 0 }}
+{{- $roleBindingValues := index . 1 }}
+{{- $_ := set $roleBindingValues "kind" "RoleBinding" }}
+{{- $_ := set $roleBindingValues "apiVersion" "rbac.authorization.k8s.io/v1" }}
+{{- include "elCicdChart.apiObjectHeader" . }}
+roleRef: {{ $roleBindingValues.roleRef | toYaml | nindent 2 }}
+{{- if $roleBindingValues.subjects }}
+subjects:
+{{ $roleBindingValues.subjects | toYaml }}
+{{- end }}
+{{- end }}
+
+{{/*
 Service Account
 */}}
 {{- define "elCicdChart.serviceAccount" }}
