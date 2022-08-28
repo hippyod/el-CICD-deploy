@@ -59,7 +59,10 @@ Service
 {{- include "elCicdChart.apiObjectHeader" . }}
 spec:
   selector:
-    {{- include "elCicdChart.selectorLabels" . | nindent 4 }}
+    {{- include "elCicdChart.selectorLabels" . | indent 4 }}
+    {{- range $key, $value := $svcValues.selector }}
+    {{ $key }}: {{ $value }}
+    {{- end }}
   ports:
   {{- if and (or ($svcValues.service).ports $svcValues.ports) $svcValues.port }}
     {{- fail "A Service cannot define both port and ports values!" }}

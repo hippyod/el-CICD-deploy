@@ -26,9 +26,15 @@ metadata:
   {{- end }}
   labels:
     {{- include "elCicdChart.labels" . | indent 4 }}
-    {{- if $metadataValues.labels}}{{- $metadataValues.labels | indent 4 }}{{- end }}
-    {{- if $.Values.labels}}{{- $.Values.labels | indent 4 }}{{- end }}
-    {{- if $.Values.defaultLabels}}{{- $.Values.defaultLabels | toYaml | indent 4 }}{{- end }}
+    {{- range $key, $value := $metadataValues.labels }}
+    {{ $key }}: "{{ $value }}"
+    {{- end }}
+    {{- range $key, $value := $.Values.labels }}
+    {{ $key }}: "{{ $value }}"
+    {{- end }}
+    {{- range $key, $value := $.Values.defaultLabels }}
+    {{ $key }}: "{{ $value }}"
+    {{- end }}
   name: {{ required "Unnamed apiObject Name!" $metadataValues.appName }}
   namespace: {{ $.Values.namespace | default $.Release.Namespace}}
 {{- end }}
@@ -38,12 +44,18 @@ el-CICD Selector
 */}}
 {{- define "elCicdChart.selector" }}
 {{- $ := index . 0 }}
-{{- $appName := index . 1 }}
+{{- $template := index . 1 }}
 matchExpressions:
 - key: app
   operator: Exists
+{{- if $template.matchExpressions }}
+  {{- $template.matchExpressions | toYaml }}
+{{- end }}
 matchLabels:
   {{- include "elCicdChart.selectorLabels" . | indent 2 }}
+{{- if $template.matchLabels }}
+  {{- $template.matchLabels | toYaml | indent 2 }}
+{{- end }}
 {{- end }}
 
 {{/*
