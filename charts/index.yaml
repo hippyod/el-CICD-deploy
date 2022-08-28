@@ -2,10 +2,10 @@ apiVersion: v1
 entries:
   elCicdChart:
   - apiVersion: v2
-    created: "2022-08-17T20:48:23.128516624Z"
+    created: "2022-08-28T00:04:27.461921744Z"
     description: A chart meant to be added as a dependency for rendering parameterized
       values.yml files with profiles.
-    digest: fc301d07d8d8c903d086696bf6680b684153197b900e7e1dbd92bb45c94cf8d5
+    digest: f30b43e92871e833a48f83bd90f90ac4e1b303c0eff9fed39de6dedf95a39036
     keywords:
     - parameterized
     - profiles
@@ -16,4 +16,4 @@ entries:
     urls:
     - elCicdChart-0.1.0.tgz
     version: 0.1.0
-generated: "2022-08-17T20:48:23.127767726Z"
+generated: "2022-08-28T00:04:27.460480483Z"
