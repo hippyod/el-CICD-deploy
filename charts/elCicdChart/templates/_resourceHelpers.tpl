@@ -110,8 +110,8 @@ spec:
   {{- if $podValues.hostName }}
   hostname: {{ $podValues.hostName }}
   {{- end }}
-  {{- $_ := set $podValues "imagePullSecrets" $podValues.imagePullSecrets | default $.Values.imagePullSecrets }}
-  {{- $_ := set $podValues "imagePullSecret" $podValues.imagePullSecret | default $.Values.imagePullSecret }}
+  {{- $_ := set $podValues "imagePullSecrets" ($podValues.imagePullSecrets | default $.Values.defaultImagePullSecrets) }}
+  {{- $_ := set $podValues "imagePullSecret" ($podValues.imagePullSecret | default $.Values.defaultImagePullSecret) }}
   {{- if $podValues.imagePullSecrets }}
   imagePullSecrets:
     {{- range $secretName := $podValues.imagePullSecrets }}
@@ -179,7 +179,7 @@ Container definition
 {{- $containers := index . 1 }}
 {{- range $containerVals := $containers }}
 - name: {{ $containerVals.appName }}
-  image: {{ $containerVals.image | default $.Values.appImage }}
+  image: {{ $containerVals.image | default $.Values.defaultImage }}
  {{- if $containerVals.activeDeadlineSeconds }}
   activeDeadlineSeconds: {{ $containerVals.activeDeadlineSeconds | toYaml | nindent 2 }}
   {{- end }}
