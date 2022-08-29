@@ -110,6 +110,8 @@ spec:
   {{- if $podValues.hostName }}
   hostname: {{ $podValues.hostName }}
   {{- end }}
+  {{- $_ := set $podValues "imagePullSecrets" $podValues.imagePullSecrets | default $.Values.imagePullSecrets }}
+  {{- $_ := set $podValues "imagePullSecret" $podValues.imagePullSecret | default $.Values.imagePullSecret }}
   {{- if $podValues.imagePullSecrets }}
   imagePullSecrets:
     {{- range $secretName := $podValues.imagePullSecrets }}
