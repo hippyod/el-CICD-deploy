@@ -11,6 +11,6 @@ keywords:
 
 sources: [https://github.com/elcicd/el-CICD-deploy/tree/main/charts]
 
-type: application
+type: library
 
 version: "0.1.0"

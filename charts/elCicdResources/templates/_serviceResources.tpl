@@ -24,13 +24,13 @@ spec:
   - host: {{ $ingressValues.host | default (printf "%s%s" $ingressValues.appName $.Values.ingressHostSuffix) }}
     http:
       paths:
-      - path: {{ $ingressValues.path | default $.Values.defaultIngressRulePath }}
-        pathType: {{ $ingressValues.pathType | default $.Values.defaultIngressRulePathType }}
+      - path: {{ $ingressValues.path | default $.Values.global.defaultIngressRulePath }}
+        pathType: {{ $ingressValues.pathType | default $.Values.global.defaultIngressRulePathType }}
         backend:
           service:
             name: {{ $ingressValues.appName }}
             port:
-              number: {{ $ingressValues.port | default $.Values.defaultPort }}
+              number: {{ $ingressValues.port | default $.Values.global.defaultPort }}
   {{- end }}
   {{- if $ingressValues.tls }}
   tls: {{ $ingressValues.tls | toYaml | nindent 4 }}
