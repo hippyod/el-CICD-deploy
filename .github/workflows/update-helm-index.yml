@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  package-charts:
     runs-on: ubuntu-latest
     steps:
       - name: Helm Installation
