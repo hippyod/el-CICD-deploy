@@ -2,12 +2,12 @@
 {{/*
 Role Binding
 */}}
-{{- define "elCicdChart.roleBinding" }}
+{{- define "elCicdResources.roleBinding" }}
 {{- $ := index . 0 }}
 {{- $roleBindingValues := index . 1 }}
 {{- $_ := set $roleBindingValues "kind" "RoleBinding" }}
 {{- $_ := set $roleBindingValues "apiVersion" "rbac.authorization.k8s.io/v1" }}
-{{- include "elCicdChart.apiObjectHeader" . }}
+{{- include "elCicdResources.apiObjectHeader" . }}
 roleRef: {{ $roleBindingValues.roleRef | toYaml | nindent 2 }}
 {{- if $roleBindingValues.subjects }}
 subjects:
@@ -18,12 +18,12 @@ subjects:
 {{/*
 Service Account
 */}}
-{{- define "elCicdChart.serviceAccount" }}
+{{- define "elCicdResources.serviceAccount" }}
 {{- $ := index . 0 }}
 {{- $svcAcctValues := index . 1 }}
 {{- $_ := set $svcAcctValues "kind" "ServiceAccount" }}
 {{- $_ := set $svcAcctValues "apiVersion" "v1" }}
-{{- include "elCicdChart.apiObjectHeader" . }}
+{{- include "elCicdResources.apiObjectHeader" . }}
 {{- if $svcAcctValues.automountServiceAccountToken }}
 automountServiceAccountToken: {{ $svcAcctValues.automountServiceAccountToken  }}
 {{- end }}

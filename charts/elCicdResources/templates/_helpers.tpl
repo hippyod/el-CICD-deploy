@@ -1,15 +1,15 @@
 {{/*
 General Metadata Template
 */}}
-{{- define "elCicdChart.apiObjectHeader" }}
+{{- define "elCicdResources.apiObjectHeader" }}
 {{- $ := index . 0 }}
 {{- $template := index . 1 }}
 apiVersion: {{ $template.apiVersion }}
 kind: {{ $template.kind }}
-{{- include "elCicdChart.apiMetadata" . }}
+{{- include "elCicdResources.apiMetadata" . }}
 {{- end }}
 
-{{- define "elCicdChart.apiMetadata" }}
+{{- define "elCicdResources.apiMetadata" }}
 {{- $ := index . 0 }}
 {{- $metadataValues := index . 1 }}
 metadata:
@@ -25,7 +25,7 @@ metadata:
     {{- end }}
   {{- end }}
   labels:
-    {{- include "elCicdChart.labels" . | indent 4 }}
+    {{- include "elCicdResources.labels" . | indent 4 }}
     {{- range $key, $value := $metadataValues.labels }}
     {{ $key }}: "{{ $value }}"
     {{- end }}
@@ -42,7 +42,7 @@ metadata:
 {{/*
 el-CICD Selector
 */}}
-{{- define "elCicdChart.selector" }}
+{{- define "elCicdResources.selector" }}
 {{- $ := index . 0 }}
 {{- $template := index . 1 }}
 matchExpressions:
@@ -52,7 +52,7 @@ matchExpressions:
   {{- $template.matchExpressions | toYaml }}
 {{- end }}
 matchLabels:
-  {{- include "elCicdChart.selectorLabels" . | indent 2 }}
+  {{- include "elCicdResources.selectorLabels" . | indent 2 }}
 {{- if $template.matchLabels }}
   {{- $template.matchLabels | toYaml | indent 2 }}
 {{- end }}
@@ -61,25 +61,25 @@ matchLabels:
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "elCicdChart.name" -}}
+{{- define "elCicdResources.name" -}}
 {{- default $.Chart.Name $.Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "elCicdChart.chart" -}}
+{{- define "elCicdResources.chart" -}}
 {{- printf "%s-%s" $.Chart.Name $.Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "elCicdChart.labels" -}}
+{{- define "elCicdResources.labels" -}}
 {{- $ := index . 0 }}
 {{- $template := index . 1 }}
-{{- include "elCicdChart.selectorLabels" . }}
-helm.sh/chart: {{ include "elCicdChart.chart" $ }}
+{{- include "elCicdResources.selectorLabels" . }}
+helm.sh/chart: {{ include "elCicdResources.chart" $ }}
 {{- if $.Chart.AppVersion }}
 app.kubernetes.io/version: {{ $.Chart.AppVersion | quote }}
 {{- end }}
@@ -89,7 +89,7 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "elCicdChart.selectorLabels" -}}
+{{- define "elCicdResources.selectorLabels" -}}
 {{- $ := index . 0 }}
 {{- $template := index . 1 }}
 app: {{ $template.appName }}
@@ -98,7 +98,7 @@ app: {{ $template.appName }}
 {{/*
 Scale3 Annotations
 */}}
-{{- define "elCicdChart.scale3Annotations" -}}
+{{- define "elCicdResources.scale3Annotations" -}}
 discovery.3scale.net/path: {{ .threeScale.path }}
 discovery.3scale.net/port: {{ .threeScale.port }}
 discovery.3scale.net/scheme: {{ .threeScale.scheme }}
@@ -107,6 +107,6 @@ discovery.3scale.net/scheme: {{ .threeScale.scheme }}
 {{/*
 Scale3 Labels
 */}}
-{{- define "elCicdChart.scale3Labels" -}}
+{{- define "elCicdResources.scale3Labels" -}}
 discovery.3scale.net: {{ .threeScale.scheme }}
 {{- end }}

@@ -2,7 +2,8 @@ apiVersion: v2
 name: elCicdResources
 description: |-
   A library chart with the a complete set of Kubernetes resources that might be needed for application deployments.
-  Built to be used in conjuction with the elCicdChart.
+  Built to be used in conjuction with the elCicdChart for rendering as a general Helm-based deployment solution
+  across multiple environments.
 keywords:
 - generic
 - parameterized

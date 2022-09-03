@@ -1,7 +1,7 @@
 {{/*
 Ingress
 */}}
-{{- define "elCicdChart.ingress" }}
+{{- define "elCicdResources.ingress" }}
 {{- $ := index . 0 }}
 {{- $ingressValues := index . 1 }}
 {{- $_ := set $ingressValues "kind" "Ingress" }}
@@ -9,7 +9,7 @@ Ingress
 {{- $_ := set $ingressValues "annotations" ($ingressValues.annotations | default dict) }}
 {{- $_ := set $ingressValues "allowHttp" ($ingressValues.allowHttp | default "false") }}
 {{- $_ := set $ingressValues.annotations "kubernetes.io/ingress.allow-http" $ingressValues.allowHttp }}
-{{- include "elCicdChart.apiObjectHeader" . }}
+{{- include "elCicdResources.apiObjectHeader" . }}
 spec:
   {{- if $ingressValues.defaultBackend }}
   defaultBackend: {{ $ingressValues.defaultBackend | toYaml | nindent 4 }}
@@ -43,23 +43,23 @@ spec:
 {{/*
 Service
 */}}
-{{- define "elCicdChart.service" }}
+{{- define "elCicdResources.service" }}
 {{- $ := index . 0 }}
 {{- $svcValues := index . 1 }}
 {{- if or ($svcValues.prometheus).port $.Values.usePrometheus }}
-  {{- include "elCicdChart.svcPrometheusAnnotations" . }}
+  {{- include "elCicdResources.svcPrometheusAnnotations" . }}
 {{- end }}
 {{- if or $svcValues.threeScalePort $.Values.use3Scale }}
-  {{- include "elCicdChart.3ScaleAnnotations" . }}
+  {{- include "elCicdResources.3ScaleAnnotations" . }}
   {{- $_ := set $svcValues "labels" ($svcValues.labels  | default dict) }}
   {{- $_ := set $svcValues.labels "discovery.3scale.net" true }}
 {{- end }}
 {{- $_ := set $svcValues "kind" "Service" }}
 {{- $_ := set $svcValues "apiVersion" "v1" }}
-{{- include "elCicdChart.apiObjectHeader" . }}
+{{- include "elCicdResources.apiObjectHeader" . }}
 spec:
   selector:
-    {{- include "elCicdChart.selectorLabels" . | indent 4 }}
+    {{- include "elCicdResources.selectorLabels" . | indent 4 }}
     {{- range $key, $value := $svcValues.selector }}
     {{ $key }}: {{ $value }}
     {{- end }}

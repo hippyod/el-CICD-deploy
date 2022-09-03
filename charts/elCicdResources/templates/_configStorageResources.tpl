@@ -1,12 +1,12 @@
 {{/*
 ConfigMap
 */}}
-{{- define "elCicdChart.configMap" }}
+{{- define "elCicdResources.configMap" }}
 {{- $ := index . 0 }}
 {{- $cmValues := index . 1 }}
 {{- $_ := set $cmValues "kind" "ConfigMap" }}
 {{- $_ := set $cmValues "apiVersion" "v1" }}
-{{- include "elCicdChart.apiObjectHeader" . }}
+{{- include "elCicdResources.apiObjectHeader" . }}
 {{- if $cmValues.binaryData }}
 binaryData: {{ $cmValues.binaryData | toYaml | nindent 2}}
 {{- end }}
@@ -21,7 +21,7 @@ immutable: {{ $cmValues.immutable }}
 {{/*
 PersistentVolume
 */}}
-{{- define "elCicdChart.PersistentVolume" }}
+{{- define "elCicdResources.PersistentVolume" }}
 {{- $ := index . 0 }}
 {{- $pvValues := index . 1 }}
 kind: PersistentVolume
@@ -56,12 +56,12 @@ spec:
 {{/*
 PersistentVolumeClaim
 */}}
-{{- define "elCicdChart.persistentVolumeClaim" }}
+{{- define "elCicdResources.persistentVolumeClaim" }}
 {{- $ := index . 0 }}
 {{- $pvcValues := index . 1 }}
 {{- $_ := set $pvcValues "kind" "PersistentVolumeClaim" }}
 {{- $_ := set $pvcValues "apiVersion" "v1" }}
-{{- include "elCicdChart.apiObjectHeader" . }}
+{{- include "elCicdResources.apiObjectHeader" . }}
 spec:
   accessModes:
   {{- if $pvcValues.accessModes }}

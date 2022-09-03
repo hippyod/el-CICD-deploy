@@ -1,26 +1,26 @@
 {{/*
 Deployment and Service combination
 */}}
-{{- define "elCicdChart.deploymentService" }}
-  {{- include "elCicdChart.deployment" . }}
+{{- define "elCicdResources.deploymentService" }}
+  {{- include "elCicdResources.deployment" . }}
 ---
-  {{- include "elCicdChart.service" . }}
+  {{- include "elCicdResources.service" . }}
 {{- end }}
 {{/*
 Deployment and Service combination
 */}}
-{{- define "elCicdChart.deploymentServiceIngress" }}
-  {{- include "elCicdChart.deployment" . }}
+{{- define "elCicdResources.deploymentServiceIngress" }}
+  {{- include "elCicdResources.deployment" . }}
 ---
-  {{- include "elCicdChart.service" . }}
+  {{- include "elCicdResources.service" . }}
 ---
-  {{- include "elCicdChart.ingress" . }}
+  {{- include "elCicdResources.ingress" . }}
 {{- end }}
 
 {{/*
 HorizontalPodAutoscaler Metrics
 */}}
-{{- define "elCicdChart.hpaMetrics" }}
+{{- define "elCicdResources.hpaMetrics" }}
 {{- $ := index . 0 }}
 {{- $metrics := index . 1 }}
 metrics:
@@ -42,10 +42,10 @@ metrics:
 {{/*
 Job Template
 */}}
-{{- define "elCicdChart.jobTemplate" }}
+{{- define "elCicdResources.jobTemplate" }}
 {{- $ := index . 0 }}
 {{- $jobValues := index . 1 }}
-{{- include "elCicdChart.apiMetadata" . }}
+{{- include "elCicdResources.apiMetadata" . }}
 spec:
   {{- if $jobValues.activeDeadlineSeconds }}
   activeDeadlineSeconds: {{ $jobValues.activeDeadlineSeconds }}
@@ -66,7 +66,7 @@ spec:
   parallelism: {{ $jobValues.parallelism }}
   {{- end }}
   {{- $_ := set $jobValues "restartPolicy" ($jobValues.restartPolicy | default "Never") }}
-  template: {{ include "elCicdChart.podTemplate" (list $ $jobValues false) | indent 4 }}
+  template: {{ include "elCicdResources.podTemplate" (list $ $jobValues false) | indent 4 }}
   {{- if $jobValues.ttlSecondsAfterFinished }}
   ttlSecondsAfterFinished: {{ $jobValues.ttlSecondsAfterFinished }}
   {{- end }}
@@ -75,10 +75,10 @@ spec:
 {{/*
 Pod Template
 */}}
-{{- define "elCicdChart.podTemplate" }}
+{{- define "elCicdResources.podTemplate" }}
 {{- $ := index . 0 }}
 {{- $podValues := index . 1 }}
-{{- include "elCicdChart.apiMetadata" . }}
+{{- include "elCicdResources.apiMetadata" . }}
 spec:
   {{- if $podValues.activeDeadlineSeconds }}
   activeDeadlineSeconds: {{ $podValues.activeDeadlineSeconds }}
@@ -88,7 +88,7 @@ spec:
   {{- end }}
   containers:
     {{- $containers := prepend ($podValues.sidecars | default list) $podValues }}
-    {{- include "elCicdChart.containers" (list $ $containers) | trim | nindent 2 }}
+    {{- include "elCicdResources.containers" (list $ $containers) | trim | nindent 2 }}
   {{- if $podValues.dnsConfig }}
   dnsConfig: {{ $podValues.dnsConfig | toYaml | nindent 4 }}
   {{- end }}
@@ -97,7 +97,7 @@ spec:
   {{- end }}
   {{- if $podValues.ephemeralContainers }} 
   ephemeralContainers:
-    {{- include "elCicdChart.containers" (list $ $podValues.ephemeralContainers false) | trim | nindent 2 }}
+    {{- include "elCicdResources.containers" (list $ $podValues.ephemeralContainers false) | trim | nindent 2 }}
   {{- end }}
   {{- if $podValues.hostIPC }}
   hostIPC: {{ $podValues.hostIPC }}
@@ -121,7 +121,7 @@ spec:
   {{- end }}
   {{- if $podValues.initContainers }} 
   initContainers:
-    {{- include "elCicdChart.containers" (list $ $podValues.initContainers false) | trim | nindent 2 }}
+    {{- include "elCicdResources.containers" (list $ $podValues.initContainers false) | trim | nindent 2 }}
   {{- end }}
   {{- if $podValues.os }}
   os: {{ $podValues.os }}
@@ -172,7 +172,7 @@ spec:
 {{/*
 Container definition
 */}}
-{{- define "elCicdChart.containers" }}
+{{- define "elCicdResources.containers" }}
 {{- $ := index . 0 }}
 {{- $containers := index . 1 }}
 {{- range $containerVals := $containers }}
@@ -268,7 +268,7 @@ Container definition
 {{/*
 Service Prometheus Annotations definition
 */}}
-{{- define "elCicdChart.svcPrometheusAnnotations" }}
+{{- define "elCicdResources.svcPrometheusAnnotations" }}
   {{- $ := index . 0 }}
   {{- $svcValues := index . 1 }}
   {{- $_ := set $svcValues "annotations" ($svcValues.annotations | default dict) }}
@@ -293,7 +293,7 @@ Service Prometheus Annotations definition
 {{/*
 Service Prometheus 3Scale definition
 */}}
-{{- define "elCicdChart.3ScaleAnnotations" }}
+{{- define "elCicdResources.3ScaleAnnotations" }}
   {{- $ := index . 0 }}
   {{- $svcValues := index . 1 }}
   {{- $_ := set $svcValues "annotations" ($svcValues.annotations | default dict) }}
