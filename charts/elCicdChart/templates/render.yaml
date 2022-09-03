@@ -44,8 +44,10 @@
   {{- end }}
   
   {{- if and $anyProfile $mustHaveProfiles (not $ignoreExactlyProfiles) (not $ignoreAnyProfiles) }}
-    {{- $chartName := $template.chartName | default "elCicdChart" }}
-    {{- $templateName := printf "%s.%s" $chartName $template.templateName }}
+    {{- $templateName := $template.templateName }}
+    {{- if not (contains "." $templateName) }}
+      {{- $templateName := printf "elCicdResources.%s" $template.templateName }}
+    {{- end }}
 ---
     {{- include $templateName (list $ $template) }}
 # Rendered -> {{ $template.templateName }} {{ $template.appName }}

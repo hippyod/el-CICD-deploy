@@ -1,5 +1,3 @@
-{{- $_ := set . "UNDEFINED" "undefined" -}}
-
 {{/*
 Deployment and Service combination
 */}}

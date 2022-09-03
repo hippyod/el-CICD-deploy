@@ -28,7 +28,3 @@ defaultPrometheusScrape: "false"
 defaultPrometheusProtocol: "TCP"
 
 default3ScaleScheme: "https"
-
-PARAM_REGEX: "[\\$][\\{]([\\w]+?)[\\}]"
-
-UNDEFINED: undefined

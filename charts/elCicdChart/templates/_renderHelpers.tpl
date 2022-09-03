@@ -1,3 +1,5 @@
+{{- $_ := set . "PARAM_REGEX" "[\\$][\\{]([\\w]+?)[\\}]" }}
+
 {{- define "elCicdChart.mergeProfileParameters" }}
   {{- $ := index . 0 }}
   {{- $profileParamMaps := index . 1 }}
