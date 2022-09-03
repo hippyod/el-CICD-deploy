@@ -1,4 +1,4 @@
-{{- $_ := set . "PARAM_REGEX" "[\\$][\\{]([\\w]+?)[\\}]" }}
+{{- $_ := set $.Values "PARAM_REGEX" "[\\$][\\{]([\\w]+?)[\\}]" }}
 
 {{- define "elCicdChart.mergeProfileParameters" }}
   {{- $ := index . 0 }}
