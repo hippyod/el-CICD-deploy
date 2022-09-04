@@ -177,7 +177,7 @@ Container definition
 {{- $containers := index . 1 }}
 {{- range $containerVals := $containers }}
 - name: {{ $containerVals.appName }}
-  image: {{ $containerVals.image | default $.Values.defaultImage }}
+  image: {{ $containerVals.image | default $.Values.global.defaultImage }}
  {{- if $containerVals.activeDeadlineSeconds }}
   activeDeadlineSeconds: {{ $containerVals.activeDeadlineSeconds | toYaml | nindent 2 }}
   {{- end }}
