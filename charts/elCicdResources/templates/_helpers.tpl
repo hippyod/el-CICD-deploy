@@ -13,15 +13,15 @@ kind: {{ $template.kind }}
 {{- $ := index . 0 }}
 {{- $metadataValues := index . 1 }}
 metadata:
-  {{- if or $metadataValues.annotations $.Values.defaultAnnotations }}
+  {{- if or $metadataValues.annotations $.Values.global.defaultAnnotations }}
   annotations:
     {{- if $metadataValues.annotations }}
       {{- range $key, $value := $metadataValues.annotations }}
     {{ $key }}: "{{ $value }}"
       {{- end }}
     {{- end }}
-    {{- if $.Values.defaultAnnotations}}
-      {{- $.Values.defaultAnnotations | toYaml | nindent 4 }}
+    {{- if $.Values.global.defaultAnnotations}}
+      {{- $.Values.global.defaultAnnotations | toYaml | nindent 4 }}
     {{- end }}
   {{- end }}
   labels:
@@ -32,7 +32,7 @@ metadata:
     {{- range $key, $value := $.Values.labels }}
     {{ $key }}: "{{ $value }}"
     {{- end }}
-    {{- range $key, $value := $.Values.defaultLabels }}
+    {{- range $key, $value := $.Values.global.defaultLabels }}
     {{ $key }}: "{{ $value }}"
     {{- end }}
   name: {{ required "Unnamed apiObject Name!" $metadataValues.appName }}

@@ -40,15 +40,15 @@ spec:
   {{- if $deployValues.progressDeadlineSeconds }}
   progressDeadlineSeconds: {{ $deployValues.progressDeadlineSeconds }}
   {{- end }}
-  replicas: {{ $deployValues.replicas | default $.Values.defaultReplicas }}
-  revisionHistoryLimit: {{ $deployValues.revisionHistoryLimit | default $.Values.defaultDeploymentRevisionHistoryLimit }}
+  replicas: {{ $deployValues.replicas | default $.Values.global.defaultReplicas }}
+  revisionHistoryLimit: {{ $deployValues.revisionHistoryLimit | default $.Values.global.defaultDeploymentRevisionHistoryLimit }}
   selector: {{ include "elCicdResources.selector" . | indent 4 }}
   {{- if $deployValues.strategyType }}
   strategy:
     {{- if (eq $deployValues.strategyType "RollingUpdate") }}
     rollingUpdate:
-      maxSurge: {{ $deployValues.rollingUpdateMaxSurge | default $.Values.defaultRollingUpdateMaxSurge }}
-      maxUnavailable: {{ $deployValues.rollingUpdateMaxUnavailable | default $.Values.defaultRollingUpdateMaxUnavailable }}
+      maxSurge: {{ $deployValues.rollingUpdateMaxSurge | default $.Values.global.defaultRollingUpdateMaxSurge }}
+      maxUnavailable: {{ $deployValues.rollingUpdateMaxUnavailable | default $.Values.global.defaultRollingUpdateMaxUnavailable }}
     {{- end }}
     type: {{ $deployValues.strategyType }}
   {{- end }}
@@ -74,7 +74,7 @@ spec:
     scaleUp: {{- $hpaValues.scaleDownUp | toYaml | nindent 6 }}
   {{- end }}
   {{- end }}
-  maxReplicas: {{ required "Missing maxReplicas!" ($hpaValues.maxReplicas | default $.Values.defaultHpaMaxReplicas) }}
+  maxReplicas: {{ required "Missing maxReplicas!" ($hpaValues.maxReplicas | default $.Values.global.defaultHpaMaxReplicas) }}
   {{- if $hpaValues.minReplicas }}
   minReplicas: {{ $hpaValues.minReplicas }}
   {{- end }}
@@ -142,7 +142,7 @@ spec:
   {{- if $stsValues.podManagementPolicy }}
   podManagementPolicy: {{ $stsValues.podManagementPolicy }}
   {{- end }}
-  replicas: {{ $stsValues.replicas | default $.Values.defaultReplicas }}
+  replicas: {{ $stsValues.replicas | default $.Values.global.defaultReplicas }}
   {{- if $stsValues.revisionHistoryLimit }}
   revisionHistoryLimit: {{ $stsValues.revisionHistoryLimit }}
   {{- end }}

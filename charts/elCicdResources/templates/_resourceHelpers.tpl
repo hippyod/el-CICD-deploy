@@ -108,8 +108,8 @@ spec:
   {{- if $podValues.hostName }}
   hostname: {{ $podValues.hostName }}
   {{- end }}
-  {{- $_ := set $podValues "imagePullSecrets" ($podValues.imagePullSecrets | default $.Values.defaultImagePullSecrets) }}
-  {{- $_ := set $podValues "imagePullSecret" ($podValues.imagePullSecret | default $.Values.defaultImagePullSecret) }}
+  {{- $_ := set $podValues "imagePullSecrets" ($podValues.imagePullSecrets | default $.Values.global.defaultImagePullSecrets) }}
+  {{- $_ := set $podValues "imagePullSecret" ($podValues.imagePullSecret | default $.Values.global.defaultImagePullSecret) }}
   {{- if $podValues.imagePullSecrets }}
   imagePullSecrets:
     {{- range $secretName := $podValues.imagePullSecrets }}
@@ -177,7 +177,7 @@ Container definition
 {{- $containers := index . 1 }}
 {{- range $containerVals := $containers }}
 - name: {{ $containerVals.appName }}
-  image: {{ $containerVals.image | default $.Values.defaultImage }}
+  image: {{ $containerVals.image | default $.Values.global.defaultImage }}
  {{- if $containerVals.activeDeadlineSeconds }}
   activeDeadlineSeconds: {{ $containerVals.activeDeadlineSeconds | toYaml | nindent 2 }}
   {{- end }}
@@ -187,7 +187,7 @@ Container definition
   {{- if $containerVals.command }}
   command: {{ $containerVals.command | toYaml | nindent 2 }}
   {{- end }}
-  imagePullPolicy: {{ $containerVals.imagePullPolicy | default $.Values.defaultImagePullPolicy }}
+  imagePullPolicy: {{ $containerVals.imagePullPolicy | default $.Values.global.defaultImagePullPolicy }}
   {{- if $containerVals.env }}
   env: {{ $containerVals.env | toYaml | nindent 2 }}
   {{- end }}
@@ -200,22 +200,22 @@ Container definition
   {{- if $containerVals.livenessProbe }}
   livenessProbe: {{ $containerVals.livenessProbe | toYaml | nindent 4 }}
   {{- end }}
-  {{- if or $containerVals.ports $containerVals.port $.Values.defaultPort $containerVals.usePrometheus }}
+  {{- if or $containerVals.ports $containerVals.port $.Values.global.defaultPort $containerVals.usePrometheus }}
   ports:
     {{- if and $containerVals.ports $containerVals.port }}
       {{- fail "A Container cannot define both port and ports values!" }}
     {{- end }}
     {{- if $containerVals.ports }}
       {{- $containerVals.ports | toYaml | nindent 2 }}
-    {{- else if or $containerVals.port $.Values.defaultPort }}
+    {{- else if or $containerVals.port $.Values.global.defaultPort }}
   - name: default-port
-    containerPort: {{ $containerVals.port | default $.Values.defaultPort }}
-    protocol: {{ $containerVals.protocol | default $.Values.defaultProtocol }}
+    containerPort: {{ $containerVals.port | default $.Values.global.defaultPort }}
+    protocol: {{ $containerVals.protocol | default $.Values.global.defaultProtocol }}
     {{- end }}
-    {{- if or ($containerVals.prometheus).port $.Values.defaultPrometheusPort }}
+    {{- if or ($containerVals.prometheus).port $.Values.global.defaultPrometheusPort }}
   - name: prometheus-port
-    containerPort: {{ ($containerVals.prometheus).port | default $.Values.defaultPrometheusPort }}
-    protocol: {{ ($containerVals.prometheus).protocol | default ($.Values.defaultPrometheusProtocol | default $.Values.defaultProtocol) }}
+    containerPort: {{ ($containerVals.prometheus).port | default $.Values.global.defaultPrometheusPort }}
+    protocol: {{ ($containerVals.prometheus).protocol | default ($.Values.global.defaultPrometheusProtocol | default $.Values.global.defaultProtocol) }}
     {{- end }}
   {{- end }}
   {{- if $containerVals.readinessProbe }}
@@ -226,11 +226,11 @@ Container definition
   {{- else }}
   resources:
     limits:
-      cpu: {{ $containerVals.limitsCpu | default $.Values.defaultLimitsCpu }}
-      memory: {{ $containerVals.limitsMemory | default $.Values.defaultLimitsMemory }}
+      cpu: {{ $containerVals.limitsCpu | default $.Values.global.defaultLimitsCpu }}
+      memory: {{ $containerVals.limitsMemory | default $.Values.global.defaultLimitsMemory }}
     requests:
-      cpu: {{ $containerVals.requestsCpu | default $.Values.defaultRequestsCpu }}
-      memory: {{ $containerVals.requestsMemory | default $.Values.defaultRequestsMemory }}
+      cpu: {{ $containerVals.requestsCpu | default $.Values.global.defaultRequestsCpu }}
+      memory: {{ $containerVals.requestsMemory | default $.Values.global.defaultRequestsMemory }}
   {{- end }}
   {{- if $containerVals.startupProbe }}
   startupProbe: {{ $containerVals.startupProbe | toYaml | nindent 4 }}
@@ -273,20 +273,20 @@ Service Prometheus Annotations definition
   {{- $svcValues := index . 1 }}
   {{- $_ := set $svcValues "annotations" ($svcValues.annotations | default dict) }}
 
-  {{- if or ($svcValues.prometheus).path $.Values.defaultPrometheusPath }}
-    {{- $_ := set $svcValues.annotations "prometheus.io/path" ($svcValues.prometheus.path | default $.Values.defaultPrometheusPath) }}
+  {{- if or ($svcValues.prometheus).path $.Values.global.defaultPrometheusPath }}
+    {{- $_ := set $svcValues.annotations "prometheus.io/path" ($svcValues.prometheus.path | default $.Values.global.defaultPrometheusPath) }}
   {{- end }}
 
-  {{- if or ($svcValues.prometheus).port $.Values.defaultPrometheusPort }}
+  {{- if or ($svcValues.prometheus).port $.Values.global.defaultPrometheusPort }}
     {{- $_ := set $svcValues.annotations "prometheus.io/port" ($svcValues.prometheus.port | default $svcValues.port) }}
   {{- end }}
 
-  {{- if or ($svcValues.prometheus).scheme $.Values.defaultPrometheusScheme }}
-    {{- $_ := set $svcValues.annotations "prometheus.io/scheme" ($svcValues.prometheus.scheme | default $.Values.defaultPrometheusScheme) }}
+  {{- if or ($svcValues.prometheus).scheme $.Values.global.defaultPrometheusScheme }}
+    {{- $_ := set $svcValues.annotations "prometheus.io/scheme" ($svcValues.prometheus.scheme | default $.Values.global.defaultPrometheusScheme) }}
   {{- end }}
 
-  {{- if or ($svcValues.prometheus).scrape $.Values.defaultPrometheusScrape }}
-    {{- $_ := set $svcValues.annotations "prometheus.io/scrape" ($svcValues.prometheus.scrape | default $.Values.defaultPrometheusScrape) }}
+  {{- if or ($svcValues.prometheus).scrape $.Values.global.defaultPrometheusScrape }}
+    {{- $_ := set $svcValues.annotations "prometheus.io/scrape" ($svcValues.prometheus.scrape | default $.Values.global.defaultPrometheusScrape) }}
   {{- end }}
 {{- end }}
 
@@ -297,7 +297,7 @@ Service Prometheus 3Scale definition
   {{- $ := index . 0 }}
   {{- $svcValues := index . 1 }}
   {{- $_ := set $svcValues "annotations" ($svcValues.annotations | default dict) }}
-  {{- $_ := set $svcValues.annotations "discovery.3scale.net/path" ($svcValues.threeScale.port | default $svcValues.port | default $.Values.defaultPort) }}
-  {{- $_ := set $svcValues.annotations "discovery.3scale.net/port" ($svcValues.threeScale.path | default $.Values.default3ScalePath) }}
-  {{- $_ := set $svcValues.annotations "discovery.3scale.net/scheme" ($svcValues.threeScale.scheme | default $.Values.default3ScaleScheme) }}
+  {{- $_ := set $svcValues.annotations "discovery.3scale.net/path" ($svcValues.threeScale.port | default $svcValues.port | default $.Values.global.defaultPort) }}
+  {{- $_ := set $svcValues.annotations "discovery.3scale.net/port" ($svcValues.threeScale.path | default $.Values.global.default3ScalePath) }}
+  {{- $_ := set $svcValues.annotations "discovery.3scale.net/scheme" ($svcValues.threeScale.scheme | default $.Values.global.default3ScaleScheme) }}
 {{- end }}

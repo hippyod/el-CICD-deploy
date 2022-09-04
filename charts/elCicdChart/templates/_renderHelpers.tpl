@@ -3,8 +3,6 @@
   {{- $profileParamMaps := index . 1 }}
   {{- $parameters := index . 2 }}
   
-  {{- $_ := set $.Values "PARAM_REGEX" "[\\$][\\{]([\\w]+?)[\\}]" }}
-  
   {{- $appName := $profileParamMaps.appName }}
   
   {{- if $appName }}

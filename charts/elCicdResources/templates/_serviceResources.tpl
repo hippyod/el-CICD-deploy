@@ -71,19 +71,19 @@ spec:
     {{- (($svcValues.service).ports | default $svcValues.ports) | toYaml | nindent 2 }}
   {{- else }}
   - name: {{ $svcValues.appName }}-port
-    port: {{ $svcValues.port | default $.Values.defaultPort }}
+    port: {{ $svcValues.port | default $.Values.global.defaultPort }}
     {{- if $svcValues.targetPort }}
     targetPort: {{ $svcValues.targetPort }}
     {{- end }}
-    {{- if or $svcValues.protocol $.Values.defaultProtocol }}
-    protocol: {{ $svcValues.protocol | default $.Values.defaultProtocol }}
+    {{- if or $svcValues.protocol $.Values.global.defaultProtocol }}
+    protocol: {{ $svcValues.protocol | default $.Values.global.defaultProtocol }}
     {{- end }}
   {{- end }}
   {{- if or ($svcValues.prometheus).port $svcValues.usePrometheus }}
   - name: prometheus-port
-    port: {{ ($svcValues.prometheus).port | default $.Values.defaultPrometheusPort }}
-    {{- if or ($svcValues.prometheus).protocol $.Values.defaultPrometheusProtocol }}
-    protocol: {{ ($svcValues.prometheus).protocol | default $.Values.defaultPrometheusProtocol }}
+    port: {{ ($svcValues.prometheus).port | default $.Values.global.defaultPrometheusPort }}
+    {{- if or ($svcValues.prometheus).protocol $.Values.global.defaultPrometheusProtocol }}
+    protocol: {{ ($svcValues.prometheus).protocol | default $.Values.global.defaultPrometheusProtocol }}
     {{- end }}
   {{- end }}
 {{- end }}

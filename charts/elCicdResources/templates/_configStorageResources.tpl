@@ -35,9 +35,9 @@ spec:
   {{- if $pvValues.accessModes }}
   {{- $pvValues.accessModes | toYaml | indent 2 }}
   {{- else }}
-  -  {{ $pvValues.accessMode | $.Values.defaultPvAccessMode }}
+  -  {{ $pvValues.accessMode | $.Values.global.defaultPvAccessMode }}
   {{- end }}
-  persistentVolumeReclaimPolicy: {{ $pvValues.volumeReclaimPolicy | default $.Values.defaultVolumeReclaimPolicy }}
+  persistentVolumeReclaimPolicy: {{ $pvValues.volumeReclaimPolicy | default $.Values.global.defaultVolumeReclaimPolicy }}
   nfsSpec: {{ $pvValues.pvSpec | toYaml | nindent 2 }}
   {{- if $pvValues.nodeAffinity }}
   nodeAffinity: {{ $pvValues.nodeAffinity | toYaml | nindent 4 }}
@@ -67,7 +67,7 @@ spec:
   {{- if $pvcValues.accessModes }}
     {{- $pvcValues.accessModes | toYaml | indent 2 }}
   {{- else }}
-  - {{ $pvcValues.accessMode | default $.Values.defaultPvAccessMode }}
+  - {{ $pvcValues.accessMode | default $.Values.global.defaultPvAccessMode }}
   {{- end }}
   {{- if $pvcValues.dataSource }}
   dataSourceRef: {{ $pvcValues.dataSource | toYaml| nindent 4 }}

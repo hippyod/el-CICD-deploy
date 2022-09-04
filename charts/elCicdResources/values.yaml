@@ -1,31 +1,33 @@
-defaultReplicas: "1"
+exports:
+  data:
+    global:
+      defaultReplicas: "1"
 
-defaultDeploymentRevisionHistoryLimit: 0
+      defaultDeploymentRevisionHistoryLimit: 0
 
-defaultImagePullPolicy: "Always"
+      defaultImagePullPolicy: "Always"
 
-defaultPort: "8080"
-global:
-  defaultProtocol: "TCP"
+      defaultPort: "8080"
+      defaultProtocol: "TCP"
 
-  defaultLimitsCpu: "200m"
-  defaultLimitsMemory: "500Mi"
+      defaultLimitsCpu: "200m"
+      defaultLimitsMemory: "500Mi"
 
-  defaultRequestsCpu: "100m"
-  defaultRequestsMemory: "50Mi"
+      defaultRequestsCpu: "100m"
+      defaultRequestsMemory: "50Mi"
 
-  defaultHpaMaxReplicas: 3
+      defaultHpaMaxReplicas: 3
 
-  defaultIngressRulePath: "/"
-  defaultIngressRulePathType: "Prefix"
+      defaultIngressRulePath: "/"
+      defaultIngressRulePathType: "Prefix"
 
-  defaultPvReclaimPolicy: "Reclaim"
-  defaultPvAccessMode: "ReadWriteOnce"
+      defaultPvReclaimPolicy: "Reclaim"
+      defaultPvAccessMode: "ReadWriteOnce"
 
-  defaultPrometheusPort: "9090"
-  defaultPrometheusPath: "/metrics"
-  defaultPrometheusScheme: "https"
-  defaultPrometheusScrape: "false"
-  defaultPrometheusProtocol: "TCP"
+      defaultPrometheusPort: "9090"
+      defaultPrometheusPath: "/metrics"
+      defaultPrometheusScheme: "https"
+      defaultPrometheusScrape: "false"
+      defaultPrometheusProtocol: "TCP"
 
-  default3ScaleScheme: "https"
+      default3ScaleScheme: "https"
