@@ -1,1 +1,3 @@
 PARAM_REGEX: "[\\$][\\{]([\\w]+?)[\\}]"
+
+defaultRenderChart: elCicdResources

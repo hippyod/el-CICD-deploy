@@ -4,25 +4,15 @@
   {{- end }}
 {{- end }}
 
-{{- $allTemplates := list }}
-{{- range $template := $.Values.templates  }}
-  {{- if $template.appNames }}
-    {{- range $appName := $template.appNames }}
-      {{- $newTemplate := deepCopy $template }}
-      {{- $_ := set $newTemplate "appName" $appName }}
-      {{- $allTemplates = append $allTemplates $newTemplate }}
-    {{- end }}
-  {{- else }}
-    {{- $allTemplates = append $allTemplates $template }}
-  {{- end }}
-{{- end }}
+{{- $_ := set $.Values "elcicdDefs" ($.Values.elcicdDefs | default dict) }}
+{{- include "elCicdChart.mergeProfileDefs" (list $ $.Values $.Values.elcicdDefs) }}
 
-{{- $_ := set $.Values "parameters" ($.Values.parameters | default dict) }}
-{{- include "elCicdChart.mergeProfileParameters" (list $ $.Values $.Values.parameters) }}
-{{- include "elCicdChart.hydrateTemplates" (list $ $allTemplates $.Values.parameters) }}
+{{- include "elCicdChart.processAppnames" . }}
+
+{{- include "elCicdChart.processTemplates" (list $ $.Values.allTemplates $.Values.elcicdDefs) }}
 
 {{- $skippedList := list }}
-{{- range $template := $allTemplates  }}
+{{- range $template := $.Values.allTemplates  }}
   {{- $anyProfile := not $template.anyProfiles }}
   {{- range $profile := $template.anyProfiles }}
     {{- $anyProfile = or $anyProfile (has $profile $.Values.profiles) }}
