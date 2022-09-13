@@ -17,7 +17,7 @@ metadata:
   annotations:
     {{- if $metadataValues.annotations }}
       {{- range $key, $value := $metadataValues.annotations }}
-    {{ $key }}: "{{ $value }}"
+    {{ $key }}: {{ $value | quote }}
       {{- end }}
     {{- end }}
     {{- if $.Values.global.defaultAnnotations}}
