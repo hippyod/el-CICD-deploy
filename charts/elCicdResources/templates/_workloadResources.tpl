@@ -82,7 +82,7 @@ spec:
   metrics:
   {{- range $metric := $hpaValues.metrics }}
   - type: {{ $metric.type }}
-    {{ lower $metric.type }}:
+    {{ untitle $metric.type }}:
       {{- if $metric.name }}
       name: {{ $metric.name }}
       {{- end }}
