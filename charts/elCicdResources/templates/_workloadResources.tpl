@@ -87,7 +87,7 @@ spec:
       name: {{ $metric.name }}
       {{- end }}
       {{- if $metric.container }}
-      name: {{ $metric.container }}
+      container: {{ $metric.container }}
       {{- end }}
       {{- if $metric.metric }}
       metric: {{- $metric.metric | toYaml | nindent 8 }}
