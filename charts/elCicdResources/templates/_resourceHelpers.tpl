@@ -238,7 +238,6 @@ Container definition
       {{ $limit }}: {{ $value }}
         {{- end }}
       {{- end }}
-  {{- end }}
   {{- if $containerVals.startupProbe }}
   startupProbe: {{ $containerVals.startupProbe | toYaml | nindent 4 }}
   {{- end }}
