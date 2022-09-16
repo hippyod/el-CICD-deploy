@@ -221,34 +221,23 @@ Container definition
   {{- if $containerVals.readinessProbe }}
   readinessProbe: {{ $containerVals.readinessProbe | toYaml | nindent 4 }}
   {{- end }}
-  {{- if $containerVals.resources }}
-  resources: {{ $containerVals.resources | toYaml | nindent 4 }}
-    {{- if not $containerVals.resources.limits }}
-    limits:
-      {{- if not (($containerVals.resources).limits).cpu }}
-      cpu: {{ $.Values.global.defaultLimitsCpu }}
-      {{- end}}
-      {{- if not (($containerVals.resources).limits).memory }}
-      memory: {{ $.Values.global.defaultLimitsMemory }}
-      {{- end}}
-    {{- end}}
-    {{- if not $containerVals.resources.requests }}
-    requests:
-      {{- if not (($containerVals.resources).requests).cpu }}
-      cpu: {{ $.Values.global.defaultRequestsCpu }}
-      {{- end}}
-      {{- if not (($containerVals.resources).requests).memory }}
-      memory: {{ $.Values.global.defaultRequestsMemory }}
-      {{- end}}
-    {{- end}}
-  {{- else }}
   resources:
     limits:
-      cpu: {{ $containerVals.limitsCpu | default $.Values.global.defaultLimitsCpu }}
-      memory: {{ $containerVals.limitsMemory | default $.Values.global.defaultLimitsMemory }}
+      cpu: {{ $containerVals.limitsCpu | default (($containerVals.resources).limits).cpu | default $.Values.global.defaultLimitsCpu }}
+      memory: {{ $containerVals.limitsMemory | default (($containerVals.resources).limits).memory | default $.Values.global.defaultLimitsMemory }}
+      {{- range $limit, $value := ($containerVals.resources).limits }}
+        {{- if and (ne $limit "cpu") (ne $limit "memory") }}
+      {{ $limit }}: {{ $value }}
+        {{- end }}
+      {{- end }}
     requests:
-      cpu: {{ $containerVals.requestsCpu | default $.Values.global.defaultRequestsCpu }}
-      memory: {{ $containerVals.requestsMemory | default $.Values.global.defaultRequestsMemory }}
+      cpu: {{ $containerVals.requestsCpu | default (($containerVals.resources).requests).cpu | default $.Values.global.defaultRequestsCpu }}
+      memory: {{ $containerVals.requestsMemory | default (($containerVals.resources).requests).memory | default $.Values.global.defaultRequestsMemory }}
+      {{- range $limit, $value := ($containerVals.resources).requests }}
+        {{- if and (ne $limit "cpu") (ne $limit "memory") }}
+      {{ $limit }}: {{ $value }}
+        {{- end }}
+      {{- end }}
   {{- end }}
   {{- if $containerVals.startupProbe }}
   startupProbe: {{ $containerVals.startupProbe | toYaml | nindent 4 }}
