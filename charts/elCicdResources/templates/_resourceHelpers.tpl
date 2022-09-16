@@ -223,6 +223,24 @@ Container definition
   {{- end }}
   {{- if $containerVals.resources }}
   resources: {{ $containerVals.resources | toYaml | nindent 4 }}
+    {{- if not $containerVals.resources.limits }}
+    limits:
+      {{- if not (($containerVals.resources).limits).cpu }}
+      cpu: {{ $.Values.global.defaultLimitsCpu }}
+      {{- end}}
+      {{- if not (($containerVals.resources).limits).memory }}
+      memory: {{ $.Values.global.defaultLimitsMemory }}
+      {{- end}}
+    {{- end}}
+    {{- if not $containerVals.resources.requests }}
+    requests:
+      {{- if not (($containerVals.resources).requests).cpu }}
+      cpu: {{ $.Values.global.defaultRequestsCpu }}
+      {{- end}}
+      {{- if not (($containerVals.resources).requests).memory }}
+      memory: {{ $.Values.global.defaultRequestsMemory }}
+      {{- end}}
+    {{- end}}
   {{- else }}
   resources:
     limits:
