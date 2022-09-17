@@ -146,8 +146,10 @@ spec:
   {{- else }}
   securityContext:
     runAsNonRoot: true
+    {{- if not $.Values.useLegacyPodSecurityContextDefault }}
     seccompProfile:
       type: RuntimeDefault
+    {{- end }}
   {{- end }}
   {{- if $podValues.serviceAccountName }}
   serviceAccountName: {{ $podValues.serviceAccountName }}
