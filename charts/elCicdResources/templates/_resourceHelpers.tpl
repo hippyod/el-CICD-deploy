@@ -143,6 +143,11 @@ spec:
   {{- end }}
   {{- if $podValues.securityContext }}
   securityContext: {{ $podValues.securityContext | toYaml | nindent 4 }}
+  {{- else }}
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
   {{- end }}
   {{- if $podValues.serviceAccountName }}
   serviceAccountName: {{ $podValues.serviceAccountName }}
@@ -238,6 +243,15 @@ Container definition
       {{ $limit }}: {{ $value }}
         {{- end }}
       {{- end }}
+  {{- if $containerVals.securityContext }}
+  securityContext: {{ $containerVals.securityContext | toYaml | nindent 4 }}
+  {{- else }}
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+      - ALL
+  {{- end }}
   {{- if $containerVals.startupProbe }}
   startupProbe: {{ $containerVals.startupProbe | toYaml | nindent 4 }}
   {{- end }}
