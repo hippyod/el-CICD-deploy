@@ -19,6 +19,26 @@ immutable: {{ $cmValues.immutable }}
 {{- end }}
 
 {{/*
+Secret
+*/}}
+{{- define "elCicdResources.secret" }}
+{{- $ := index . 0 }}
+{{- $secretValues := index . 1 }}
+{{- $_ := set $secretValues "kind" "Secret" }}
+{{- $_ := set $secretValues "apiVersion" "v1" }}
+{{- include "elCicdResources.apiObjectHeader" . }}
+{{- if $secretValues.data }}
+data: {{ $secretValues.data | toYaml | nindent 2}}
+{{- end }}
+{{- if $secretValues.stringData }}
+stringData: {{ $secretValues.stringData | toYaml | nindent 2}}
+{{- end }}
+{{- if $secretValues.immutable }}
+immutable: {{ $secretValues.immutable }}
+{{- end }}
+{{- end }}
+
+{{/*
 PersistentVolume
 */}}
 {{- define "elCicdResources.PersistentVolume" }}
