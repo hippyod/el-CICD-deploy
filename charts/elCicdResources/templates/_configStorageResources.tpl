@@ -48,18 +48,14 @@ PersistentVolume
 {{- $_ := set $pvValues "apiVersion" "v1" }}
 {{- include "elCicdResources.apiObjectHeader" . }}
 spec:
-  capacity:
-    storage: {{ $pvValues.storageCapacity }}
   accessModes:
-  {{- if $pvValues.accessModes }}
-  {{- $pvValues.accessModes | toYaml | indent 2 }}
-  {{- else }}
-  -  {{ $pvValues.accessMode | $.Values.global.defaultPvAccessMode }}
+  {{- if $pvValues.accessMode }}
+  - {{ $pvValues.accessMode }}
   {{- end }}
-  persistentVolumeReclaimPolicy: {{ $pvValues.volumeReclaimPolicy | default $.Values.global.defaultVolumeReclaimPolicy }}
-  nfsSpec: {{ $pvValues.pvSpec | toYaml | nindent 2 }}
-  {{- if $pvValues.nodeAffinity }}
-  nodeAffinity: {{ $pvValues.nodeAffinity | toYaml | nindent 4 }}
+  capacity:
+    storage: {{ required "PV's must specify storageCapacity" $pvValues.storageCapacity }}
+  {{- if $pvValues.persistentVolumeReclaimPolicy }}
+  persistentVolumeReclaimPolicy: {{ $pvValues.persistentVolumeReclaimPolicy }}
   {{- end }}
   {{- if $pvValues.storageClassName }}
   storageClassName: {{ $pvValues.storageClassName }}
@@ -67,9 +63,11 @@ spec:
   {{- if $pvValues.volumeMode }}
   volumeMode: {{ $pvValues.volumeMode }}
   {{- end }}
-  claimRef:
-    name: {{ required "pv claimRef name required!" $pvValues.claimRefName }}
-    namespace: {{ required "pv claimRef namespace required!" $pvValues.claimRefNamespace }}
+  {{- range $pvKey, $values := pvValues }}
+    {{- if kindIs "map" $values }}
+  {{ $pvKey }}: {{ $values | toYaml | nindent 4 }}
+    {{- end }}
+  {{- end }}
 {{- end }}
 
 {{/*
@@ -86,7 +84,7 @@ spec:
   {{- if $pvcValues.accessModes }}
     {{- $pvcValues.accessModes | toYaml | indent 2 }}
   {{- else }}
-  - {{ $pvcValues.accessMode | default $.Values.global.defaultPvAccessMode }}
+  - {{ $pvcValues.accessMode }}
   {{- end }}
   {{- if $pvcValues.dataSource }}
   dataSourceRef: {{ $pvcValues.dataSource | toYaml| nindent 4 }}
