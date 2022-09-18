@@ -92,12 +92,12 @@ spec:
   {{- if $pvcValues.dataSourceRef }}
   dataSourceRef: {{ $pvcValues.dataSourceRef | toYaml| nindent 4 }}
   {{- end }}
+  resources: 
   {{- if $pvcValues.resources }}
-  resources: $pvcValues.resources | toYaml | nindent 2 }}
+    {{- $pvcValues.resources | toYaml | nindent 4 }}
   {{- else }}
-  resources:
     requests:
-      storage: {{ $pvcValues.storageCapacity }}
+      storage: {{ required "PVC's must set storage request" $pvcValues.storageRequest }}
   {{- end }}
   {{- if $pvcValues.selector }}
   selector: {{ $pvcValues.selector | toYaml| nindent 4 }}
