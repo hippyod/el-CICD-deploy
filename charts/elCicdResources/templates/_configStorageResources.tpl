@@ -63,7 +63,7 @@ spec:
   {{- if $pvValues.volumeMode }}
   volumeMode: {{ $pvValues.volumeMode }}
   {{- end }}
-  {{- range $pvKey, $values := pvValues }}
+  {{- range $pvKey, $values := $pvValues }}
     {{- if kindIs "map" $values }}
   {{ $pvKey }}: {{ $values | toYaml | nindent 4 }}
     {{- end }}
