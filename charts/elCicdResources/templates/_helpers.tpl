@@ -36,7 +36,9 @@ metadata:
     {{ $key }}: "{{ $value }}"
     {{- end }}
   name: {{ required "Unnamed apiObject Name!" $metadataValues.appName }}
-  namespace: {{ $metadataValues.namespace | default $.Release.Namespace }}
+  {{- if $metadataValues.namespace }}
+  namespace: {{ $metadataValues.namespace }}
+  {{- end }}
 {{- end }}
 
 {{/*
