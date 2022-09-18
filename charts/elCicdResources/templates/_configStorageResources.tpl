@@ -97,7 +97,7 @@ spec:
     {{- $pvcValues.resources | toYaml | nindent 4 }}
   {{- else }}
     requests:
-      storage: {{ required "PVC's must set storage request" $pvcValues.storageRequest }}
+      storage: {{ required "PVC's must set storageRequest or fully define resources" $pvcValues.storageRequest }}
   {{- end }}
   {{- if $pvcValues.selector }}
   selector: {{ $pvcValues.selector | toYaml| nindent 4 }}
