@@ -49,7 +49,9 @@ PersistentVolume
 {{- include "elCicdResources.apiObjectHeader" . }}
 spec:
   accessModes:
-  {{- if $pvValues.accessMode }}
+  {{- if $pvValues.accessModes }}
+  {{ $pvValues.accessModes | toYaml }}
+  {{- else }}
   - {{ $pvValues.accessMode }}
   {{- end }}
   capacity:
@@ -82,7 +84,7 @@ PersistentVolumeClaim
 spec:
   accessModes:
   {{- if $pvcValues.accessModes }}
-    {{- $pvcValues.accessModes | toYaml | indent 2 }}
+  {{ $pvcValues.accessModes | toYaml | indent 2 }}
   {{- else }}
   - {{ $pvcValues.accessMode }}
   {{- end }}
