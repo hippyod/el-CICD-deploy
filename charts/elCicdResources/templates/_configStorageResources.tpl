@@ -44,10 +44,9 @@ PersistentVolume
 {{- define "elCicdResources.persistentVolume" }}
 {{- $ := index . 0 }}
 {{- $pvValues := index . 1 }}
-kind: PersistentVolume
-apiVersion: v1
-metadata:
-  name: {{ required "pv name required!" $pvValues.name }}
+{{- $_ := set $pvcValues "kind" "PersistentVolume" }}
+{{- $_ := set $pvcValues "apiVersion" "v1" }}
+{{- include "elCicdResources.apiObjectHeader" . }}
 spec:
   capacity:
     storage: {{ $pvValues.storageCapacity }}
