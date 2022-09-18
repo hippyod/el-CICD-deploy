@@ -41,7 +41,7 @@ immutable: {{ $secretValues.immutable }}
 {{/*
 PersistentVolume
 */}}
-{{- define "elCicdResources.PersistentVolume" }}
+{{- define "elCicdResources.persistentVolume" }}
 {{- $ := index . 0 }}
 {{- $pvValues := index . 1 }}
 kind: PersistentVolume
