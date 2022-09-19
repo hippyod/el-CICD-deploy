@@ -6,7 +6,7 @@ on:
     paths:
       - 'charts/elCicdChart/'
       - 'charts/elCicdResources/'
-      - 'charts/elCicdImageRepository/'
+      - 'charts/elCicdImageRegistry/'
   
   workflow_dispatch:
 
@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Update Helm Index
         run: |
-          for CHART_DIR in 'charts/elCicdChart/' 'charts/elCicdResources/' 'charts/elCicdImageRepository/'
+          for CHART_DIR in 'charts/elCicdChart/' 'charts/elCicdResources/' 'charts/elCicdImageRegistry/'
           do
             helm package ./${CHART_DIR} -d ./charts
           done
