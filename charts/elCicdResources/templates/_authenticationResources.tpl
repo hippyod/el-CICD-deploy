@@ -14,7 +14,6 @@ Role Binding
   {{- end }}
 {{- end }}
 {{- end }}
-{{- end }}
 
 {{/*
 Service Account
