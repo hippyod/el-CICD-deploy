@@ -1,9 +1,0 @@
-dependencies:
-- name: elCicdChart
-  repository: https://raw.githubusercontent.com/elcicd/el-CICD-deploy/main/charts/
-  version: 0.1.0
-- name: elCicdResources
-  repository: https://raw.githubusercontent.com/elcicd/el-CICD-deploy/main/charts/
-  version: 0.1.0
-digest: sha256:9fb0b1e4e59f9b918cea54b5b00a83e1379a2eb0d81dff875e27a133f5e6085c
-generated: "2022-09-19T22:25:14.566540509Z"
