@@ -1,5 +1,5 @@
 apiVersion: v2
-name: Demo Image Registry
+name: elCicdImageRegistry
 description: A Helm chart for deploying one or more image registries into a namespace
 
 type: application
