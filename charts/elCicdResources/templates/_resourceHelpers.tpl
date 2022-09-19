@@ -26,12 +26,12 @@ Job Template
 {{- $jobValues := index . 1 }}
 {{- include "elCicdResources.apiMetadata" . }}
 spec:
-  {{- $whiteList := list "activeDeadlineSeconds"	
-                         "backoffLimit"	
-                         "completionMode"	
-                         "completions"	
-                         "manualSelector"	
-                         "parallelism"	
+  {{- $whiteList := list "activeDeadlineSeconds"
+                         "backoffLimit"
+                         "completionMode"
+                         "completions"
+                         "manualSelector"
+                         "parallelism"
                          "ttlSecondsAfterFinished" }}
   {{- include "elCicdResources.outputToYaml" (list $jobValues $whiteList) }}
   template: {{ include "elCicdResources.podTemplate" (list $ $jobValues false) | nindent 4 }}
@@ -45,41 +45,41 @@ Pod Template
 {{- $podValues := index . 1 }}
 {{- include "elCicdResources.apiMetadata" . }}
 spec:
-  {{- $whiteList := list  "activeDeadlineSeconds"	
-                          "affinity"	
-                          "automountServiceAccountToken"	
-                          "dnsConfig"	
-                          "dnsPolicy"	
-                          "enableServiceLinks"	
-                          "hostAliases"	
-                          "hostIPC"	
-                          "hostNetwork"	
-                          "hostPID"	
-                          "hostname"	
-                          "nodeName"	
-                          "nodeSelector"	
-                          "os"	
-                          "overhead"	
-                          "preemptionPolicy"	
-                          "priority"	
-                          "priorityClassName"	
-                          "readinessGates"	
-                          "restartPolicy"	
-                          "runtimeClassName"	
-                          "schedulerName"	
-                          "serviceAccount"	
-                          "serviceAccountName"	
-                          "setHostnameAsFQDN"	
-                          "shareProcessNamespace"	
-                          "subdomain"	
-                          "terminationGracePeriodSeconds"	
-                          "tolerations"	
+  {{- $whiteList := list  "activeDeadlineSeconds"
+                          "affinity"
+                          "automountServiceAccountToken"
+                          "dnsConfig"
+                          "dnsPolicy"
+                          "enableServiceLinks"
+                          "hostAliases"
+                          "hostIPC"
+                          "hostNetwork"
+                          "hostPID"
+                          "hostname"
+                          "nodeName"
+                          "nodeSelector"
+                          "os"
+                          "overhead"
+                          "preemptionPolicy"
+                          "priority"
+                          "priorityClassName"
+                          "readinessGates"
+                          "restartPolicy"
+                          "runtimeClassName"
+                          "schedulerName"
+                          "serviceAccount"
+                          "serviceAccountName"
+                          "setHostnameAsFQDN"
+                          "shareProcessNamespace"
+                          "subdomain"
+                          "terminationGracePeriodSeconds"
+                          "tolerations"
                           "topologySpreadConstraints" }}
   {{- include "elCicdResources.outputToYaml" (list $podValues $whiteList) }}
   containers:
     {{- $containers := prepend ($podValues.sidecars | default list) $podValues }}
     {{- include "elCicdResources.containers" (list $ $containers) | trim | nindent 2 }}
-  {{- if $podValues.ephemeralContainers }} 
+  {{- if $podValues.ephemeralContainers }}
   ephemeralContainers:
     {{- include "elCicdResources.containers" (list $ $podValues.ephemeralContainers false) | trim | nindent 2 }}
   {{- end }}
@@ -94,7 +94,7 @@ spec:
   imagePullSecrets:
   - name: {{ $podValues.imagePullSecret }}
   {{- end }}
-  {{- if $podValues.initContainers }} 
+  {{- if $podValues.initContainers }}
   initContainers:
     {{- include "elCicdResources.containers" (list $ $podValues.initContainers false) | trim | nindent 2 }}
   {{- end }}
@@ -118,23 +118,23 @@ Container definition
 {{- $containers := index . 1 }}
 {{- range $containerVals := $containers }}
 - {{- $whiteList := list "args"
-                         "command" 
-                         "env" 
-                         "envFrom" 
-                         "lifecycle" 
-                         "livenessProbe" 
-                         "name" 
-                         "readinessProbe" 
-                         "startupProbe" 
-                         "stdin" 
-                         "stdinOnce" 
-                         "terminationMessagePath" 
-                         "terminationMessagePolicy" 
-                         "tty" 
-                         "volumeDevices" 
-                         "volumeMounts" 
+                         "command"
+                         "env"
+                         "envFrom"
+                         "lifecycle"
+                         "livenessProbe"
+                         "readinessProbe"
+                         "startupProbe"
+                         "stdin"
+                         "stdinOnce"
+                         "terminationMessagePath"
+                         "terminationMessagePolicy"
+                         "tty"
+                         "volumeDevices"
+                         "volumeMounts"
                          "workingDir" }}
   {{- include "elCicdResources.outputToYaml" (list $containerVals $whiteList) }}
+  name: {{ $containerVals.name | default $containerVals.appName }}
   image: {{ $containerVals.image | default $.Values.global.defaultImage }}
   imagePullPolicy: {{ $containerVals.imagePullPolicy | default $.Values.global.defaultImagePullPolicy }}
   {{- if or $containerVals.ports $containerVals.port $.Values.global.defaultPort $containerVals.usePrometheus }}
