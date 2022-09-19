@@ -41,20 +41,6 @@ metadata:
   {{- end }}
 {{- end }}
 
-{{- define "elCicdResources.outputToYaml" }}
-  {{- $templateVals := index . 0 }}
-  {{- $whiteList := index . 1 }}
-  {{- range $key, $value := $templateVals }}
-    {{- if or (has $key $whiteList) (empty $whiteList)}}
-      {{- if or (kindIs "slice" $value) (kindIs "map" $value) }}
-  {{ $key }}: {{ $value | toYaml | nindent 4 }}
-      {{- else }}
-  {{ $key }}: {{ $value }}
-      {{- end }}
-    {{- end }}
-  {{- end }}
-{{- end }}
-
 {{/*
 el-CICD Selector
 */}}
@@ -125,4 +111,19 @@ Scale3 Labels
 */}}
 {{- define "elCicdResources.scale3Labels" -}}
 discovery.3scale.net: {{ .threeScale.scheme }}
+{{- end }}
+
+{{- define "elCicdResources.outputToYaml" }}
+  {{- $templateVals := index . 0 }}
+  {{- $whiteList := index . 1 }}
+  {{- range $key, $value := $templateVals }}
+    {{- if or (has $key $whiteList) (empty $whiteList)}}
+      {{- if or (kindIs "slice" $value) (kindIs "map" $value) }}
+  {{ $key }}:
+    {{- $value | toYaml | nindent 4 }}
+      {{- else }}
+  {{ $key }}: {{ $value }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
 {{- end }}

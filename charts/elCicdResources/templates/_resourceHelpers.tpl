@@ -74,7 +74,8 @@ spec:
                           "subdomain"
                           "terminationGracePeriodSeconds"
                           "tolerations"
-                          "topologySpreadConstraints" }}
+                          "topologySpreadConstraints"
+                          "volumes" }}
   {{- include "elCicdResources.outputToYaml" (list $podValues $whiteList) }}
   containers:
     {{- $containers := prepend ($podValues.sidecars | default list) $podValues }}
@@ -116,27 +117,27 @@ Container definition
 {{- define "elCicdResources.containers" }}
 {{- $ := index . 0 }}
 {{- $containers := index . 1 }}
+{{- $whiteList := list "args"
+                       "command"
+                       "env"
+                       "envFrom"
+                       "lifecycle"
+                       "livenessProbe"
+                       "readinessProbe"
+                       "startupProbe"
+                       "stdin"
+                       "stdinOnce"
+                       "terminationMessagePath"
+                       "terminationMessagePolicy"
+                       "tty"
+                       "volumeDevices"
+                       "volumeMounts"
+                       "workingDir" }}
 {{- range $containerVals := $containers }}
-- {{- $whiteList := list "args"
-                         "command"
-                         "env"
-                         "envFrom"
-                         "lifecycle"
-                         "livenessProbe"
-                         "readinessProbe"
-                         "startupProbe"
-                         "stdin"
-                         "stdinOnce"
-                         "terminationMessagePath"
-                         "terminationMessagePolicy"
-                         "tty"
-                         "volumeDevices"
-                         "volumeMounts"
-                         "workingDir" }}
-  {{- include "elCicdResources.outputToYaml" (list $containerVals $whiteList) }}
-  name: {{ $containerVals.name | default $containerVals.appName }}
+- name: {{ $containerVals.name | default $containerVals.appName }}
   image: {{ $containerVals.image | default $.Values.global.defaultImage }}
   imagePullPolicy: {{ $containerVals.imagePullPolicy | default $.Values.global.defaultImagePullPolicy }}
+  {{- include "elCicdResources.outputToYaml" (list $containerVals $whiteList) }}
   {{- if or $containerVals.ports $containerVals.port $.Values.global.defaultPort $containerVals.usePrometheus }}
   ports:
     {{- if and $containerVals.ports $containerVals.port }}
