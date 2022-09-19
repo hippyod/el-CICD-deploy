@@ -113,7 +113,7 @@ spec:
                          "revisionHistoryLimit" 
                          "updateStrategy" 
                          "volumeClaimTemplates" }}
-  {{- include "elCicdResources.outputToYaml" (list $deployValues $whiteList) }}
+  {{- include "elCicdResources.outputToYaml" (list $stsValues $whiteList) }}
   selector: {{ include "elCicdResources.selector" . | indent 4 }}
   template:
   {{- include "elCicdResources.selector" $stsValues.appName | indent 2 }}
