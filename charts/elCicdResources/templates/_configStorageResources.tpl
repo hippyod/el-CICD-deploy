@@ -48,6 +48,10 @@ PersistentVolume
 {{- $_ := set $pvValues "apiVersion" "v1" }}
 {{- include "elCicdResources.apiObjectHeader" . }}
 spec:
+  {{- $whiteList := list "persistentVolumeReclaimPolicy"	
+                         "storageClassName"	
+                         "volumeMode"	}}
+  {{- include "elCicdResources.outputToYaml" (list $pvValues $whiteList) }}
   accessModes:
   {{- if $pvValues.accessModes }}
   {{ $pvValues.accessModes | toYaml }}
@@ -56,15 +60,6 @@ spec:
   {{- end }}
   capacity:
     storage: {{ required "PV's must specify storageCapacity" $pvValues.storageCapacity }}
-  {{- if $pvValues.persistentVolumeReclaimPolicy }}
-  persistentVolumeReclaimPolicy: {{ $pvValues.persistentVolumeReclaimPolicy }}
-  {{- end }}
-  {{- if $pvValues.storageClassName }}
-  storageClassName: {{ $pvValues.storageClassName }}
-  {{- end }}
-  {{- if $pvValues.volumeMode }}
-  volumeMode: {{ $pvValues.volumeMode }}
-  {{- end }}
   {{- range $pvKey, $values := $pvValues }}
     {{- if kindIs "map" $values }}
   {{ $pvKey }}: {{ $values | toYaml | nindent 4 }}
@@ -82,17 +77,18 @@ PersistentVolumeClaim
 {{- $_ := set $pvcValues "apiVersion" "v1" }}
 {{- include "elCicdResources.apiObjectHeader" . }}
 spec:
+  {{- $whiteList := list "dataSource"	
+                         "dataSourceRef"	
+                         "selector"		
+                         "storageClassName"		
+                         "volumeMode"
+                         "volumeName"	}}
+  {{- include "elCicdResources.outputToYaml" (list $pvcValues $whiteList) }}
   accessModes:
   {{- if $pvcValues.accessModes }}
   {{ $pvcValues.accessModes | toYaml | indent 2 }}
   {{- else }}
   - {{ $pvcValues.accessMode }}
-  {{- end }}
-  {{- if $pvcValues.dataSource }}
-  dataSourceRef: {{ $pvcValues.dataSource | toYaml| nindent 4 }}
-  {{- end }}
-  {{- if $pvcValues.dataSourceRef }}
-  dataSourceRef: {{ $pvcValues.dataSourceRef | toYaml| nindent 4 }}
   {{- end }}
   resources: 
   {{- if $pvcValues.resources }}
@@ -100,18 +96,6 @@ spec:
   {{- else }}
     requests:
       storage: {{ required "PVC's must set storageRequest or fully define resources" $pvcValues.storageRequest }}
-  {{- end }}
-  {{- if $pvcValues.selector }}
-  selector: {{ $pvcValues.selector | toYaml| nindent 4 }}
-  {{- end }}
-  {{- if $pvcValues.storageClassName }}
-  storageClassName: {{ $pvcValues.storageClassName }}
-  {{- end }}
-  {{- if $pvcValues.volumeMode }}
-  volumeMode: {{ $pvcValues.volumeMode }}
-  {{- end }}
-  {{- if $pvcValues.volumeName }}
-  volumeName: {{ $pvcValues.volumeName }}
   {{- end }}
 {{- end }}
     

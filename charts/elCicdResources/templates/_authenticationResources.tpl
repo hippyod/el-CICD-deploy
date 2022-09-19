@@ -8,10 +8,11 @@ Role Binding
 {{- $_ := set $roleBindingValues "kind" "RoleBinding" }}
 {{- $_ := set $roleBindingValues "apiVersion" "rbac.authorization.k8s.io/v1" }}
 {{- include "elCicdResources.apiObjectHeader" . }}
-roleRef: {{ $roleBindingValues.roleRef | toYaml | nindent 2 }}
-{{- if $roleBindingValues.subjects }}
-subjects:
-{{ $roleBindingValues.subjects | toYaml }}
+{{- range $pvKey, $values := $pvValues }}
+  {{- if kindIs "map" $values }}
+{{ $pvKey }}: {{ $values | toYaml | nindent 2 }}
+  {{- end }}
+{{- end }}
 {{- end }}
 {{- end }}
 

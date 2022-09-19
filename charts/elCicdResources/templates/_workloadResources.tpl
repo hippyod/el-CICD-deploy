@@ -8,19 +8,14 @@ CronJob
 {{- $_ := set $cjValues "apiVersion" "batch/v1" }}
 {{- include "elCicdResources.apiObjectHeader" . }}
 spec:
-  {{- if $cjValues.concurrencyPolicy }}
-  concurrencyPolicy: {{ $cjValues.concurrencyPolicy }}
-  {{- end }}
-  {{- if $cjValues.failedJobsHistoryLimit }}
-  failedJobsHistoryLimit: {{ $cjValues.failedJobsHistoryLimit }}
-  {{- end }}
-  schedule: "{{ $cjValues.schedule }}"
-  {{- if $cjValues.startingDeadlineSeconds }}
-  startingDeadlineSeconds: {{ $cjValues.startingDeadlineSeconds }}
-  {{- end }}
-  {{- if $cjValues.successfulJobsHistoryLimit }}
-  successfulJobsHistoryLimit: {{ $cjValues.successfulJobsHistoryLimit }}
-  {{- end }}
+  {{- $whiteList := list "concurrencyPolicy"	
+                         "failedJobsHistoryLimit"	
+                         "schedule"	
+                         "startingDeadlineSeconds"	
+                         "successfulJobsHistoryLimit"	
+                         "parallelism"	
+                         "ttlSecondsAfterFinished" }}
+  {{- include "elCicdResources.outputToYaml" (list $cjValues $whiteList) }}
   jobTemplate: {{ include "elCicdResources.jobTemplate" . | indent 4 }}
 {{- end }}
 
@@ -34,13 +29,10 @@ Deployment
 {{- $_ := set $deployValues "apiVersion" "apps/v1" }}
 {{- include "elCicdResources.apiObjectHeader" . }}
 spec:
-  {{- if $deployValues.minReadySeconds }}
-  minReadySeconds: {{ $deployValues.minReadySeconds }}
-  {{- end }}
-  {{- if $deployValues.progressDeadlineSeconds }}
-  progressDeadlineSeconds: {{ $deployValues.progressDeadlineSeconds }}
-  {{- end }}
-  replicas: {{ $deployValues.replicas | default $.Values.global.defaultReplicas }}
+  {{- $whiteList := list "minReadySeconds"	
+                         "progressDeadlineSeconds"
+                         "replicas" }}
+  {{- include "elCicdResources.outputToYaml" (list $deployValues $whiteList) }}
   revisionHistoryLimit: {{ $deployValues.revisionHistoryLimit | default $.Values.global.defaultDeploymentRevisionHistoryLimit }}
   selector: {{ include "elCicdResources.selector" . | indent 4 }}
   {{- if $deployValues.strategyType }}
@@ -65,38 +57,21 @@ HorizontalPodAutoscaler
 {{- $_ := set $hpaValues "apiVersion" "autoscaling/v2" }}
 {{- include "elCicdResources.apiObjectHeader" . }}
 spec:
-  {{- if or $hpaValues.scaleDownBehavior $hpaValues.scaleDownUp }}
-  behavior:
-  {{- if or $hpaValues.scaleDownBehavior}}
-    scaleDown: {{- $hpaValues.scaleDownBehavior | toYaml | nindent 6 }}
-  {{- end }}
-  {{- if or $hpaValues.scaleDownUp }}
-    scaleUp: {{- $hpaValues.scaleDownUp | toYaml | nindent 6 }}
-  {{- end }}
-  {{- end }}
-  maxReplicas: {{ required "Missing maxReplicas!" ($hpaValues.maxReplicas | default $.Values.global.defaultHpaMaxReplicas) }}
-  {{- if $hpaValues.minReplicas }}
-  minReplicas: {{ $hpaValues.minReplicas }}
-  {{- end }}
+  {{- $whiteList := list "behavior"	
+                         "maxReplicas"	
+                         "minReplicas" }}
+  {{- include "elCicdResources.outputToYaml" (list $hpaValues $whiteList) }}
   {{- if $hpaValues.metrics }}
   metrics:
-  {{- range $metric := $hpaValues.metrics }}
+    {{- $whiteList := list "name"	
+                           "container"	
+                           "metric"
+                           "describedObject"
+                           "target" }}
+    {{- range $metric := $hpaValues.metrics }}
   - type: {{ title $metric.type }}
-    {{ $metric.type }}:
-      {{- if $metric.name }}
-      name: {{ $metric.name }}
-      {{- end }}
-      {{- if $metric.container }}
-      container: {{ $metric.container }}
-      {{- end }}
-      {{- if $metric.metric }}
-      metric: {{- $metric.metric | toYaml | nindent 8 }}
-      {{- end }}
-      {{- if $metric.describedObject }}
-      describedObject: {{- $metric.describedObject | toYaml | nindent 8 }}
-      {{- end }}
-      target: {{- $metric.target | toYaml | nindent 8 }}
-  {{- end }}
+    {{ $metric.type }}: {{ include "elCicdResources.outputToYaml" (list $metric $whiteList) | indent 6 }}
+    {{- end }}
   {{- end }}
   scaleTargetRef:
     apiVersion: {{ ($hpaValues.scaleTargetRef).apiVersion | default "apps/v1"  }}
@@ -131,28 +106,16 @@ Stateful Set
 {{- $_ := set $stsValues "apiVersion" "apps/v1" }}
 {{- include "elCicdResources.apiObjectHeader" . }}
 spec:
-  {{- if $stsValues.minReadySeconds }}
-  minReadySeconds: {{ $stsValues.minReadySeconds }}
-  {{- end }}
-  {{- if $stsValues.pvcRetentionPolicy }}
-  persistentVolumeClaimRetentionPolicy: {{- $stsValues.pvcRetentionPolicy | toYaml | nindent 4 }}
-  {{- end }}
-  {{- if $stsValues.podManagementPolicy }}
-  podManagementPolicy: {{ $stsValues.podManagementPolicy }}
-  {{- end }}
-  replicas: {{ $stsValues.replicas | default $.Values.global.defaultReplicas }}
-  {{- if $stsValues.revisionHistoryLimit }}
-  revisionHistoryLimit: {{ $stsValues.revisionHistoryLimit }}
-  {{- end }}
+  {{- $whiteList := list "minReadySeconds"	
+                         "persistentVolumeClaimRetentionPolicy" 
+                         "podManagementPolicy" 
+                         "replicas" 
+                         "revisionHistoryLimit" 
+                         "updateStrategy" 
+                         "volumeClaimTemplates" }}
+  {{- include "elCicdResources.outputToYaml" (list $deployValues $whiteList) }}
   selector: {{ include "elCicdResources.selector" . | indent 4 }}
-  serviceName: {{ $stsValues.appName }}
   template:
   {{- include "elCicdResources.selector" $stsValues.appName | indent 2 }}
   {{- include "elCicdResources.podTemplate" (list $ $stsValues) | indent 4 }}
-  {{- if $stsValues.updateStrategy }}
-  updateStrategy: {{- $stsValues.updateStrategy | toYaml | nindent 4 }}
-  {{- end }}
-  {{- if $stsValues.volumeClaimTemplates }}
-  volumeClaimTemplates: {{- $stsValues.volumeClaimTemplates | toYaml | nindent 4 }}
-  {{- end }}
 {{- end }}

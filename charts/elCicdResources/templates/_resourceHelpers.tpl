@@ -17,27 +17,6 @@ Deployment and Service combination
   {{- include "elCicdResources.ingress" . }}
 {{- end }}
 
-{{/*
-HorizontalPodAutoscaler Metrics
-*/}}
-{{- define "elCicdResources.hpaMetrics" }}
-{{- $ := index . 0 }}
-{{- $metrics := index . 1 }}
-metrics:
-{{- range $metric := $metrics }}
-- type: {{ $metric.type }}
-  {{- lower $metric.type | indent 2 }}:
-    metric:
-      name: {{ $metric.name }}
-      {{- if $metric.selector }}
-      selector: {{ $metric.selector | toYaml | nindent 6}}
-      {{- end }}
-    target: {{- $metric.target | toYaml | nindent 4 }}
-    {{- if $metric.describedObject }}
-    describedObject: {{- $metric.describedObject | toYaml | nindent 4 }}
-    {{- end }}
-{{- end }}
-{{- end }}
 
 {{/*
 Job Template
@@ -47,29 +26,15 @@ Job Template
 {{- $jobValues := index . 1 }}
 {{- include "elCicdResources.apiMetadata" . }}
 spec:
-  {{- if $jobValues.activeDeadlineSeconds }}
-  activeDeadlineSeconds: {{ $jobValues.activeDeadlineSeconds }}
-  {{- end }}
-  {{- if $jobValues.activeDeadlineSeconds }}
-  backoffLimit: {{ $jobValues.activeDeadlineSeconds }}
-  {{- end }}
-  {{- if $jobValues.completionMode }}
-  completionMode: {{ $jobValues.completionMode }}
-  {{- end }}
-  {{- if $jobValues.completions }}
-  completions: {{ $jobValues.completions }}
-  {{- end }}
-  {{- if $jobValues.manualSelector }}
-  manualSelector: {{ $jobValues.manualSelector }}
-  {{- end }}
-  {{- if $jobValues.parallelism }}
-  parallelism: {{ $jobValues.parallelism }}
-  {{- end }}
-  {{- $_ := set $jobValues "restartPolicy" ($jobValues.restartPolicy | default "Never") }}
-  template: {{ include "elCicdResources.podTemplate" (list $ $jobValues false) | indent 4 }}
-  {{- if $jobValues.ttlSecondsAfterFinished }}
-  ttlSecondsAfterFinished: {{ $jobValues.ttlSecondsAfterFinished }}
-  {{- end }}
+  {{- $whiteList := list "activeDeadlineSeconds"	
+                         "backoffLimit"	
+                         "completionMode"	
+                         "completions"	
+                         "manualSelector"	
+                         "parallelism"	
+                         "ttlSecondsAfterFinished" }}
+  {{- include "elCicdResources.outputToYaml" (list $jobValues $whiteList) }}
+  template: {{ include "elCicdResources.podTemplate" (list $ $jobValues false) | nindent 4 }}
 {{- end }}
 
 {{/*
@@ -80,33 +45,43 @@ Pod Template
 {{- $podValues := index . 1 }}
 {{- include "elCicdResources.apiMetadata" . }}
 spec:
-  {{- if $podValues.activeDeadlineSeconds }}
-  activeDeadlineSeconds: {{ $podValues.activeDeadlineSeconds }}
-  {{- end }}
-  {{- if $podValues.affinity }}
-  affinity: {{ $podValues.affinity | toYaml | nindent 4 }}
-  {{- end }}
+  {{- $whiteList := list  "activeDeadlineSeconds"	
+                          "affinity"	
+                          "automountServiceAccountToken"	
+                          "dnsConfig"	
+                          "dnsPolicy"	
+                          "enableServiceLinks"	
+                          "hostAliases"	
+                          "hostIPC"	
+                          "hostNetwork"	
+                          "hostPID"	
+                          "hostname"	
+                          "nodeName"	
+                          "nodeSelector"	
+                          "os"	
+                          "overhead"	
+                          "preemptionPolicy"	
+                          "priority"	
+                          "priorityClassName"	
+                          "readinessGates"	
+                          "restartPolicy"	
+                          "runtimeClassName"	
+                          "schedulerName"	
+                          "serviceAccount"	
+                          "serviceAccountName"	
+                          "setHostnameAsFQDN"	
+                          "shareProcessNamespace"	
+                          "subdomain"	
+                          "terminationGracePeriodSeconds"	
+                          "tolerations"	
+                          "topologySpreadConstraints" }}
+  {{- include "elCicdResources.outputToYaml" (list $podValues $whiteList) }}
   containers:
     {{- $containers := prepend ($podValues.sidecars | default list) $podValues }}
     {{- include "elCicdResources.containers" (list $ $containers) | trim | nindent 2 }}
-  {{- if $podValues.dnsConfig }}
-  dnsConfig: {{ $podValues.dnsConfig | toYaml | nindent 4 }}
-  {{- end }}
-  {{- if $podValues.dnsPolicy }}
-  dnsPolicy: {{ $podValues.dnsPolicy }}
-  {{- end }}
   {{- if $podValues.ephemeralContainers }} 
   ephemeralContainers:
     {{- include "elCicdResources.containers" (list $ $podValues.ephemeralContainers false) | trim | nindent 2 }}
-  {{- end }}
-  {{- if $podValues.hostIPC }}
-  hostIPC: {{ $podValues.hostIPC }}
-  {{- end }}
-  {{- if $podValues.hostNetwork }}
-  hostNetwork: {{ $podValues.hostNetwork }}
-  {{- end }}
-  {{- if $podValues.hostName }}
-  hostname: {{ $podValues.hostName }}
   {{- end }}
   {{- $_ := set $podValues "imagePullSecrets" ($podValues.imagePullSecrets | default $.Values.global.defaultImagePullSecrets) }}
   {{- $_ := set $podValues "imagePullSecret" ($podValues.imagePullSecret | default $.Values.global.defaultImagePullSecret) }}
@@ -123,24 +98,6 @@ spec:
   initContainers:
     {{- include "elCicdResources.containers" (list $ $podValues.initContainers false) | trim | nindent 2 }}
   {{- end }}
-  {{- if $podValues.os }}
-  os: {{ $podValues.os }}
-  {{- end }}
-  {{- if $podValues.preemptionPolicy }}
-  preemptionPolicy: {{ $podValues.preemptionPolicy }}
-  {{- end }}
-  {{- if $podValues.priority }}
-  priority: {{ $podValues.priority }}
-  {{- end }}
-  {{- if $podValues.priorityClassName }}
-  priorityClassName: {{ $podValues.priorityClassName }}
-  {{- end }}
-  {{- if $podValues.readinessGates }}
-  readinessGates: {{ $podValues.readinessGates | toYaml | nindent 2 }}
-  {{- end }}
-  {{- if $podValues.runtimeClassName }}
-  runtimeClassName: {{ $podValues.runtimeClassName }}
-  {{- end }}
   {{- if $podValues.securityContext }}
   securityContext: {{ $podValues.securityContext | toYaml | nindent 4 }}
   {{- else }}
@@ -151,29 +108,6 @@ spec:
       type: RuntimeDefault
     {{- end }}
   {{- end }}
-  {{- if $podValues.serviceAccountName }}
-  serviceAccountName: {{ $podValues.serviceAccountName }}
-  {{- end }}
-  {{- if $podValues.setHostnameAsFQDN }}
-  setHostnameAsFQDN: {{ $podValues.setHostnameAsFQDN }}
-  {{- end }}
-  {{- if $podValues.shareProcessNamespace }}
-  shareProcessNamespace: {{ $podValues.shareProcessNamespace }}
-  {{- end }}
-  {{- if $podValues.subdomain }}
-  subdomain: {{ $podValues.subdomain }}
-  {{- end }}
-  {{- if $podValues.terminationGracePeriodSeconds }}
-  terminationGracePeriodSeconds: {{ $podValues.terminationGracePeriodSeconds }}
-  {{- end }}
-  {{- $_ := set $podValues "restartPolicy" ($podValues.restartPolicy | default "Always") }}
-  restartPolicy: {{ $podValues.restartPolicy }}
-  {{- if $podValues.schedulerName }}
-  schedulerName: {{ $podValues.schedulerName }}
-  {{- end }}
-  {{- if $podValues.volumes }}
-  volumes: {{- $podValues.volumes | toYaml | nindent 2 }}
-  {{- end }}
 {{- end }}
 
 {{/*
@@ -183,30 +117,26 @@ Container definition
 {{- $ := index . 0 }}
 {{- $containers := index . 1 }}
 {{- range $containerVals := $containers }}
-- name: {{ $containerVals.appName }}
+- {{- $whiteList := list "args"
+                         "command" 
+                         "env" 
+                         "envFrom" 
+                         "lifecycle" 
+                         "livenessProbe" 
+                         "name" 
+                         "readinessProbe" 
+                         "startupProbe" 
+                         "stdin" 
+                         "stdinOnce" 
+                         "terminationMessagePath" 
+                         "terminationMessagePolicy" 
+                         "tty" 
+                         "volumeDevices" 
+                         "volumeMounts" 
+                         "workingDir" }}
+  {{- include "elCicdResources.outputToYaml" (list $containerVals $whiteList) }}
   image: {{ $containerVals.image | default $.Values.global.defaultImage }}
- {{- if $containerVals.activeDeadlineSeconds }}
-  activeDeadlineSeconds: {{ $containerVals.activeDeadlineSeconds | toYaml | nindent 2 }}
-  {{- end }}
-  {{- if $containerVals.args }}
-  args: {{ $containerVals.args | toYaml | nindent 2 }}
-  {{- end }}
-  {{- if $containerVals.command }}
-  command: {{ $containerVals.command | toYaml | nindent 2 }}
-  {{- end }}
   imagePullPolicy: {{ $containerVals.imagePullPolicy | default $.Values.global.defaultImagePullPolicy }}
-  {{- if $containerVals.env }}
-  env: {{ $containerVals.env | toYaml | nindent 2 }}
-  {{- end }}
-  {{- if $containerVals.envFrom }}
-  envFrom: {{ $containerVals.envFrom | toYaml | nindent 2 }}
-  {{- end }}
-  {{- if $containerVals.lifecycle }}
-  lifecycle: {{ $containerVals.lifecycle | toYaml | nindent 4 }}
-  {{- end }}
-  {{- if $containerVals.livenessProbe }}
-  livenessProbe: {{ $containerVals.livenessProbe | toYaml | nindent 4 }}
-  {{- end }}
   {{- if or $containerVals.ports $containerVals.port $.Values.global.defaultPort $containerVals.usePrometheus }}
   ports:
     {{- if and $containerVals.ports $containerVals.port }}
@@ -224,9 +154,6 @@ Container definition
     containerPort: {{ ($containerVals.prometheus).port | default $.Values.global.defaultPrometheusPort }}
     protocol: {{ ($containerVals.prometheus).protocol | default ($.Values.global.defaultPrometheusProtocol | default $.Values.global.defaultProtocol) }}
     {{- end }}
-  {{- end }}
-  {{- if $containerVals.readinessProbe }}
-  readinessProbe: {{ $containerVals.readinessProbe | toYaml | nindent 4 }}
   {{- end }}
   resources:
     limits:
@@ -253,36 +180,6 @@ Container definition
     capabilities:
       drop:
       - ALL
-  {{- end }}
-  {{- if $containerVals.startupProbe }}
-  startupProbe: {{ $containerVals.startupProbe | toYaml | nindent 4 }}
-  {{- end }}
-  {{- if $containerVals.stdin }}
-  stdin: {{ $containerVals.stdin }}
-  {{- end }}
-  {{- if $containerVals.stdinOnce }}
-  stdinOnce: {{ $containerVals.stdinOnce }}
-  {{- end }}
-  {{- if $containerVals.terminationMessagePath }}
-  terminationMessagePath: {{ $containerVals.terminationMessagePath }}
-  {{- end }}
-  {{- if $containerVals.terminationMessagePolicy }}
-  terminationMessagePolicy: {{ $containerVals.terminationMessagePolicy }}
-  {{- end }}
-  {{- if $containerVals.tty }}
-  tty: {{ $containerVals.tty }}
-  {{- end }}
-  {{- if $containerVals.volumeDevices }}
-  volumeDevices: {{ $containerVals.volumeDevices | toYaml | nindent 2 }}
-  {{- end }}
-  {{- if $containerVals.volumeMounts }}
-  volumeMounts: {{ $containerVals.volumeMounts | toYaml | nindent 2 }}
-  {{- end }}
-  {{- if or $containerVals.workingDir $containerVals.defaultWorkingDir }}
-  workingDir: {{ $containerVals.workingDir | default $containerVals.defaultWorkingDir }}
-  {{- end }}
-  {{- if $containerVals.supplemental }}
-    {{- $containerVals.supplemental | toYaml | nindent 2 }}
   {{- end }}
 {{- end }}
 {{- end }}

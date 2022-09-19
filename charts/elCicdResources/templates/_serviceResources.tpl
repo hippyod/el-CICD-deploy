@@ -11,12 +11,9 @@ Ingress
 {{- $_ := set $ingressValues.annotations "kubernetes.io/ingress.allow-http" $ingressValues.allowHttp }}
 {{- include "elCicdResources.apiObjectHeader" . }}
 spec:
-  {{- if $ingressValues.defaultBackend }}
-  defaultBackend: {{ $ingressValues.defaultBackend | toYaml | nindent 4 }}
-  {{- end }}
-  {{- if $ingressValues.ingressClassName }}
-  ingressClassName: {{ $ingressValues.ingressClassName }}
-  {{- end }}
+  {{- $whiteList := list "defaultBackend"	
+                         "ingressClassName"	}}
+  {{- include "elCicdResources.outputToYaml" (list $ingressValues $whiteList) }}
   {{- if $ingressValues.rules }}
   rules: {{ $ingressValues.rules | toYaml | nindent 4 }}
   {{- else }}

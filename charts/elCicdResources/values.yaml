@@ -1,8 +1,6 @@
 exports:
   data:
     global:
-      defaultReplicas: "1"
-
       defaultDeploymentRevisionHistoryLimit: 0
 
       defaultImagePullPolicy: "Always"
@@ -15,8 +13,6 @@ exports:
 
       defaultRequestsCpu: "100m"
       defaultRequestsMemory: "50Mi"
-
-      defaultHpaMaxReplicas: 3
 
       defaultIngressRulePath: "/"
       defaultIngressRulePathType: "Prefix"
