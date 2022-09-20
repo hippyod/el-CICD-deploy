@@ -14,7 +14,7 @@ spec:
                          "successfulJobsHistoryLimit"	
                          "parallelism"	
                          "ttlSecondsAfterFinished" }}
-  schedule: {{ $cjValues.schedule | quote }}
+  schedule: {{ $cjValues.schedule | toString }}
   {{- include "elCicdResources.outputToYaml" (list $cjValues $whiteList) }}
   jobTemplate: {{ include "elCicdResources.jobTemplate" . | indent 4 }}
 {{- end }}
