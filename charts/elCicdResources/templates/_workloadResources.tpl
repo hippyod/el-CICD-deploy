@@ -10,11 +10,11 @@ CronJob
 spec:
   {{- $whiteList := list "concurrencyPolicy"	
                          "failedJobsHistoryLimit"	
-                         "schedule"	
                          "startingDeadlineSeconds"	
                          "successfulJobsHistoryLimit"	
                          "parallelism"	
                          "ttlSecondsAfterFinished" }}
+  schedule: {{ $cjValues.schedule | quote }}
   {{- include "elCicdResources.outputToYaml" (list $cjValues $whiteList) }}
   jobTemplate: {{ include "elCicdResources.jobTemplate" . | indent 4 }}
 {{- end }}
@@ -69,7 +69,8 @@ spec:
                            "describedObject"
                            "target" }}
     {{- range $metric := $hpaValues.metrics }}
-  - type: {{ title $metric.type }}
+    {{ $metricType := $metric.type }}
+  - type: {{ title $metricType }}
     {{ $metric.type }}: {{ include "elCicdResources.outputToYaml" (list $metric $whiteList) | indent 6 }}
     {{- end }}
   {{- end }}
