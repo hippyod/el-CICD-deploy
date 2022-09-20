@@ -2,10 +2,10 @@ apiVersion: v1
 entries:
   elCicdChart:
   - apiVersion: v2
-    created: "2022-09-20T00:27:34.084696293Z"
+    created: "2022-09-20T00:40:35.654864473Z"
     description: A chart meant to be added as a dependency for rendering parameterized
       values.yml files with profiles.
-    digest: 72fcc87945a61769038d80a0411ed62f3cf3bf176ab97c3702f8628dffeb6569
+    digest: 7b2143b2578458e7f4a8a777965552cf163d36fad2b1a92cee843f7312236e04
     keywords:
     - parameterized
     - profiles
@@ -18,7 +18,7 @@ entries:
     version: 0.1.0
   elCicdImageRegistry:
   - apiVersion: v2
-    created: "2022-09-20T00:27:34.08815143Z"
+    created: "2022-09-20T00:40:35.656074093Z"
     dependencies:
     - name: elCicdChart
       repository: https://raw.githubusercontent.com/elcicd/el-CICD-deploy/main/charts/
@@ -29,7 +29,7 @@ entries:
       repository: https://raw.githubusercontent.com/elcicd/el-CICD-deploy/main/charts/
       version: 0.1.0
     description: A Helm chart for deploying one or more image registries into a namespace
-    digest: e4aae3597c5df4821f987dcf59ad51e7725b296d612aefa05f6806d735c83ffc
+    digest: d69db4fbd27cd5eae5da67dc068fbb85af55ed6c084efc543a678ed22399a136
     name: elCicdImageRegistry
     type: application
     urls:
@@ -37,12 +37,12 @@ entries:
     version: 0.1.0
   elCicdResources:
   - apiVersion: v2
-    created: "2022-09-20T00:27:34.088743737Z"
+    created: "2022-09-20T00:40:35.656535Z"
     description: A library chart with the a complete set of Kubernetes resources that
       might be needed for application deployments. Built to be used in conjuction
       with the elCicdChart for rendering as a general Helm-based deployment solution
       across multiple environments.
-    digest: d9b012c9a48e83a56aab298e0a0891290b9d8fc5862d5095e0212177a1298241
+    digest: dbb52d6eab0cbe12d3d7abc0c36af5757796d96f82aba3b3b2eada66145b6ee1
     keywords:
     - generic
     - parameterized
@@ -54,4 +54,4 @@ entries:
     urls:
     - elCicdResources-0.1.0.tgz
     version: 0.1.0
-generated: "2022-09-20T00:27:34.083856783Z"
+generated: "2022-09-20T00:40:35.654434266Z"
