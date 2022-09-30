@@ -4,12 +4,12 @@
   {{- end }}
 {{- end }}
 
-{{- $_ := set $.Values "elcicdDefs" ($.Values.elcicdDefs | default dict) }}
-{{- include "elCicdChart.mergeProfileDefs" (list $ $.Values $.Values.elcicdDefs) }}
+{{- $_ := set $.Values "elCicdDefs" ($.Values.elCicdDefs | default dict) }}
+{{- include "elCicdChart.mergeProfileDefs" (list $ $.Values $.Values.elCicdDefs) }}
 
 {{- include "elCicdChart.processAppnames" . }}
 
-{{- include "elCicdChart.processTemplates" (list $ $.Values.allTemplates $.Values.elcicdDefs) }}
+{{- include "elCicdChart.processTemplates" (list $ $.Values.allTemplates $.Values.elCicdDefs) }}
 
 {{- $skippedList := list }}
 {{- range $template := $.Values.allTemplates  }}

@@ -1,5 +1,5 @@
 elCicdChart:
-  elcicdDefs:
+  elCicdDefs:
     PORT: "5000"
     REGISTRY_HTTP_ADDR: "0.0.0.0"
     LIMITS_CPU: 500m
@@ -8,11 +8,11 @@ elCicdChart:
       name: REGISTRY_HTTP_ADDR
       value: ${REGISTRY_HTTP_ADDR}:${PORT}
       
-  elcicdDefs-pre124:
+  elCicdDefs-pre124:
     securityContext:
       runAsNonRoot: true
 
-  elcicdDefs-htpasswd:
+  elCicdDefs-htpasswd:
     ENV:
     - name: REGISTRY_AUTH
       value: htpasswd
@@ -30,7 +30,7 @@ elCicdChart:
       secret:
         secretName: ${APP_NAME}
         
-  elcicdDefs-nfs:
+  elCicdDefs-nfs:
     VOLUME_MNT_NFS:
       name: ${DEMO_IMAGE_REGISTRY}
       mountPath: /var/lib/registry
