@@ -70,9 +70,9 @@ spec:
                            "describedObject"
                            "target" }}
     {{- range $metric := $hpaValues.metrics }}
-    {{ $metricType := $metric.type }}
+    {{- $metricType := $metric.type }}
   - type: {{ title $metricType }}
-    {{ $metric.type }}: {{ include "elCicdResources.outputToYaml" (list $metric $whiteList) | indent 6 }}
+    {{ $metricType }}: {{ include "elCicdResources.outputToYaml" (list $metric $whiteList) | indent 4 }}
     {{- end }}
   {{- end }}
   scaleTargetRef:
