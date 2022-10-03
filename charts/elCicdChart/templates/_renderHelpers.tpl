@@ -33,8 +33,15 @@
   {{- range $template := $.Values.templates  }}
     {{- if $template.appNames }}
       {{- include "elCicdChart.processTemplateAppnames" (list $ $template) }}
-      {{- range $appName := $template.appNames }}
+      {{- range $index, $appName := $template.appNames }}
         {{- $newTemplate := deepCopy $template }}
+        {{- $_ := set $template "appName" ($template.appName | default "") }}
+        {{- if or (contains "${}" $template.appName) (contains "${INDEX}" $template.appName) }}
+          {{- $_ := set $template "elCicdDefs" ($template.elCicdDefs | default dict) }}
+          {{- $_ := set $template.elCicdDefs "BASE_APP_NAME" $appName }}
+          {{- $appName = replace "${}" $appName $template.appName }}
+          {{- $appName = replace "${INDEX}" (add $index 1 | toString) $appName }}
+        {{- end }}
         {{- $_ := set $newTemplate "appName" $appName }}
         {{- $allTemplates = append $allTemplates $newTemplate }}
       {{- end }}
@@ -74,10 +81,10 @@
   {{- $elCicdDefs := index . 2 }}
 
   {{- range $template := $templates }}
-    {{- $_ := set $template "appName" ($template.appName | default $.Values.appName) }}
-    {{- $_ := required "elCicdChart must define template.appName or $.Values.appName!" $template.appName }}
     {{- $templateDefs := deepCopy $elCicdDefs }}
-    {{- $_ := set $templateDefs "APP_NAME" ($templateDefs.APP_NAME | default $template.appName) }}
+    {{- $_ := set $template "appName" ($template.appName | default $templateDefs.APP_NAME) }}
+    {{- $_ := required "elCicdChart must define template.appName or elCicdDefs.APP_NAME!" $template.appName }}
+    {{- $_ := set $templateDefs "APP_NAME" $template.appName }}
 
     {{- include "elCicdChart.mergeMapInto" (list $ $template.elCicdDefs $templateDefs) }}
     {{- include "elCicdChart.mergeProfileDefs" (list $ $template $templateDefs) }}
@@ -101,11 +108,11 @@
       {{- else if (kindIs "slice" $value) }}
         {{- include "elCicdChart.processSlice" (list $ $map $key $elCicdDefs) }}
       {{- else if (kindIs "string" $value) }}
-          {{- include "elCicdChart.processMapValue" (list $ $map $key $elCicdDefs list) }}
+          {{- include "elCicdChart.processMapValue" (list $ $map $key $elCicdDefs list 0) }}
       {{- end  }}
 
       {{- if (get $map $key) }}
-        {{- include "elCicdChart.processMapKey" (list $ $map $key $elCicdDefs list) }}
+        {{- include "elCicdChart.processMapKey" (list $ $map $key $elCicdDefs list 0) }}
       {{- else }}
         {{- $_ := unset $map $key }}
       {{- end }}
@@ -119,12 +126,17 @@
   {{- $key := index . 2 }}
   {{- $elCicdDefs := index . 3 }}
   {{- $processDefList := index . 4}}
-
+  {{- $depth := index . 5 }}
+  
   {{- $value := get $map $key }}
-  {{- $matches := regexFindAll $.Values.PARAM_REGEX $value -1 }}
+  {{- if gt $depth 4 }}
+    {{- fail (printf "ERROR: Potential circular reference?\nelCicdDefs Found [%s]: %s\n%s: %s " $elCicdDefs.APP_NAME $processDefList $key $value) }}
+  {{- end }}
+  {{- $depth := add $depth 1 }}
+
+  {{- $matches := regexFindAll $.Values.PARAM_REGEX $value -1 | uniq }}
   {{- range $elCicdRef := $matches }}
     {{- $elCicdDef := regexReplaceAll $.Values.PARAM_REGEX $elCicdRef "${1}" }}
-    {{- include "elCicdChart.circularReferenceCheck" (list $value $key $elCicdRef $elCicdDef $processDefList) }}
     {{- $processDefList = append $processDefList $elCicdDef }}
 
     {{- $paramVal := get $elCicdDefs $elCicdDef }}
@@ -136,8 +148,8 @@
       {{- else if (kindIs "slice" $paramVal) }}
         {{- if (kindIs "map" (first $paramVal)) }}
           {{- $newList := list }}
-          {{- range $el := $paramVal }}
-            {{- $newList = append $newList (deepCopy $el) }}
+          {{- range $element := $paramVal }}
+            {{- $newList = append $newList (deepCopy $element) }}
           {{- end }}
           {{- $paramVal = $newList }}
         {{- end }}
@@ -155,7 +167,7 @@
       {{- else if (kindIs "slice" $value) }}
         {{- include "elCicdChart.processSlice" (list $ $map $key $elCicdDefs) }}
       {{- else if (kindIs "string" $value) }}
-        {{- include "elCicdChart.processMapValue" (list $ $map $key $elCicdDefs $processDefList) }}
+        {{- include "elCicdChart.processMapValue" (list $ $map $key $elCicdDefs $processDefList $depth) }}
       {{- end }}
     {{- end }}
   {{- end }}

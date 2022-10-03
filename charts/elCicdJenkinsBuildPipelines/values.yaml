@@ -1,0 +1,138 @@
+elCicdChart:
+    
+  templates:
+  - templateName: configMap
+    appNames: ${BUILD_TO_DEV_PIPELINES}
+    appName: ${}-build-to-dev
+    labels:
+      projectid: ${PROJECT_ID}
+      microservice: ${BASE_APP_NAME}
+      jenkins-pipeline: 'true'
+    elCicdDefs:
+      WEB_TRIGGER_AUTH_TOKEN: ${PROJECT_ID}-${BASE_APP_NAME}-git-repo-private-key
+    data:
+      projectid: ${PROJECT_ID}
+      configXml: |-
+        <flow-definition plugin="workflow-job">
+            <displayName>${APP_NAME}</displayName>
+            <keepDependencies>false</keepDependencies>
+            <properties>
+                <org.jenkinsci.plugins.workflow.job.properties.DisableConcurrentBuildsJobProperty />
+                <hudson.model.ParametersDefinitionProperty>
+                    <parameterDefinitions>
+                        <hudson.model.StringParameterDefinition>
+                            <name>GIT_BRANCH</name>
+                            <description>Git branch to build</description>
+                            <defaultValue>${GIT_BRANCH}</defaultValue>
+                            <trim>true</trim>
+                        </hudson.model.StringParameterDefinition>
+                        <hudson.model.StringParameterDefinition>
+                            <name>DEPLOY_TO_NAMESPACE</name>
+                            <description>Namespace to deploy to (must be the dev environment or sandbox namespace)</description>
+                            <defaultValue>${DEV_NAMESPACE}</defaultValue>
+                            <trim>true</trim>
+                        </hudson.model.StringParameterDefinition>
+                        <hudson.model.BooleanParameterDefinition>
+                            <name>RECREATE</name>
+                            <description>From OpenShift Build Environment Variable</description>
+                            <defaultValue>false</defaultValue>
+                        </hudson.model.BooleanParameterDefinition>
+                    </parameterDefinitions>
+                </hudson.model.ParametersDefinitionProperty>
+            </properties>
+            <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps">
+                <script>  
+                    node() {
+                        def cicdMetaData = (readJSON(text: sh(returnStdout: true, script: "oc get cm ${EL_CICD_META_INFO_NAME} -o json")))
+          
+                        def scmMap = [$class: 'GitSCMSource',
+                                      remote: ${EL_CICD_GIT_REPO},
+                                      credentialsId: ${EL_CICD_GIT_REPO_READ_ONLY_GITHUB_PRIVATE_KEY_ID}]
+                        library(identifier: "el-CICD@${EL_CICD_GIT_REPO_BRANCH_NAME}", retriever: modernSCM(scmMap))
+          
+                        el.initMetaData(cicdMetaData.data)
+                    }
+          
+                    def args = [agent: '${CODE_BASE}',
+                                isBuild: true,
+                                pipelineName: '${APP_NAME}',
+                                projectId: '${PROJECT_ID}',
+                                microServiceName: '${BASE_APP_NAME}',
+                                deployToNamespace: params.DEPLOY_TO_NAMESPACE,
+                                gitBranch: params.GIT_BRANCH,
+                                recreate: params.RECREATE]
+                    el.node(args) {
+                        buildToDev(args)
+                    }
+                </script>
+                <sandbox>true</sandbox>
+            </definition>
+            <triggers />
+            <authToken>${WEB_TRIGGER_AUTH_TOKEN}</authToken>
+            <disabled>false</disabled>
+        </flow-definition>
+  
+  - templateName: configMap
+    appNames: ${BUILD_TO_LIB_PIPELINES}
+    appName: ${}-build-library
+    labels:
+      jenkins-pipeline: 'true'
+      projectid: ${PROJECT_ID}
+      microservice: ${APP_NAME}
+    elCicdDefs:
+      WEB_TRIGGER_AUTH_TOKEN: ${PROJECT_ID}-${BASE_APP_NAME}-git-repo-private-key
+    data:
+      projectid: ${PROJECT_ID}
+      configXml: |-
+        <flow-definition plugin="workflow-job">
+            <displayName>${APP_NAME}</displayName>
+            <keepDependencies>false</keepDependencies>
+            <properties>
+                <org.jenkinsci.plugins.workflow.job.properties.DisableConcurrentBuildsJobProperty />
+                <hudson.model.ParametersDefinitionProperty>
+                    <parameterDefinitions>
+                        <hudson.model.StringParameterDefinition>
+                            <name>GIT_BRANCH</name>
+                            <description>Git branch to build</description>
+                            <defaultValue>${GIT_BRANCH}</defaultValue>
+                            <trim>true</trim>
+                        </hudson.model.StringParameterDefinition>
+                        <hudson.model.BooleanParameterDefinition>
+                            <name>IS_SNAPSHOT</name>
+                            <description>Is this a snapshot build?</description>
+                            <defaultValue>true</defaultValue>
+                        </hudson.model.BooleanParameterDefinition>
+                    </parameterDefinitions>
+                </hudson.model.ParametersDefinitionProperty>
+            </properties>
+            <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps">
+                <script>
+                    node() {
+                        def cicdMetaData = (readJSON(text: sh(returnStdout: true, script: "oc get cm ${EL_CICD_META_INFO_NAME} -o json")))
+          
+                        def scmMap = [$class: 'GitSCMSource',
+                                      remote: ${EL_CICD_GIT_REPO},
+                                      credentialsId: ${EL_CICD_GIT_REPO_READ_ONLY_GITHUB_PRIVATE_KEY_ID}]
+                        library(identifier: "el-CICD@${EL_CICD_GIT_REPO_BRANCH_NAME}", retriever: modernSCM(scmMap))
+          
+                        el.initMetaData(cicdMetaData.data)
+                    }
+          
+                    def args = [agent: '${CODE_BASE}',
+                                isBuild: true,
+                                pipelineName: '${APP_NAME}',
+                                projectId: '${PROJECT_ID}',
+                                libraryName: '${BASE_APP_NAME}',
+                                gitBranch: params.GIT_BRANCH,
+                                isSnapshot: params.IS_SNAPSHOT]
+                    el.node(args) {
+                        buildLibrary(args)
+                    }
+                </script>
+                <sandbox>true</sandbox>
+            </definition>
+            <triggers />
+            <authToken>${WEB_TRIGGER_AUTH_TOKEN}</authToken>
+            <disabled>false</disabled>
+        </flow-definition>
+    
