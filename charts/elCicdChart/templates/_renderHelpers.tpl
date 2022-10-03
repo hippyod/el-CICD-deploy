@@ -28,7 +28,7 @@
   {{- end }}
 {{- end }}
 
-{{- define "elCicdChart.processAppnames" }}
+{{- define "elCicdChart.processAppNames" }}
   {{- $allTemplates := list }}
   {{- range $template := $.Values.templates  }}
     {{- if $template.appNames }}
@@ -51,12 +51,12 @@
   {{- if kindIs "string" $template.appNames }}
     {{- $appNames := $template.appNames }}
     {{- $matches := regexFindAll $.Values.PARAM_REGEX $appNames -1 }}
-    {{- range $paramRef := $matches }}
-      {{- $param := regexReplaceAll $.Values.PARAM_REGEX $paramRef "${1}" }}
+    {{- range $elCicdRef := $matches }}
+      {{- $elCicdDef := regexReplaceAll $.Values.PARAM_REGEX $elCicdRef "${1}" }}
 
-      {{- $paramVal := get $.Values.elCicdDefs $param }}
+      {{- $paramVal := get $.Values.elCicdDefs $elCicdDef }}
       {{ if or (kindIs "string" $paramVal) }}
-        {{- $appNames = replace $paramRef (toString $paramVal) $appNames }}
+        {{- $appNames = replace $elCicdRef (toString $paramVal) $appNames }}
       {{- end }}
       {{- $appNames = $paramVal }}
     {{- end }}
@@ -72,12 +72,10 @@
   {{- $ := index . 0 }}
   {{- $templates := index . 1 }}
   {{- $elCicdDefs := index . 2 }}
-  
-  {{- $_ := set $elCicdDefs "RELEASE_NAMESPACE" $.Release.Namespace }}
 
   {{- range $template := $templates }}
-    {{- $_ := required "elCicdChart must define template.appName or $.Values.appName!" ($template.appName | default $.Values.appName) }}
     {{- $_ := set $template "appName" ($template.appName | default $.Values.appName) }}
+    {{- $_ := required "elCicdChart must define template.appName or $.Values.appName!" $template.appName }}
     {{- $templateDefs := deepCopy $elCicdDefs }}
     {{- $_ := set $templateDefs "APP_NAME" ($templateDefs.APP_NAME | default $template.appName) }}
 
@@ -103,11 +101,11 @@
       {{- else if (kindIs "slice" $value) }}
         {{- include "elCicdChart.processSlice" (list $ $map $key $elCicdDefs) }}
       {{- else if (kindIs "string" $value) }}
-          {{- include "elCicdChart.processMapValue" (list $ $map $key $elCicdDefs) }}
+          {{- include "elCicdChart.processMapValue" (list $ $map $key $elCicdDefs list) }}
       {{- end  }}
 
       {{- if (get $map $key) }}
-        {{- include "elCicdChart.processMapKey" (list $ $map $key $elCicdDefs) }}
+        {{- include "elCicdChart.processMapKey" (list $ $map $key $elCicdDefs list) }}
       {{- else }}
         {{- $_ := unset $map $key }}
       {{- end }}
@@ -120,15 +118,18 @@
   {{- $map := index . 1 }}
   {{- $key := index . 2 }}
   {{- $elCicdDefs := index . 3 }}
+  {{- $processDefList := index . 4}}
 
   {{- $value := get $map $key }}
   {{- $matches := regexFindAll $.Values.PARAM_REGEX $value -1 }}
-  {{- range $paramRef := $matches }}
-    {{- $param := regexReplaceAll $.Values.PARAM_REGEX $paramRef "${1}" }}
+  {{- range $elCicdRef := $matches }}
+    {{- $elCicdDef := regexReplaceAll $.Values.PARAM_REGEX $elCicdRef "${1}" }}
+    {{- include "elCicdChart.circularReferenceCheck" (list $value $key $elCicdRef $elCicdDef $processDefList) }}
+    {{- $processDefList = append $processDefList $elCicdDef }}
 
-    {{- $paramVal := get $elCicdDefs $param }}
+    {{- $paramVal := get $elCicdDefs $elCicdDef }}
     {{ if (kindIs "string" $paramVal) }}
-      {{- $value = replace $paramRef (toString $paramVal) $value }}
+      {{- $value = replace $elCicdRef (toString $paramVal) $value }}
     {{- else }}
       {{- if (kindIs "map" $paramVal) }}
         {{- $paramVal = deepCopy $paramVal }}
@@ -154,7 +155,7 @@
       {{- else if (kindIs "slice" $value) }}
         {{- include "elCicdChart.processSlice" (list $ $map $key $elCicdDefs) }}
       {{- else if (kindIs "string" $value) }}
-        {{- include "elCicdChart.processMapValue" (list $ $map $key $elCicdDefs) }}
+        {{- include "elCicdChart.processMapValue" (list $ $map $key $elCicdDefs $processDefList) }}
       {{- end }}
     {{- end }}
   {{- end }}
@@ -165,22 +166,26 @@
   {{- $map := index . 1 }}
   {{- $key := index . 2 }}
   {{- $elCicdDefs := index . 3 }}
+  {{- $processDefList := index . 4}}
 
   {{- $value := get $map $key }}
   {{- $oldKey := $key }}
   {{- $matches := regexFindAll $.Values.PARAM_REGEX $key -1 }}
-  {{- range $paramRef := $matches }}
-    {{- $param := regexReplaceAll $.Values.PARAM_REGEX $paramRef "${1}" }}
-    {{- $paramVal := get $elCicdDefs $param }}
+  {{- range $elCicdRef := $matches }}
+    {{- $elCicdDef := regexReplaceAll $.Values.PARAM_REGEX $elCicdRef "${1}" }}
+    {{- include "elCicdChart.circularReferenceCheck" (list $value $key $elCicdRef $elCicdDef $processDefList) }}
+    {{- $processDefList = append $processDefList $elCicdDef }}
+    
+    {{- $paramVal := get $elCicdDefs $elCicdDef }}
     {{ $_ := unset $map $key }}
-    {{- $key = replace $paramRef (toString $paramVal) $key }}
+    {{- $key = replace $elCicdRef (toString $paramVal) $key }}
   {{- end }}
   {{- if ne $oldKey $key }}
     {{- $_ := unset $map $oldKey }}
   {{- end }}
   {{- if and $matches (ne $oldKey $key) $key }}
     {{- $_ := set $map $key $value }}
-    {{- include "elCicdChart.processMapKey" (list $ $map $key $elCicdDefs) }}
+    {{- include "elCicdChart.processMapKey" (list $ $map $key $elCicdDefs $processDefList) }}
   {{- end }}
 {{- end }}
 
@@ -197,11 +202,11 @@
       {{- include "elCicdChart.processMap" (list $ $element $elCicdDefs) }}
     {{- else if (kindIs "string" $element) }}
       {{- $matches := regexFindAll $.Values.PARAM_REGEX $element -1 }}
-      {{- range $paramRef := $matches }}
-        {{- $param := regexReplaceAll $.Values.PARAM_REGEX $paramRef "${1}" }}
-        {{- $paramVal := get $elCicdDefs $param }}
+      {{- range $elCicdRef := $matches }}
+        {{- $elCicdDef := regexReplaceAll $.Values.PARAM_REGEX $elCicdRef "${1}" }}
+        {{- $paramVal := get $elCicdDefs $elCicdDef }}
         {{- if (kindIs "string" $paramVal) }}
-          {{- $element = replace $paramRef (toString $paramVal) $element }}
+          {{- $element = replace $elCicdRef (toString $paramVal) $element }}
         {{- else if and (kindIs "map" $paramVal) }}
           {{- include "elCicdChart.processMap" (list $ $paramVal $elCicdDefs) }}
           {{- $element = $paramVal }}
@@ -230,6 +235,18 @@
     {{- range $key, $value := $srcMap }}
       {{- $_ := set $destMap $key $value }}
     {{- end }}
+  {{- end }}
+{{- end }}
+
+{{- define "elCicdChart.circularReferenceCheck" }}
+  {{- $value := index . 0 }}
+  {{- $key := index . 1 }}
+  {{- $elCicdRef := index . 2 }}
+  {{- $elCicdDef := index . 3 }}
+  {{- $processDefList := index . 4}}
+  
+  {{- if has $elCicdDef $processDefList }}
+    {{- fail (printf "Circular elCicdDefs reference: '%s' in '%s: %s'" $elCicdRef $key $value) }}
   {{- end }}
 {{- end }}
 

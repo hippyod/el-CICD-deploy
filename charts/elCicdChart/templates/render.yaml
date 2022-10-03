@@ -4,10 +4,17 @@
   {{- end }}
 {{- end }}
 
+{{- $_ := required "Missing templates list" $.Values.templates }}
+{{- if (not (kindIs "slice" $.Values.templates)) }}
+    {{- fail "elCicdChart templates must be defined, even if empty" }}
+{{- end }}
+
 {{- $_ := set $.Values "elCicdDefs" ($.Values.elCicdDefs | default dict) }}
+{{- $_ := set $.Values.elCicdDefs "RELEASE_NAMESPACE" $.Release.Namespace }}
+
 {{- include "elCicdChart.mergeProfileDefs" (list $ $.Values $.Values.elCicdDefs) }}
 
-{{- include "elCicdChart.processAppnames" . }}
+{{- include "elCicdChart.processAppNames" . }}
 
 {{- include "elCicdChart.processTemplates" (list $ $.Values.allTemplates $.Values.elCicdDefs) }}
 
