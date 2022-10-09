@@ -12,6 +12,10 @@
 {{- $_ := set $.Values "elCicdDefs" ($.Values.elCicdDefs | default dict) }}
 {{- $_ := set $.Values.elCicdDefs "RELEASE_NAMESPACE" $.Release.Namespace }}
 
+{{- range $preProcesses := $.Values.preprocessing }}
+  {{- include $preProcesses.templateName $ }}
+{{- end }}
+
 {{- include "elCicdChart.mergeProfileDefs" (list $ $.Values $.Values.elCicdDefs) }}
 
 {{- include "elCicdChart.processAppNames" . }}
@@ -45,7 +49,7 @@
     {{- if not (contains "." $templateName) }}
       {{- $templateName = printf "elCicdResources.%s" $template.templateName }}
     {{- end }}
----
+---    
     {{- include $templateName (list $ $template) }}
 # Rendered -> {{ $template.templateName }} {{ $template.appName }}
   {{- else }}

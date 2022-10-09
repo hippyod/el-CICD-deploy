@@ -1,0 +1,20 @@
+apiVersion: v2
+name: elCicdJenkins
+description: A Helm chart for Deploying Jenkins
+
+type: application
+
+version: "0.1.0"
+
+# elCicdChart chart
+dependencies:
+- name: elCicdChart
+  version: 0.1.0
+  # repository: https://raw.githubusercontent.com/elcicd/el-CICD-deploy/main/charts/
+  repository: file://../elCicdChart
+- name: elCicdResources
+  version: 0.1.0
+  # repository: https://raw.githubusercontent.com/elcicd/el-CICD-deploy/main/charts/
+  repository: file://../elCicdResources
+  import-values:
+  - data
