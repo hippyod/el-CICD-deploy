@@ -1,5 +1,5 @@
 apiVersion: v2
-name: elCicdJenkinsBuildPipelines
+name: elCicdJenkinsPipelines
 description: A Helm chart for creating config maps defining build pipelines in Jenkins
 
 type: application

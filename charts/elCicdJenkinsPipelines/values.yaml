@@ -1,0 +1,178 @@
+elCicdChart:
+  elCicdDefs:
+    BUILD_LABELS:
+      projectid: ${PROJECT_ID}
+      component: ${BASE_APP_NAME}
+      jenkins-pipeline: 'true'
+    BASE_BUILD_ARGS: |-
+      agent: '${CODE_BASE}',
+      isBuild: true,
+      pipelineName: '${APP_NAME}',
+      projectId: '${PROJECT_ID}',
+      gitBranch: params.GIT_BRANCH,
+    GIT_BRANCH_BUILD_PARAM: |-
+      <hudson.model.StringParameterDefinition>
+          <name>GIT_BRANCH</name>
+          <description>Git branch to build</description>
+          <defaultValue>${GIT_BRANCH}</defaultValue>
+          <trim>true</trim>
+      </hudson.model.StringParameterDefinition>
+    RELEASE_CANDIDATE_PARAMS: |-
+      <hudson.model.StringParameterDefinition>
+          <name>RELEASE_CANDIDATE_TAG</name>
+          <description>Release Candidate Tag (WARNING: DO NOT prefix your tag with a 'v')</description>
+          <trim>true</trim>
+      </hudson.model.StringParameterDefinition>
+    RELEASE_CANDIDATE_ARGS: |-
+      def args = [agent: ${JENKINS_AGENT_DEFAULT},
+                  pipelineName: '${APP_NAME}',
+                  projectId: ${PROJECT_ID},
+                  releaseCandidateTag: params.RELEASE_CANDIDATE_TAG]
+    AUTH_TOKEN:
+      <authToken>${PROJECT_ID}-${BASE_APP_NAME}-git-repo-private-key</authToken>
+    PIPELINE_CONFIG_MAP_DATA:
+      projectid: ${PROJECT_ID}
+      configXml: |-
+        <flow-definition plugin="workflow-job">
+            <displayName>${APP_NAME}</displayName>
+            <keepDependencies>false</keepDependencies>
+            <properties>
+                <org.jenkinsci.plugins.workflow.job.properties.DisableConcurrentBuildsJobProperty />
+                ${PIPELINE_PARAMS}
+            </properties>
+            <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps">
+                <script>  
+                    node() {
+                        def cicdMetaData = (readJSON(text: sh(returnStdout: true, script: "oc get cm ${EL_CICD_META_INFO_NAME} -o json")))
+          
+                        def scmMap = [$class: 'GitSCMSource',
+                                      remote: ${EL_CICD_GIT_REPO},
+                                      credentialsId: ${EL_CICD_GIT_REPO_READ_ONLY_GITHUB_PRIVATE_KEY_ID}]
+                        library(identifier: "el-CICD@${EL_CICD_GIT_REPO_BRANCH_NAME}", retriever: modernSCM(scmMap))
+          
+                        el.initMetaData(cicdMetaData.data)
+                    }
+          
+                    ${EL_CICD_API_CALL}
+                </script>
+                <sandbox>true</sandbox>
+            </definition>
+            <triggers />
+            ${AUTH_TOKEN}
+            <disabled>false</disabled>
+        </flow-definition>
+    
+  templates:
+  - templateName: configMap
+    appNames: ${BUILD_TO_DEV_PIPELINES}
+    appName: ${}-build-to-dev
+    elCicdDefs:
+      PIPELINE_PARAMS: |-
+        <hudson.model.ParametersDefinitionProperty>
+            <parameterDefinitions>
+              ${GIT_BRANCH_BUILD_PARAM}
+              <hudson.model.StringParameterDefinition>
+                  <name>DEPLOY_TO_NAMESPACE</name>
+                  <description>Namespace to deploy to (must be the dev environment or sandbox namespace)</description>
+                  <defaultValue>${DEV_NAMESPACE}</defaultValue>
+                  <trim>true</trim>
+              </hudson.model.StringParameterDefinition>
+              <hudson.model.BooleanParameterDefinition>
+                  <name>RECREATE</name>
+                  <description>From OpenShift Build Environment Variable</description>
+                  <defaultValue>false</defaultValue>
+              </hudson.model.BooleanParameterDefinition>
+            </parameterDefinitions>
+        </hudson.model.ParametersDefinitionProperty>
+      EL_CICD_API_CALL: |-
+        def args = [${BASE_BUILD_ARGS},
+                    deployToNamespace: params.DEPLOY_TO_NAMESPACE,
+                    recreate: params.RECREATE]
+        el.node(args) {
+            buildToDev(args)
+        }
+    labels:
+      ${BUILD_LABELS}
+    data: ${PIPELINE_CONFIG_MAP_DATA}
+
+  - templateName: configMap
+    appNames: ${BUILD_ARTIFACT_PIPELINES}
+    appName: ${}-build-artifact
+    elCicdDefs:
+      PIPELINE_PARAMS: |-
+        <hudson.model.ParametersDefinitionProperty>
+            <parameterDefinitions>
+              ${GIT_BRANCH_BUILD_PARAM}
+              <hudson.model.BooleanParameterDefinition>
+                  <name>IS_SNAPSHOT</name>
+                  <description>Is this a snapshot build?</description>
+                  <defaultValue>true</defaultValue>
+              </hudson.model.BooleanParameterDefinition>
+            </parameterDefinitions>
+        </hudson.model.ParametersDefinitionProperty>
+      EL_CICD_API_CALL: |-
+        def args = [${BASE_BUILD_ARGS},
+                    libraryName: '${BASE_APP_NAME}',
+                    isSnapshot: params.IS_SNAPSHOT]
+        el.node(args) {
+            buildLibrary(args)
+        }
+    labels:
+      ${BUILD_LABELS}
+    data: ${PIPELINE_CONFIG_MAP_DATA}
+
+  - templateName: configMap
+    appNames:
+    - build-artifacts-and-components
+    - promote-or-remove-components
+    - run-post-deployment-tests
+    - redeploy-or-remove-components
+    - create-release-candidate
+    - redeploy-release-candidate
+    appName: ${INDEX}-${}
+    elCicdDefs:
+      EL_CICD_API_CALL: |-
+        def args = [agent: el.cicd.JENKINS_AGENT_DEFAULT,
+                    pipelineName: '${BASE_APP_NAME}',
+                    projectId: params.PROJECT_ID,
+                    releaseCandidateTag: params.RELEASE_CANDIDATE_TAG]
+        el.node(args) {
+            ${EL_CICD_API_METHOD}(args)
+        }
+      AUTH_TOKEN: ""
+    elCicdDefs-build-artifacts-and-components:
+      EL_CICD_API_METHOD: buildAndDeployMicroServices
+    elCicdDefs-promote-or-remove-components:
+      EL_CICD_API_METHOD: promoteComponents
+    elCicdDefs-run-post-deployment-tests:
+      EL_CICD_API_METHOD: runPostDeploymentTests
+    elCicdDefs-redeploy-or-remove-components:
+      EL_CICD_API_METHOD: redeployComponents
+    elCicdDefs-create-release-candidate:
+      EL_CICD_API_METHOD: createReleaseCandidate
+      PIPELINE_PARAMS: |-
+        <hudson.model.ParametersDefinitionProperty>
+            <parameterDefinitions>
+              <hudson.model.StringParameterDefinition>
+                <name>RELEASE_CANDIDATE_TAG</name>
+                <description>Release Candidate Tag (WARNING: DO NOT prefix your tag with a 'v')</description>
+                <trim>true</trim>
+              </hudson.model.StringParameterDefinition>
+            </parameterDefinitions>
+        </hudson.model.ParametersDefinitionProperty>
+    elCicdDefs-redeploy-release-candidate:
+      EL_CICD_API_METHOD: redeployReleaseCandidate
+      PIPELINE_PARAMS: |-
+        <hudson.model.ParametersDefinitionProperty>
+            <parameterDefinitions>
+              <hudson.model.StringParameterDefinition>
+                <name>RELEASE_CANDIDATE_TAG</name>
+                <description>Previously used release candidate tag for redeployment to the project pre-prod environment</description>
+                <trim>true</trim>
+              </hudson.model.StringParameterDefinition>
+            </parameterDefinitions>
+        </hudson.model.ParametersDefinitionProperty>
+    labels:
+      projectid: ${PROJECT_ID}
+      jenkins-pipeline: 'true'
+    data: ${PIPELINE_CONFIG_MAP_DATA}

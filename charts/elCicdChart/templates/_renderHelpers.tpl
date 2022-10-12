@@ -3,26 +3,24 @@
   {{- $profileDefs := index . 1 }}
   {{- $elCicdDefs := index . 2 }}
 
-  {{- $appName := $profileDefs.appName }}
-
-  {{- if $appName }}
-    {{- include "elCicdChart.mergeMapInto" (list $ $profileDefs.elCicdDefs $elCicdDefs) }}
-  {{- end }}
+  {{- include "elCicdChart.mergeMapInto" (list $ $profileDefs.elCicdDefs $elCicdDefs) }}
 
   {{- range $profile := $.Values.profiles }}
     {{- $profileDefs := get $profileDefs (printf "elCicdDefs-%s" $profile) }}
     {{- include "elCicdChart.mergeMapInto" (list $ $profileDefs $elCicdDefs) }}
   {{- end }}
 
-  {{- if $appName }}
-    {{- $appNameDefsKey := printf "elCicdDefs-%s" $appName }}
-    {{- $appNameDefs := tuple (deepCopy (get $.Values $appNameDefsKey)) (get $profileDefs $appNameDefsKey ) }}
-    {{- range $appNameDefs := $appNameDefs }}
+  {{- $appName := $profileDefs.appName }}
+  {{- $baseAppName := ($profileDefs.elCicdDefs).BASE_APP_NAME }}
+  {{- range $workingAppName := (tuple $baseAppName $appName) }}
+    {{- $appNameDefsKey := printf "elCicdDefs-%s" $workingAppName }}
+    {{- $appNameElcicdDefs := tuple (deepCopy (get $.Values $appNameDefsKey)) (get $profileDefs $appNameDefsKey ) }}
+    {{- range $appNameDefs := $appNameElcicdDefs }}
       {{- include "elCicdChart.mergeMapInto" (list $ $appNameDefs $elCicdDefs) }}
     {{- end }}
 
     {{- range $profile := $.Values.profiles }}
-      {{- $profileDefs := get $profileDefs (printf "elCicdDefs-%s-%s" $appName $profile) }}
+      {{- $profileDefs := get $profileDefs (printf "elCicdDefs-%s-%s" $workingAppName $profile) }}
       {{- include "elCicdChart.mergeMapInto" (list $ $profileDefs $elCicdDefs) }}
     {{- end }}
   {{- end }}
@@ -35,11 +33,11 @@
       {{- include "elCicdChart.processTemplateAppnames" (list $ $template) }}
       {{- range $index, $appName := $template.appNames }}
         {{- $newTemplate := deepCopy $template }}
-        {{- $_ := set $template "appName" ($template.appName | default "") }}
-        {{- if or (contains "${}" $template.appName) (contains "${INDEX}" $template.appName) }}
-          {{- $_ := set $template "elCicdDefs" ($template.elCicdDefs | default dict) }}
-          {{- $_ := set $template.elCicdDefs "BASE_APP_NAME" $appName }}
-          {{- $appName = replace "${}" $appName $template.appName }}
+        {{- $_ := set $newTemplate "appName" ($newTemplate.appName | default "") }}
+        {{- if or (contains "${}" $newTemplate.appName) (contains "${INDEX}" $newTemplate.appName) }}
+          {{- $_ := set $newTemplate "elCicdDefs" ($newTemplate.elCicdDefs | default dict) }}
+          {{- $_ := set $newTemplate.elCicdDefs "BASE_APP_NAME" $appName }}
+          {{- $appName = replace "${}" $appName $newTemplate.appName }}
           {{- $appName = replace "${INDEX}" (add $index 1 | toString) $appName }}
         {{- end }}
         {{- $_ := set $newTemplate "appName" $appName }}
