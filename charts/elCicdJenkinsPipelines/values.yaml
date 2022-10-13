@@ -9,12 +9,12 @@ elCicdChart:
       isBuild: true,
       pipelineName: '${APP_NAME}',
       projectId: '${PROJECT_ID}',
-      gitBranch: params.GIT_BRANCH,
-    GIT_BRANCH_BUILD_PARAM: |-
+      scmBranch: params.SCM_BRANCH,
+    SCM_BRANCH_BUILD_PARAM: |-
       <hudson.model.StringParameterDefinition>
-          <name>GIT_BRANCH</name>
+          <name>SCM_BRANCH</name>
           <description>Git branch to build</description>
-          <defaultValue>${GIT_BRANCH}</defaultValue>
+          <defaultValue>${SCM_BRANCH}</defaultValue>
           <trim>true</trim>
       </hudson.model.StringParameterDefinition>
     RELEASE_CANDIDATE_PARAMS: |-
@@ -29,7 +29,7 @@ elCicdChart:
                   projectId: ${PROJECT_ID},
                   releaseCandidateTag: params.RELEASE_CANDIDATE_TAG]
     AUTH_TOKEN:
-      <authToken>${PROJECT_ID}-${BASE_APP_NAME}-git-repo-private-key</authToken>
+      <authToken>${PROJECT_ID}-${BASE_APP_NAME}-scm-repo-private-key</authToken>
     PIPELINE_CONFIG_MAP_DATA:
       projectid: ${PROJECT_ID}
       configXml: |-
@@ -70,7 +70,7 @@ elCicdChart:
       PIPELINE_PARAMS: |-
         <hudson.model.ParametersDefinitionProperty>
             <parameterDefinitions>
-              ${GIT_BRANCH_BUILD_PARAM}
+              ${SCM_BRANCH_BUILD_PARAM}
               <hudson.model.StringParameterDefinition>
                   <name>DEPLOY_TO_NAMESPACE</name>
                   <description>Namespace to deploy to (must be the dev environment or sandbox namespace)</description>
@@ -102,7 +102,7 @@ elCicdChart:
       PIPELINE_PARAMS: |-
         <hudson.model.ParametersDefinitionProperty>
             <parameterDefinitions>
-              ${GIT_BRANCH_BUILD_PARAM}
+              ${SCM_BRANCH_BUILD_PARAM}
               <hudson.model.BooleanParameterDefinition>
                   <name>IS_SNAPSHOT</name>
                   <description>Is this a snapshot build?</description>
