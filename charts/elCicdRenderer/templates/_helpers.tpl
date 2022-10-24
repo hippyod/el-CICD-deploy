@@ -1,0 +1,74 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+
+{{- define "elCicdRenderer.initElCicdRenderer" }}
+  {{- $ := . }}
+  {{- if $.Values.profiles }}
+    {{- if not (kindIs "slice" $.Values.profiles) }}
+      {{- fail (printf "Profiles must be specified as an array: %s" $.Values.profiles) }}
+    {{- end }}
+  {{- end }}
+
+  {{- $_ := required "Missing elCicdTemplates: list" $.Values.elCicdTemplates }}
+  {{- if (not (kindIs "slice" $.Values.elCicdTemplates)) }}
+      {{- fail "elCicdRenderer elCicdTemplates: must be defined" }}
+  {{- end }}
+  
+  {{- $_ := set $.Values "elCicdDefs" ($.Values.elCicdDefs | default dict) }}
+  {{- $_ := set $.Values "skippedTemplates" list }}
+  
+  {{- $_ := set $.Values "defaultRenderChart" ($.Values.defaultRenderChart | default "elCicdResources") }}
+  
+  {{- $_ := set $.Values "MAX_RECURSION" (int 4) }}
+  {{- $_ := set $.Values "FILE_PREFIX" "${FILE|" }}
+  {{- $_ := set $.Values "CONFIG_FILE_PREFIX" "${CONFIG|" }}
+  {{- $_ := set $.Values "ELCICD_PARAM_REGEX" "[\\$][\\{](?:FILE\\||CONFIG\\|)?([\\w]+?(?:-[\\w]+?)*)[\\}]" }}
+  {{- $_ := set $.Values.elCicdDefs "RELEASE_NAMESPACE" $.Release.Namespace }}
+{{- end }}
+
+{{- define "elCicdRenderer.profileRenderingCheck" }}
+  {{- $ := index . 0 }}
+  {{- $template := index . 1 }}
+  
+  {{- $anyProfile := not $template.anyProfiles }}
+  {{- range $profile := $template.anyProfiles }}
+    {{- $anyProfile = or $anyProfile (has $profile $.Values.profiles) }}
+  {{- end }}
+  
+  {{- $ignoreExactlyProfiles := $template.ignoreExactlyProfiles }}
+  {{- range $profile := $template.ignoreExactlyProfilesProfiles }}
+    {{- $ignoreExactlyProfiles = and $ignoreExactlyProfiles (has $profile $.Values.profiles) }}
+  {{- end }}
+
+  {{- $mustHaveProfiles := true }}
+  {{- range $profile := $template.mustHaveProfiles }}
+    {{- $mustHaveRender = and $mustHaveRender (has $profile $.Values.profiles) }}
+  {{- end }}
+  
+  {{- $ignoreAnyProfiles := false }}
+  {{- range $profile := $template.ignoreAnyProfiles }}
+    {{- $ignoreAnyProfiles = or $ignoreAnyProfiles (has $profile $.Values.profiles) }}
+  {{- end }}
+  
+  {{- if and $anyProfile $mustHaveProfiles (not $ignoreExactlyProfiles) (not $ignoreAnyProfiles) }}
+    {{- $_ := set $template "shouldRender" true }}
+  {{- else }}
+    {{- $skippedList := (list $template.templateName ($template.appNames | default $template.appName)) }}
+    {{- $_ := set $.Values "skippedTemplates" (append $.Values.skippedTemplates $skippedList) }}
+  {{- end }}
+{{- end }}
+
+{{- define "elCicdRenderer.circularReferenceCheck" }}
+  {{- $value := index . 0 }}
+  {{- $key := index . 1 }}
+  {{- $elCicdRef := index . 2 }}
+  {{- $elCicdDef := index . 3 }}
+  {{- $processDefList := index . 4}}
+  
+  {{- if has $elCicdDef $processDefList }}
+    {{- fail (printf "Circular elCicdDefs reference: '%s' in '%s: %s'" $elCicdRef $key $value) }}
+  {{- end }}
+{{- end }}
+
+{{ define "elCicdRenderer.skippedTemplateLog" }}
+# EXCLUDED BY PROFILES: {{ index . 0 }} -> {{ index . 1 }}
+{{- end }}

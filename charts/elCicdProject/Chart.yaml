@@ -1,6 +1,6 @@
 apiVersion: v2
-name: elCicdImageRegistry
-description: A Helm chart for deploying one or more image registries into a namespace
+name: elCicdProject
+description: A Helm chart for creating config maps defining build pipelines in Jenkins
 
 type: application
 
@@ -14,5 +14,3 @@ dependencies:
 - name: elCicdResources
   version: 0.1.0
   repository: file://../elCicdResources
-  import-values:
-  - data

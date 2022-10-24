@@ -34,14 +34,14 @@ spec:
                          "progressDeadlineSeconds"
                          "replicas" }}
   {{- include "elCicdResources.outputToYaml" (list $deployValues $whiteList) }}
-  revisionHistoryLimit: {{ $deployValues.revisionHistoryLimit | default $.Values.global.defaultDeploymentRevisionHistoryLimit }}
+  revisionHistoryLimit: {{ $deployValues.revisionHistoryLimit | default $.Values.defaultDeploymentRevisionHistoryLimit }}
   selector: {{ include "elCicdResources.selector" . | indent 4 }}
   {{- if $deployValues.strategyType }}
   strategy:
     {{- if (eq $deployValues.strategyType "RollingUpdate") }}
     rollingUpdate:
-      maxSurge: {{ $deployValues.rollingUpdateMaxSurge | default $.Values.global.defaultRollingUpdateMaxSurge }}
-      maxUnavailable: {{ $deployValues.rollingUpdateMaxUnavailable | default $.Values.global.defaultRollingUpdateMaxUnavailable }}
+      maxSurge: {{ $deployValues.rollingUpdateMaxSurge | default $.Values.defaultRollingUpdateMaxSurge }}
+      maxUnavailable: {{ $deployValues.rollingUpdateMaxUnavailable | default $.Values.defaultRollingUpdateMaxUnavailable }}
     {{- end }}
     type: {{ $deployValues.strategyType }}
   {{- end }}

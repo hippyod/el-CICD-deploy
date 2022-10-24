@@ -6,8 +6,9 @@ Deployment and Service combination
 ---
   {{- include "elCicdResources.service" . }}
 {{- end }}
+
 {{/*
-Deployment and Service combination
+Deployment, Service, and Ingress combination
 */}}
 {{- define "elCicdResources.deploymentServiceIngress" }}
   {{- include "elCicdResources.deployment" . }}
@@ -16,7 +17,6 @@ Deployment and Service combination
 ---
   {{- include "elCicdResources.ingress" . }}
 {{- end }}
-
 
 {{/*
 Job Template
@@ -84,8 +84,8 @@ spec:
   ephemeralContainers:
     {{- include "elCicdResources.containers" (list $ $podValues.ephemeralContainers false) | trim | nindent 2 }}
   {{- end }}
-  {{- $_ := set $podValues "imagePullSecrets" ($podValues.imagePullSecrets | default $.Values.global.defaultImagePullSecrets) }}
-  {{- $_ := set $podValues "imagePullSecret" ($podValues.imagePullSecret | default $.Values.global.defaultImagePullSecret) }}
+  {{- $_ := set $podValues "imagePullSecrets" ($podValues.imagePullSecrets | default $.Values.defaultImagePullSecrets) }}
+  {{- $_ := set $podValues "imagePullSecret" ($podValues.imagePullSecret | default $.Values.defaultImagePullSecret) }}
   {{- if $podValues.imagePullSecrets }}
   imagePullSecrets:
     {{- range $secretName := $podValues.imagePullSecrets }}
@@ -94,6 +94,8 @@ spec:
   {{- else if $podValues.imagePullSecret }}
   imagePullSecrets:
   - name: {{ $podValues.imagePullSecret }}
+  {{- else }}
+  imagePullSecrets: []
   {{- end }}
   {{- if $podValues.initContainers }}
   initContainers:
@@ -135,39 +137,39 @@ Container definition
                        "workingDir" }}
 {{- range $containerVals := $containers }}
 - name: {{ $containerVals.name | default $containerVals.appName }}
-  image: {{ $containerVals.image | default $.Values.global.defaultImage }}
-  imagePullPolicy: {{ $containerVals.imagePullPolicy | default $.Values.global.defaultImagePullPolicy }}
+  image: {{ $containerVals.image | default $.Values.defaultImage }}
+  imagePullPolicy: {{ $containerVals.imagePullPolicy | default $.Values.defaultImagePullPolicy }}
   {{- include "elCicdResources.outputToYaml" (list $containerVals $whiteList) }}
-  {{- if or $containerVals.ports $containerVals.port $.Values.global.defaultPort $containerVals.usePrometheus }}
+  {{- if or $containerVals.ports $containerVals.port $.Values.defaultPort $containerVals.usePrometheus }}
   ports:
     {{- if and $containerVals.ports $containerVals.port }}
       {{- fail "A Container cannot define both port and ports values!" }}
     {{- end }}
     {{- if $containerVals.ports }}
       {{- $containerVals.ports | toYaml | nindent 2 }}
-    {{- else if or $containerVals.port $.Values.global.defaultPort }}
+    {{- else if or $containerVals.port $.Values.defaultPort }}
   - name: default-port
-    containerPort: {{ $containerVals.port | default $.Values.global.defaultPort }}
-    protocol: {{ $containerVals.protocol | default $.Values.global.defaultProtocol }}
+    containerPort: {{ $containerVals.port | default $.Values.defaultPort }}
+    protocol: {{ $containerVals.protocol | default $.Values.defaultProtocol }}
     {{- end }}
-    {{- if or ($containerVals.prometheus).port (and $containerVals.usePrometheus $.Values.global.defaultPrometheusPort) }}
+    {{- if or ($containerVals.prometheus).port (and $containerVals.usePrometheus $.Values.defaultPrometheusPort) }}
   - name: prometheus-port
-    containerPort: {{ ($containerVals.prometheus).port | default $.Values.global.defaultPrometheusPort }}
-    protocol: {{ ($containerVals.prometheus).protocol | default ($.Values.global.defaultPrometheusProtocol | default $.Values.global.defaultProtocol) }}
+    containerPort: {{ ($containerVals.prometheus).port | default $.Values.defaultPrometheusPort }}
+    protocol: {{ ($containerVals.prometheus).protocol | default ($.Values.defaultPrometheusProtocol | default $.Values.defaultProtocol) }}
     {{- end }}
   {{- end }}
   resources:
     limits:
-      cpu: {{ $containerVals.limitsCpu | default (($containerVals.resources).limits).cpu | default $.Values.global.defaultLimitsCpu }}
-      memory: {{ $containerVals.limitsMemory | default (($containerVals.resources).limits).memory | default $.Values.global.defaultLimitsMemory }}
+      cpu: {{ $containerVals.limitsCpu | default (($containerVals.resources).limits).cpu | default $.Values.defaultLimitsCpu }}
+      memory: {{ $containerVals.limitsMemory | default (($containerVals.resources).limits).memory | default $.Values.defaultLimitsMemory }}
       {{- range $limit, $value := ($containerVals.resources).limits }}
         {{- if and (ne $limit "cpu") (ne $limit "memory") }}
       {{ $limit }}: {{ $value }}
         {{- end }}
       {{- end }}
     requests:
-      cpu: {{ $containerVals.requestsCpu | default (($containerVals.resources).requests).cpu | default $.Values.global.defaultRequestsCpu }}
-      memory: {{ $containerVals.requestsMemory | default (($containerVals.resources).requests).memory | default $.Values.global.defaultRequestsMemory }}
+      cpu: {{ $containerVals.requestsCpu | default (($containerVals.resources).requests).cpu | default $.Values.defaultRequestsCpu }}
+      memory: {{ $containerVals.requestsMemory | default (($containerVals.resources).requests).memory | default $.Values.defaultRequestsMemory }}
       {{- range $limit, $value := ($containerVals.resources).requests }}
         {{- if and (ne $limit "cpu") (ne $limit "memory") }}
       {{ $limit }}: {{ $value }}
@@ -193,20 +195,20 @@ Service Prometheus Annotations definition
   {{- $svcValues := index . 1 }}
   {{- $_ := set $svcValues "annotations" ($svcValues.annotations | default dict) }}
 
-  {{- if or ($svcValues.prometheus).path $.Values.global.defaultPrometheusPath }}
-    {{- $_ := set $svcValues.annotations "prometheus.io/path" ($svcValues.prometheus.path | default $.Values.global.defaultPrometheusPath) }}
+  {{- if or ($svcValues.prometheus).path $.Values.defaultPrometheusPath }}
+    {{- $_ := set $svcValues.annotations "prometheus.io/path" ($svcValues.prometheus.path | default $.Values.defaultPrometheusPath) }}
   {{- end }}
 
-  {{- if or ($svcValues.prometheus).port $.Values.global.defaultPrometheusPort }}
+  {{- if or ($svcValues.prometheus).port $.Values.defaultPrometheusPort }}
     {{- $_ := set $svcValues.annotations "prometheus.io/port" ($svcValues.prometheus.port | default $svcValues.port) }}
   {{- end }}
 
-  {{- if or ($svcValues.prometheus).scheme $.Values.global.defaultPrometheusScheme }}
-    {{- $_ := set $svcValues.annotations "prometheus.io/scheme" ($svcValues.prometheus.scheme | default $.Values.global.defaultPrometheusScheme) }}
+  {{- if or ($svcValues.prometheus).scheme $.Values.defaultPrometheusScheme }}
+    {{- $_ := set $svcValues.annotations "prometheus.io/scheme" ($svcValues.prometheus.scheme | default $.Values.defaultPrometheusScheme) }}
   {{- end }}
 
-  {{- if or ($svcValues.prometheus).scrape $.Values.global.defaultPrometheusScrape }}
-    {{- $_ := set $svcValues.annotations "prometheus.io/scrape" ($svcValues.prometheus.scrape | default $.Values.global.defaultPrometheusScrape) }}
+  {{- if or ($svcValues.prometheus).scrape $.Values.defaultPrometheusScrape }}
+    {{- $_ := set $svcValues.annotations "prometheus.io/scrape" ($svcValues.prometheus.scrape | default $.Values.defaultPrometheusScrape) }}
   {{- end }}
 {{- end }}
 
@@ -217,7 +219,7 @@ Service Prometheus 3Scale definition
   {{- $ := index . 0 }}
   {{- $svcValues := index . 1 }}
   {{- $_ := set $svcValues "annotations" ($svcValues.annotations | default dict) }}
-  {{- $_ := set $svcValues.annotations "discovery.3scale.net/path" ($svcValues.threeScale.port | default $svcValues.port | default $.Values.global.defaultPort) }}
-  {{- $_ := set $svcValues.annotations "discovery.3scale.net/port" ($svcValues.threeScale.path | default $.Values.global.default3ScalePath) }}
-  {{- $_ := set $svcValues.annotations "discovery.3scale.net/scheme" ($svcValues.threeScale.scheme | default $.Values.global.default3ScaleScheme) }}
+  {{- $_ := set $svcValues.annotations "discovery.3scale.net/path" ($svcValues.threeScale.port | default $svcValues.port | default $.Values.defaultPort) }}
+  {{- $_ := set $svcValues.annotations "discovery.3scale.net/port" ($svcValues.threeScale.path | default $.Values.default3ScalePath) }}
+  {{- $_ := set $svcValues.annotations "discovery.3scale.net/scheme" ($svcValues.threeScale.scheme | default $.Values.default3ScaleScheme) }}
 {{- end }}

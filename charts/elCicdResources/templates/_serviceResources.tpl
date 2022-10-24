@@ -21,13 +21,13 @@ spec:
   - host: {{ $ingressValues.host | default (printf "%s%s" $ingressValues.appName $.Values.ingressHostSuffix) }}
     http:
       paths:
-      - path: {{ $ingressValues.path | default $.Values.global.defaultIngressRulePath }}
-        pathType: {{ $ingressValues.pathType | default $.Values.global.defaultIngressRulePathType }}
+      - path: {{ $ingressValues.path | default $.Values.defaultIngressRulePath }}
+        pathType: {{ $ingressValues.pathType | default $.Values.defaultIngressRulePathType }}
         backend:
           service:
             name: {{ $ingressValues.appName }}
             port:
-              number: {{ $ingressValues.port | default $.Values.global.defaultPort }}
+              number: {{ $ingressValues.port | default $.Values.defaultPort }}
   {{- end }}
   {{- if $ingressValues.tls }}
   tls: {{ $ingressValues.tls | toYaml | nindent 4 }}
@@ -68,19 +68,19 @@ spec:
     {{- (($svcValues.service).ports | default $svcValues.ports) | toYaml | nindent 2 }}
   {{- else }}
   - name: {{ $svcValues.appName }}-port
-    port: {{ $svcValues.port | default $.Values.global.defaultPort }}
+    port: {{ $svcValues.port | default $.Values.defaultPort }}
     {{- if $svcValues.targetPort }}
     targetPort: {{ $svcValues.targetPort }}
     {{- end }}
-    {{- if or $svcValues.protocol $.Values.global.defaultProtocol }}
-    protocol: {{ $svcValues.protocol | default $.Values.global.defaultProtocol }}
+    {{- if or $svcValues.protocol $.Values.defaultProtocol }}
+    protocol: {{ $svcValues.protocol | default $.Values.defaultProtocol }}
     {{- end }}
   {{- end }}
   {{- if or ($svcValues.prometheus).port $svcValues.usePrometheus }}
   - name: prometheus-port
-    port: {{ ($svcValues.prometheus).port | default $.Values.global.defaultPrometheusPort }}
-    {{- if or ($svcValues.prometheus).protocol $.Values.global.defaultPrometheusProtocol }}
-    protocol: {{ ($svcValues.prometheus).protocol | default $.Values.global.defaultPrometheusProtocol }}
+    port: {{ ($svcValues.prometheus).port | default $.Values.defaultPrometheusPort }}
+    {{- if or ($svcValues.prometheus).protocol $.Values.defaultPrometheusProtocol }}
+    protocol: {{ ($svcValues.prometheus).protocol | default $.Values.defaultPrometheusProtocol }}
     {{- end }}
   {{- end }}
 {{- end }}
