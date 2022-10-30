@@ -76,10 +76,9 @@ spec:
                           "tolerations"
                           "topologySpreadConstraints"
                           "volumes" }}
-  {{- include "elCicdResources.outputToYaml" (list $podValues $whiteList) }}
   containers:
     {{- $containers := prepend ($podValues.sidecars | default list) $podValues }}
-    {{- include "elCicdResources.containers" (list $ $containers) | trim | nindent 2 }}
+    {{- include "elCicdResources.containers" (list $ $podValues $containers) | trim | nindent 2 }}
   {{- if $podValues.ephemeralContainers }}
   ephemeralContainers:
     {{- include "elCicdResources.containers" (list $ $podValues.ephemeralContainers false) | trim | nindent 2 }}
@@ -111,6 +110,7 @@ spec:
       type: RuntimeDefault
     {{- end }}
   {{- end }}
+  {{- include "elCicdResources.outputToYaml" (list $podValues $whiteList) }}
 {{- end }}
 
 {{/*
@@ -118,7 +118,8 @@ Container definition
 */}}
 {{- define "elCicdResources.containers" }}
 {{- $ := index . 0 }}
-{{- $containers := index . 1 }}
+{{- $podValues := index . 1 }}
+{{- $containers := index . 2 }}
 {{- $whiteList := list "args"
                        "command"
                        "env"
@@ -137,9 +138,11 @@ Container definition
                        "workingDir" }}
 {{- range $containerVals := $containers }}
 - name: {{ $containerVals.name | default $containerVals.appName }}
+  {{- if $containerVals.envFromSelectors }}
+    {{- include "elCicdResources.envFrom" }}
+  {{- end }}
   image: {{ $containerVals.image | default $.Values.defaultImage }}
   imagePullPolicy: {{ $containerVals.imagePullPolicy | default $.Values.defaultImagePullPolicy }}
-  {{- include "elCicdResources.outputToYaml" (list $containerVals $whiteList) }}
   {{- if or $containerVals.ports $containerVals.port $.Values.defaultPort $containerVals.usePrometheus }}
   ports:
     {{- if and $containerVals.ports $containerVals.port }}
@@ -184,42 +187,9 @@ Container definition
       drop:
       - ALL
   {{- end }}
+  {{- if $containerVals.projectedVolumeLabels }}
+    {{- include "elCicdResources.createProjectedVolumesByLabels" (list $ $podValues $containerVals)}}
+  {{- end }}
+  {{- include "elCicdResources.outputToYaml" (list $containerVals $whiteList) }}
 {{- end }}
-{{- end }}
-
-{{/*
-Service Prometheus Annotations definition
-*/}}
-{{- define "elCicdResources.svcPrometheusAnnotations" }}
-  {{- $ := index . 0 }}
-  {{- $svcValues := index . 1 }}
-  {{- $_ := set $svcValues "annotations" ($svcValues.annotations | default dict) }}
-
-  {{- if or ($svcValues.prometheus).path $.Values.defaultPrometheusPath }}
-    {{- $_ := set $svcValues.annotations "prometheus.io/path" ($svcValues.prometheus.path | default $.Values.defaultPrometheusPath) }}
-  {{- end }}
-
-  {{- if or ($svcValues.prometheus).port $.Values.defaultPrometheusPort }}
-    {{- $_ := set $svcValues.annotations "prometheus.io/port" ($svcValues.prometheus.port | default $svcValues.port) }}
-  {{- end }}
-
-  {{- if or ($svcValues.prometheus).scheme $.Values.defaultPrometheusScheme }}
-    {{- $_ := set $svcValues.annotations "prometheus.io/scheme" ($svcValues.prometheus.scheme | default $.Values.defaultPrometheusScheme) }}
-  {{- end }}
-
-  {{- if or ($svcValues.prometheus).scrape $.Values.defaultPrometheusScrape }}
-    {{- $_ := set $svcValues.annotations "prometheus.io/scrape" ($svcValues.prometheus.scrape | default $.Values.defaultPrometheusScrape) }}
-  {{- end }}
-{{- end }}
-
-{{/*
-Service Prometheus 3Scale definition
-*/}}
-{{- define "elCicdResources.3ScaleAnnotations" }}
-  {{- $ := index . 0 }}
-  {{- $svcValues := index . 1 }}
-  {{- $_ := set $svcValues "annotations" ($svcValues.annotations | default dict) }}
-  {{- $_ := set $svcValues.annotations "discovery.3scale.net/path" ($svcValues.threeScale.port | default $svcValues.port | default $.Values.defaultPort) }}
-  {{- $_ := set $svcValues.annotations "discovery.3scale.net/port" ($svcValues.threeScale.path | default $.Values.default3ScalePath) }}
-  {{- $_ := set $svcValues.annotations "discovery.3scale.net/scheme" ($svcValues.threeScale.scheme | default $.Values.default3ScaleScheme) }}
 {{- end }}

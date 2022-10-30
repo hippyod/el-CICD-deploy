@@ -2,6 +2,13 @@
 
 {{- define "elCicdRenderer.initElCicdRenderer" }}
   {{- $ := . }}
+  
+  {{- range $dep := $.Chart.Dependencies }}
+    {{- if (eq $dep.Name "elCicdResources") }}
+      {{- include "elCicdResources.initElCicdResources" $ }}
+    {{- end }}
+  {{- end }}
+    
   {{- if $.Values.profiles }}
     {{- if not (kindIs "slice" $.Values.profiles) }}
       {{- fail (printf "Profiles must be specified as an array: %s" $.Values.profiles) }}
@@ -18,10 +25,11 @@
   
   {{- $_ := set $.Values "defaultRenderChart" ($.Values.defaultRenderChart | default "elCicdResources") }}
   
-  {{- $_ := set $.Values "MAX_RECURSION" (int 4) }}
+  {{- $_ := set $.Values "MAX_RECURSION" (int 5) }}
   {{- $_ := set $.Values "FILE_PREFIX" "${FILE|" }}
   {{- $_ := set $.Values "CONFIG_FILE_PREFIX" "${CONFIG|" }}
-  {{- $_ := set $.Values "ELCICD_PARAM_REGEX" "[\\$][\\{](?:FILE\\||CONFIG\\|)?([\\w]+?(?:-[\\w]+?)*)[\\}]" }}
+  {{- $_ := set $.Values "ELCICD_FILE_REF_REGEX" "[\\$][\\{](?:FILE\\||CONFIG\\|)([\\w]+?(?:[.-][\\w]+?)*)[\\}]" }}
+  {{- $_ := set $.Values "ELCICD_PARAM_REGEX" "[\\$][\\{]([\\w]+?(?:[-][\\w]+?)*)[\\}]" }}
   {{- $_ := set $.Values.elCicdDefs "RELEASE_NAMESPACE" $.Release.Namespace }}
 {{- end }}
 
@@ -57,6 +65,25 @@
   {{- end }}
 {{- end }}
 
+{{- define "elCicdRenderer.addNamespaces" }}
+  {{- $ := . }}
+
+  {{- if $.Values.createNamespaces }}
+    {{- range $template := $.Values.allTemplates }}
+      {{- if $template.namespace }}
+        {{- $namespace := (lookup "v1" "namespace" "" $template.namespace) }}
+        {{- if (not $namespace) }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ $template.namespace }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
 {{- define "elCicdRenderer.circularReferenceCheck" }}
   {{- $value := index . 0 }}
   {{- $key := index . 1 }}
@@ -69,6 +96,6 @@
   {{- end }}
 {{- end }}
 
-{{ define "elCicdRenderer.skippedTemplateLog" }}
+{{- define "elCicdRenderer.skippedTemplateLog" }}
 # EXCLUDED BY PROFILES: {{ index . 0 }} -> {{ index . 1 }}
 {{- end }}

@@ -18,7 +18,7 @@ spec:
   rules: {{ $ingressValues.rules | toYaml | nindent 4 }}
   {{- else }}
   rules:
-  - host: {{ $ingressValues.host | default (printf "%s%s" $ingressValues.appName $.Values.ingressHostSuffix) }}
+  - host: {{ $ingressValues.host | default (printf "%s%s" $ingressValues.appName $.Values.ingressHostDomain) }}
     http:
       paths:
       - path: {{ $ingressValues.path | default $.Values.defaultIngressRulePath }}
@@ -44,7 +44,7 @@ Service
 {{- $ := index . 0 }}
 {{- $svcValues := index . 1 }}
 {{- if or ($svcValues.prometheus).port $.Values.usePrometheus }}
-  {{- include "elCicdResources.svcPrometheusAnnotations" . }}
+  {{- include "elCicdResources.prometheusAnnotations" . }}
 {{- end }}
 {{- if or $svcValues.threeScalePort $.Values.use3Scale }}
   {{- include "elCicdResources.3ScaleAnnotations" . }}

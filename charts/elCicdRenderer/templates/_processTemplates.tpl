@@ -26,7 +26,7 @@
         {{- $allTemplates = append $allTemplates $template }}
       {{- end }}
     {{- end }}
-    {{ $_ := set $.Values "allTemplates" $allTemplates }}
+    {{- $_ := set $.Values "allTemplates" $allTemplates }}
   {{- end }}
 {{- end }}
 
@@ -114,23 +114,66 @@
   {{- end }}
   {{- $depth := add $depth 1 }}
   
-  {{- if (hasPrefix $.Values.FILE_PREFIX $value) }}
-    {{- $filePath := ( $value | trimPrefix $.Values.FILE_PREFIX | trimSuffix "}") }} 
-    {{- $value = $.Files.Get $filePath }}
-  {{- else if  (hasPrefix $.Values.CONFIG_FILE_PREFIX $value) }}
-    {{- $filePath := ( $value | trimPrefix $.Values.CONFIG_FILE_PREFIX | trimSuffix "}") }} 
-    {{- $value = $.Files.AsConfig $filePath }}
-  {{- end }}
-  {{- $_ := set $map $key $value }}
+  {{- $fileMatches := regexFindAll $.Values.ELCICD_FILE_REF_REGEX $value -1 | uniq }}
+  {{- $processDefList = (concat $processDefList $fileMatches | uniq) }}
+  {{- include "elCicdRenderer.replaceFileRefs" (list $ $map $key $fileMatches) }}
+  {{- $value := get $map $key }}
   
   {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $value -1 | uniq }}
+  {{- include "elCicdRenderer.replaceParamRefs" (list $ $map $key $elCicdDefs $matches) }}
+  {{- $value := get $map $key }}
+
+  {{- $processDefList = (concat $processDefList $fileMatches $matches | uniq)  }}
+  {{- if or $fileMatches $matches }}
+    {{- $_ := set $map $key $value }}
+    {{- if $value }}
+      {{- if or (kindIs "map" $value) }}
+        {{- include "elCicdRenderer.processMap" (list $ $value $elCicdDefs) }}
+      {{- else if (kindIs "slice" $value) }}
+        {{- include "elCicdRenderer.processSlice" (list $ $map $key $elCicdDefs) }}
+      {{- else if (kindIs "string" $value) }}
+        {{- include "elCicdRenderer.processMapValue" (list $ $map $key $elCicdDefs $processDefList $depth) }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{- define "elCicdRenderer.replaceFileRefs" }}
+  {{- $ := index . 0 }}
+  {{- $map := index . 1 }}
+  {{- $key := index . 2 }}
+  {{- $fileMatches := index . 3 }}
+  
+  {{- $value := get $map $key }}
+  {{- range $elCicdFileRef := $fileMatches }}
+    {{- $fileContent := "" }}
+    {{- if (hasPrefix $.Values.FILE_PREFIX $elCicdFileRef) }}
+      {{- $filePath := ( $elCicdFileRef | trimPrefix $.Values.FILE_PREFIX | trimSuffix "}") }}
+      {{- $fileContent = $.Files.Get $filePath }}
+    {{- else if  (hasPrefix $.Values.CONFIG_FILE_PREFIX $elCicdFileRef) }}
+      {{- $filePath := ( $elCicdFileRef | trimPrefix $.Values.CONFIG_FILE_PREFIX | trimSuffix "}") }} 
+      {{- $fileContent = $.Files.AsConfig $filePath }}
+    {{- end }}
+    {{- $value = replace $elCicdFileRef (toString $fileContent) $value }}
+  {{- end }}
+  
+  {{- $_ := set $map $key $value }}
+{{- end }}
+
+{{- define "elCicdRenderer.replaceParamRefs" }}
+  {{- $ := index . 0 }}
+  {{- $map := index . 1 }}
+  {{- $key := index . 2 }}
+  {{- $elCicdDefs := index . 3 }}
+  {{- $matches := index . 4 }}
+  
+  {{- $value := get $map $key }}
   {{- range $elCicdRef := $matches }}
     {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
-    {{- $processDefList = append $processDefList $elCicdDef }}
 
     {{- $paramVal := get $elCicdDefs $elCicdDef }}
     
-    {{ if (kindIs "string" $paramVal) }}
+    {{- if (kindIs "string" $paramVal) }}
       {{- $value = replace $elCicdRef (toString $paramVal) $value }}
     {{- else }}
       {{- if (kindIs "map" $paramVal) }}
@@ -148,19 +191,8 @@
       {{- $value = $paramVal }}
     {{- end }}
   {{- end }}
-
-  {{- if $matches }}
-    {{- $_ := set $map $key $value }}
-    {{- if $value }}
-      {{- if or (kindIs "map" $value) }}
-        {{- include "elCicdRenderer.processMap" (list $ $value $elCicdDefs) }}
-      {{- else if (kindIs "slice" $value) }}
-        {{- include "elCicdRenderer.processSlice" (list $ $map $key $elCicdDefs) }}
-      {{- else if (kindIs "string" $value) }}
-        {{- include "elCicdRenderer.processMapValue" (list $ $map $key $elCicdDefs $processDefList $depth) }}
-      {{- end }}
-    {{- end }}
-  {{- end }}
+  
+  {{- $_ := set $map $key $value }}
 {{- end }}
 
 {{- define "elCicdRenderer.processMapKey" }}
@@ -179,7 +211,7 @@
     {{- $processDefList = append $processDefList $elCicdDef }}
     
     {{- $paramVal := get $elCicdDefs $elCicdDef }}
-    {{ $_ := unset $map $key }}
+    {{- $_ := unset $map $key }}
     {{- $key = replace $elCicdRef (toString $paramVal) $key }}
   {{- end }}
   {{- if ne $oldKey $key }}

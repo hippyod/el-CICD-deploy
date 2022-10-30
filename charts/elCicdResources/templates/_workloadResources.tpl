@@ -15,7 +15,7 @@ spec:
                          "parallelism"	
                          "ttlSecondsAfterFinished" }}
   schedule: "{{ $cjValues.schedule}}"
-  {{ $_ := set $cjValues "restartPolicy" ($cjValues.restartPolicy | default "Never") }}
+  {{- $_ := set $cjValues "restartPolicy" ($cjValues.restartPolicy | default "Never") }}
   {{- include "elCicdResources.outputToYaml" (list $cjValues $whiteList) }}
   jobTemplate: {{ include "elCicdResources.jobTemplate" . | indent 4 }}
 {{- end }}

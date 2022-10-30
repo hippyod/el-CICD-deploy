@@ -9,18 +9,12 @@ elCicdDefs:
   JENKINS_VOLUME_MNTS:
   - mountPath: /var/lib/jenkins
     name: ${JENKINS_SERVICE_NAME}-data
-  - mountPath: /var/lib/jenkins/mounted-jenkins-jobs
-    name: mounted-jenkins-jobs
   JENKINS_VOLUMES:
   - name: ${JENKINS_SERVICE_NAME}-data
     persistentVolumeClaim:
       claimName: ${JENKINS_SERVICE_NAME}
-  - name: mounted-jenkins-jobs
-    projected:
-      defaultMode: 0777
-      sources: ${VOLUME_JOB_SOURCES}
 
-elCicdTemplates::
+elCicdTemplates:
 - templateName: deployment
   appName: ${JENKINS_SERVICE_NAME}
   labels:
@@ -85,6 +79,13 @@ elCicdTemplates::
   # - mountPath: /etc/pki/ca-trust/source/anchors
   #   name: ${JENKINS_SERVICE_NAME}-trusted-ca-bundle
   volumes: ${JENKINS_VOLUMES}
+  projectedVolumeLabels:
+  - name: mounted-jenkins-jobs
+    mountPath: /var/lib/jenkins/mounted-jenkins-jobs
+    labels:
+    - jenkins-folder
+    - jenkins-pipeline
+    
   
   # - configMap:
   #     name: ${JENKINS_SERVICE_NAME}-trusted-ca-bundle
@@ -141,25 +142,3 @@ elCicdTemplates::
   appName: ${JENKINS_SERVICE_NAME}-agent-home
   storageRequest: ${VOLUME_CAPACITY}
   accessMode: ReadWriteMany
-  
-- templateName: configMap
-  appName: jenkins-folder
-  data:
-    configXml: |-
-      <com.cloudbees.hudson.plugins.folder.Folder plugin="cloudbees-folder">
-          <properties />
-          <folderViews class="com.cloudbees.hudson.plugins.folder.views.DefaultFolderViewHolder">
-              <views>
-                  <hudson.model.AllView>
-                      <owner class="com.cloudbees.hudson.plugins.folder.Folder" reference="../../../.." />
-                      <name>All</name>
-                      <filterExecutors>false</filterExecutors>
-                      <filterQueue>false</filterQueue>
-                      <properties class="hudson.model.View$PropertyList" />
-                  </hudson.model.AllView>
-              </views>
-              <tabBar class="hudson.views.DefaultViewsTabBar" />
-          </folderViews>
-          <healthMetrics />
-          <icon class="com.cloudbees.hudson.plugins.folder.icons.StockFolderIcon" />
-      </com.cloudbees.hudson.plugins.folder.Folder>

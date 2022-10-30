@@ -1,3 +1,40 @@
+
+{{/*
+Iniitialize elCicdResources chart
+*/}}
+{{- define "elCicdResources.initElCicdResources" }}
+  {{- $ := . }}
+  
+  {{- $_ := set $.Values "defaultDeploymentRevisionHistoryLimit" ($.Values.defaultDeploymentRevisionHistoryLimit | default 0) }}
+
+  {{- $_ := set $.Values "defaultImagePullPolicy" ($.Values.defaultDeploymentRevisionHistoryLimit | default "Always") }}
+
+  {{- $_ := set $.Values "defaultPort" ($.Values.defaultDeploymentRevisionHistoryLimit | default "8080") }}
+  {{- $_ := set $.Values "defaultProtocol" ($.Values.defaultDeploymentRevisionHistoryLimit | default "TCP") }}
+
+  {{- $_ := set $.Values "defaultLimitsCpu" ($.Values.defaultDeploymentRevisionHistoryLimit | default "200m") }}
+  {{- $_ := set $.Values "defaultLimitsMemory" ($.Values.defaultDeploymentRevisionHistoryLimit | default "500Mi") }}
+
+  {{- $_ := set $.Values "defaultRequestsCpu" ($.Values.defaultDeploymentRevisionHistoryLimit | default "100m") }}
+  {{- $_ := set $.Values "defaultRequestsMemory" ($.Values.defaultDeploymentRevisionHistoryLimit | default "50Mi") }}
+
+  {{- $_ := set $.Values "defaultIngressRulePath" ($.Values.defaultDeploymentRevisionHistoryLimit | default "/") }}
+  {{- $_ := set $.Values "defaultIngressRulePathType" ($.Values.defaultDeploymentRevisionHistoryLimit | default "Prefix") }}
+
+  {{- $_ := set $.Values "defaultPvReclaimPolicy" ($.Values.defaultDeploymentRevisionHistoryLimit | default "Reclaim") }}
+  {{- $_ := set $.Values "defaultPvAccessMode" ($.Values.defaultDeploymentRevisionHistoryLimit | default "ReadWriteOnce") }}
+
+  {{- $_ := set $.Values "defaultPrometheusPort" ($.Values.defaultDeploymentRevisionHistoryLimit | default "9090") }}
+  {{- $_ := set $.Values "defaultPrometheusPath" ($.Values.defaultDeploymentRevisionHistoryLimit | default "/metrics") }}
+  {{- $_ := set $.Values "defaultPrometheusScheme" ($.Values.defaultDeploymentRevisionHistoryLimit | default "https") }}
+  {{- $_ := set $.Values "defaultPrometheusScrape" ($.Values.defaultDeploymentRevisionHistoryLimit | default "false") }}
+  {{- $_ := set $.Values "defaultPrometheusProtocol" ($.Values.defaultDeploymentRevisionHistoryLimit | default "TCP") }}
+
+  {{- $_ := set $.Values "default3ScaleScheme" ($.Values.defaultDeploymentRevisionHistoryLimit | default "https") }}
+{{- end }}
+
+
+
 {{/*
 General Metadata Template
 */}}
@@ -98,19 +135,40 @@ app: {{ $template.appName }}
 {{- end }}
 
 {{/*
-Scale3 Annotations
+Service Prometheus Annotations definition
 */}}
-{{- define "elCicdResources.scale3Annotations" -}}
-discovery.3scale.net/path: {{ .threeScale.path }}
-discovery.3scale.net/port: {{ .threeScale.port }}
-discovery.3scale.net/scheme: {{ .threeScale.scheme }}
+{{- define "elCicdResources.prometheusAnnotations" }}
+  {{- $ := index . 0 }}
+  {{- $svcValues := index . 1 }}
+  {{- $_ := set $svcValues "annotations" ($svcValues.annotations | default dict) }}
+
+  {{- if or ($svcValues.prometheus).path $.Values.defaultPrometheusPath }}
+    {{- $_ := set $svcValues.annotations "prometheus.io/path" ($svcValues.prometheus.path | default $.Values.defaultPrometheusPath) }}
+  {{- end }}
+
+  {{- if or ($svcValues.prometheus).port $.Values.defaultPrometheusPort }}
+    {{- $_ := set $svcValues.annotations "prometheus.io/port" ($svcValues.prometheus.port | default $svcValues.port) }}
+  {{- end }}
+
+  {{- if or ($svcValues.prometheus).scheme $.Values.defaultPrometheusScheme }}
+    {{- $_ := set $svcValues.annotations "prometheus.io/scheme" ($svcValues.prometheus.scheme | default $.Values.defaultPrometheusScheme) }}
+  {{- end }}
+
+  {{- if or ($svcValues.prometheus).scrape $.Values.defaultPrometheusScrape }}
+    {{- $_ := set $svcValues.annotations "prometheus.io/scrape" ($svcValues.prometheus.scrape | default $.Values.defaultPrometheusScrape) }}
+  {{- end }}
 {{- end }}
 
 {{/*
-Scale3 Labels
+Service Prometheus 3Scale definition
 */}}
-{{- define "elCicdResources.scale3Labels" -}}
-discovery.3scale.net: {{ .threeScale.scheme }}
+{{- define "elCicdResources.3ScaleAnnotations" }}
+  {{- $ := index . 0 }}
+  {{- $svcValues := index . 1 }}
+  {{- $_ := set $svcValues "annotations" ($svcValues.annotations | default dict) }}
+  {{- $_ := set $svcValues.annotations "discovery.3scale.net/path" ($svcValues.threeScale.port | default $svcValues.port | default $.Values.defaultPort) }}
+  {{- $_ := set $svcValues.annotations "discovery.3scale.net/port" ($svcValues.threeScale.path | default $.Values.default3ScalePath) }}
+  {{- $_ := set $svcValues.annotations "discovery.3scale.net/scheme" ($svcValues.threeScale.scheme | default $.Values.default3ScaleScheme) }}
 {{- end }}
 
 {{- define "elCicdResources.outputToYaml" }}
