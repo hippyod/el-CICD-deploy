@@ -7,7 +7,7 @@
 
   {{- include "elCicdRenderer.mergeProfileDefs" (list $ $.Values $.Values.elCicdDefs) }}
 
-  {{- include "elCicdRenderer.processAppNames" . }}
+  {{- include "elCicdRenderer.generateAllTemplates" . }}
 
   {{- include "elCicdRenderer.processTemplates" (list $ $.Values.allTemplates $.Values.elCicdDefs) }}
 

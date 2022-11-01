@@ -97,7 +97,7 @@ elCicdTemplates:
   - redeploy-or-remove-components
   - create-release-candidate
   - redeploy-release-candidate
-  appName: ${INDEX}-${}
+  appName: ${#}-${}
   labels: ${SHARED_PIPELINE_LABELS}
   elCicdDefs:
     EL_CICD_API_CALL: |-
@@ -127,9 +127,8 @@ elCicdTemplates:
   data: ${PIPELINE_CONFIG_MAP_DATA}
   
 - templateName: roleBinding
-  appNames: ${SDLC_NAMESPACES}
-  appName: ${JENKINS_SERVICEACCOUNT_NAME}-${}
-  namespace: ${BASE_APP_NAME}
+  appName: ${PROJECT_ID}-edit
+  namespaces: ${SDLC_NAMESPACES}
   roleRef:
     apiGroup: rbac.authorization.k8s.io
     kind: ClusterRole
@@ -139,4 +138,5 @@ elCicdTemplates:
     name: ${JENKINS_SERVICEACCOUNT_NAME}
     namespace: ${JENKINS_SERVICEACCOUNT_NAMESPACE}
   - kind: Group
-    name: ${${BASE_APP_NAME}_GROUP}
+    name: ${${BASE_NAME_SPACE}_GROUP}
+  

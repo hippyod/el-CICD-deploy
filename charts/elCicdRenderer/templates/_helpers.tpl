@@ -33,51 +33,60 @@
   {{- $_ := set $.Values.elCicdDefs "RELEASE_NAMESPACE" $.Release.Namespace }}
 {{- end }}
 
-{{- define "elCicdRenderer.profileRenderingCheck" }}
-  {{- $ := index . 0 }}
-  {{- $template := index . 1 }}
+{{- define "elCicdRenderer.filterTemplates" }}
+  {{- $ := . }}
   
-  {{- $anyProfile := not $template.anyProfiles }}
-  {{- range $profile := $template.anyProfiles }}
-    {{- $anyProfile = or $anyProfile (has $profile $.Values.profiles) }}
-  {{- end }}
-  
-  {{- $ignoreExactlyProfiles := $template.ignoreExactlyProfiles }}
-  {{- range $profile := $template.ignoreExactlyProfilesProfiles }}
-    {{- $ignoreExactlyProfiles = and $ignoreExactlyProfiles (has $profile $.Values.profiles) }}
-  {{- end }}
+  {{- $renderList := list }}
+  {{- $skippedList := list }}
+  {{- range $template := $.Values.elCicdTemplates  }}
+    {{- $anyProfile := not $template.anyProfiles }}
+    {{- range $profile := $template.anyProfiles }}
+      {{- $anyProfile = or $anyProfile (has $profile $.Values.profiles) }}
+    {{- end }}
+    
+    {{- $ignoreExactlyProfiles := $template.ignoreExactlyProfiles }}
+    {{- range $profile := $template.ignoreExactlyProfilesProfiles }}
+      {{- $ignoreExactlyProfiles = and $ignoreExactlyProfiles (has $profile $.Values.profiles) }}
+    {{- end }}
 
-  {{- $mustHaveProfiles := true }}
-  {{- range $profile := $template.mustHaveProfiles }}
-    {{- $mustHaveRender = and $mustHaveRender (has $profile $.Values.profiles) }}
+    {{- $mustHaveProfiles := true }}
+    {{- range $profile := $template.mustHaveProfiles }}
+      {{- $mustHaveRender = and $mustHaveRender (has $profile $.Values.profiles) }}
+    {{- end }}
+    
+    {{- $ignoreAnyProfiles := false }}
+    {{- range $profile := $template.ignoreAnyProfiles }}
+      {{- $ignoreAnyProfiles = or $ignoreAnyProfiles (has $profile $.Values.profiles) }}
+    {{- end }}
+    
+    {{- if and $anyProfile $mustHaveProfiles (not $ignoreExactlyProfiles) (not $ignoreAnyProfiles) }}
+      {{- $renderList = append $renderList $template }}
+    {{- else }}
+      {{- $skippedList = append $skippedList (list $template.templateName ($template.appNames | default $template.appName)) }}
+    {{- end }}
   {{- end }}
   
-  {{- $ignoreAnyProfiles := false }}
-  {{- range $profile := $template.ignoreAnyProfiles }}
-    {{- $ignoreAnyProfiles = or $ignoreAnyProfiles (has $profile $.Values.profiles) }}
-  {{- end }}
-  
-  {{- if and $anyProfile $mustHaveProfiles (not $ignoreExactlyProfiles) (not $ignoreAnyProfiles) }}
-    {{- $_ := set $template "shouldRender" true }}
-  {{- else }}
-    {{- $skippedList := (list $template.templateName ($template.appNames | default $template.appName)) }}
-    {{- $_ := set $.Values "skippedTemplates" (append $.Values.skippedTemplates $skippedList) }}
-  {{- end }}
+  {{- $_ := set $.Values "renderingTemplates" $renderList }}
+  {{- $_ := set $.Values "skippedTemplates" $skippedList }}
 {{- end }}
 
 {{- define "elCicdRenderer.addNamespaces" }}
   {{- $ := . }}
 
+  {{- $namespaceSet := dict }}
   {{- if $.Values.createNamespaces }}
     {{- range $template := $.Values.allTemplates }}
       {{- if $template.namespace }}
-        {{- $namespace := (lookup "v1" "namespace" "" $template.namespace) }}
-        {{- if (not $namespace) }}
+        {{- if not (hasKey $namespaceSet $template.namespace) }}
+          {{- $_ := set $namespaceSet $template.namespace "foo" }}
+          {{- $namespace := (lookup "v1" "namespace" "" $template.namespace) }}
+          {{- if (not $namespace) }}
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
   name: {{ $template.namespace }}
+          {{- end }}
         {{- end }}
       {{- end }}
     {{- end }}

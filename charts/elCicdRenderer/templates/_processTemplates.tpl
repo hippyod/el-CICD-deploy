@@ -1,58 +1,104 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 
-{{- define "elCicdRenderer.processAppNames" }}
+{{- define "elCicdRenderer.generateAllTemplates" }}
   {{- $ := . }}
+  
+  {{- if $.Values.elCicdSupplementalTemplates }}
+    {{- $_ := set $.Values "elCicdTemplates" (concat $.Values.elCicdTemplates $.Values.elCicdSupplementalTemplates) }}
+  {{- end }}
+
+  {{- include "elCicdRenderer.filterTemplates" $ }}
 
   {{- $allTemplates := list }}
-  {{- range $template := $.Values.elCicdTemplates  }}
-    {{- include "elCicdRenderer.profileRenderingCheck" (list $ $template) }}
-    
-    {{- if $template.shouldRender }}
-      {{- if $template.appNames }}
-        {{- include "elCicdRenderer.processTemplateAppnames" (list $ $template) }}
-        {{- range $index, $appName := $template.appNames }}
-          {{- $newTemplate := deepCopy $template }}
-          {{- $_ := set $newTemplate "appName" ($newTemplate.appName | default "") }}
-          {{- if or (contains "${}" $newTemplate.appName) (contains "${INDEX}" $newTemplate.appName) }}
-            {{- $_ := set $newTemplate "elCicdDefs" ($newTemplate.elCicdDefs | default dict) }}
-            {{- $_ := set $newTemplate.elCicdDefs "BASE_APP_NAME" $appName }}
-            {{- $appName = replace "${}" $appName $newTemplate.appName }}
-            {{- $appName = replace "${INDEX}" (add $index 1 | toString) $appName }}
-          {{- end }}
-          {{- $_ := set $newTemplate "appName" $appName }}
-          {{- $allTemplates = append $allTemplates $newTemplate }}
-        {{- end }}
-      {{- else }}
-        {{- $allTemplates = append $allTemplates $template }}
-      {{- end }}
+  {{- $_ := set $.Values "appNameTemplates" list }}
+  {{- $_ := set $.Values "namespaceTemplates" list }}
+  {{- range $template := $.Values.renderingTemplates  }}
+
+    {{- if $template.appNames }}
+      {{- include "elCicdRenderer.processTemplateGenerator" (list $ $template "appNames") }}
+      {{- include "elCicdRenderer.processTplAppNames" (list $ $template) }}
     {{- end }}
-    {{- $_ := set $.Values "allTemplates" $allTemplates }}
+
+    {{- if $template.namespaces }}
+      {{- include "elCicdRenderer.processTemplateGenerator" (list $ $template "namespaces") }}
+      {{- include "elCicdRenderer.processTplNamespaces" (list $ $template) }}
+    {{- end }}
+
+    {{- if not (or $template.appNames $template.namespaces) }}
+      {{- $allTemplates = append $allTemplates $template }}
+    {{- end }}
   {{- end }}
+
+  {{- $_ := set $.Values "allTemplates" (concat $allTemplates $.Values.appNameTemplates $.Values.namespaceTemplates) }}
 {{- end }}
 
-{{- define "elCicdRenderer.processTemplateAppnames" }}
+{{- define "elCicdRenderer.processTemplateGenerator" }}
   {{- $ := index . 0 }}
   {{- $template := index . 1 }}
-  {{- if kindIs "string" $template.appNames }}
-    {{- $appNames := $template.appNames }}
-    {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $appNames -1 }}
+  {{- $generatorName := index . 2 }}
+
+  {{- $generatorVal := get $template $generatorName  }}
+  {{- if kindIs "string" $generatorVal }}
+    {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $generatorVal -1 }}
     {{- range $elCicdRef := $matches }}
       {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
 
       {{- $paramVal := get $.Values.elCicdDefs $elCicdDef }}
       {{- if not $paramVal }}
-        {{- fail (printf "appNames cannot be empty [undefined variable reference]: %s" $elCicdDef) }}
-      {{- else if or (kindIs "string" $paramVal) }}
-        {{- $appNames = replace $elCicdRef (toString $paramVal) $appNames }}
+        {{- fail (printf "%s cannot be empty [undefined parameter reference]: %s" $generatorName $elCicdDef) }}
       {{- end }}
-      {{- $appNames = $paramVal }}
+      {{- $generatorVal = $paramVal }}
     {{- end }}
 
-    {{- $_ := set $template "appNames" $appNames }}
-    {{- include "elCicdRenderer.processTemplateAppnames" . }}
-  {{- else if not (kindIs "slice" $template.appNames) }}
-    {{- fail (printf "appNames must be either a variable or a list: %s" $template.appNames )}}
+    {{- $_ := set $template $generatorName $generatorVal }}
+    {{- if $matches }}
+      {{- include "elCicdRenderer.processTemplateGenerator" (list $ $template $generatorName) }}
+    {{- end }}
+  {{- else if not (kindIs "slice" $generatorVal) }}
+    {{- fail (printf "%s must be either a parameter or a list: %s" $generatorName $generatorVal )}}
   {{- end }}
+{{- end }}
+
+{{- define "elCicdRenderer.processTplAppNames" }}
+  {{- $ := index . 0 }}
+  {{- $template := index . 1 }}
+
+  {{- $appNameTemplates := list }}
+  {{- range $index, $appName := $template.appNames }}
+    {{- $newTemplate := deepCopy $template }}
+    {{- $_ := set $newTemplate "appName" ($newTemplate.appName | default "") }}
+    {{- if or (contains "${}" $newTemplate.appName) (contains "${#}" $newTemplate.appName) }}
+      {{- $_ := set $newTemplate "elCicdDefs" ($newTemplate.elCicdDefs | default dict) }}
+      {{- $_ := set $newTemplate.elCicdDefs "BASE_APP_NAME" $appName }}
+      {{- $appName = replace "${}" $appName $newTemplate.appName }}
+      {{- $appName = replace "${#}" (add $index 1 | toString) $appName }}
+    {{- end }}
+    {{- $_ := set $newTemplate "appName" $appName }}
+    {{- $appNameTemplates = append $appNameTemplates $newTemplate }}
+  {{- end }}
+
+  {{- $_ := set $.Values "appNameTemplates" (concat $.Values.appNameTemplates $appNameTemplates) }}
+{{- end }}
+
+{{- define "elCicdRenderer.processTplNamespaces" }}
+  {{- $ := index . 0 }}
+  {{- $template := index . 1 }}
+
+  {{- $namespaceTemplates := list }}
+  {{- range $index, $namespace := $template.namespaces }}
+    {{- $newTemplate := deepCopy $template }}
+    {{- $_ := set $newTemplate "namespace" ($newTemplate.namespace | default "") }}
+    {{- if or (contains "${}" $newTemplate.namespace) (contains "${#}" $newTemplate.namespace) }}
+      {{- $_ := set $newTemplate "elCicdDefs" ($newTemplate.elCicdDefs | default dict) }}
+      {{- $_ := set $newTemplate.elCicdDefs "BASE_NAME_SPACE" $namespace }}
+      {{- $namespace = replace "${}" $namespace $newTemplate.namespace }}
+      {{- $namespace = replace "${#}" (add $index 1 | toString) $namespace }}
+    {{- end }}
+    {{- $_ := set $newTemplate "namespace" $namespace }}
+    {{- $namespaceTemplates = append $namespaceTemplates $newTemplate }}
+  {{- end }}
+
+  {{- $_ := set $.Values "namespaceTemplates" (concat $.Values.namespaceTemplates $namespaceTemplates) }}
 {{- end }}
 
 {{- define "elCicdRenderer.processTemplates" }}
@@ -64,10 +110,14 @@
     {{- $templateDefs := deepCopy $elCicdDefs }}
     {{- $_ := set $template "appName" ($template.appName | default $templateDefs.APP_NAME) }}
     {{- $_ := required "elCicdRenderer must define template.appName or elCicdDefs.APP_NAME!" $template.appName }}
-    {{- $_ := set $templateDefs "APP_NAME" $template.appName }}
 
     {{- include "elCicdRenderer.mergeMapInto" (list $ $template.elCicdDefs $templateDefs) }}
     {{- include "elCicdRenderer.mergeProfileDefs" (list $ $template $templateDefs) }}
+
+    {{- $_ := set $templateDefs "APP_NAME" $template.appName }}
+    {{- $_ := set $templateDefs "BASE_APP_NAME" ($templateDefs.BASE_APP_NAME | default $templateDefs.APP_NAME) }}
+    {{- $_ := set $templateDefs "NAME_SPACE" $template.namespace }}
+    {{- $_ := set $templateDefs "BASE_NAME_SPACE" ($templateDefs.BASE_NAME_SPACE | default $templateDefs.NAME_SPACE) }}
 
     {{- include "elCicdRenderer.processMap" (list $ $template $templateDefs) }}
   {{- end }}
@@ -107,18 +157,18 @@
   {{- $elCicdDefs := index . 3 }}
   {{- $processDefList := index . 4}}
   {{- $depth := index . 5 }}
-  
+
   {{- $value := get $map $key }}
   {{- if gt $depth (int $.Values.MAX_RECURSION) }}
     {{- fail (printf "ERROR: Potential circular reference?\nelCicdDefs Found [%s]: %s\n%s: %s " $elCicdDefs.APP_NAME $processDefList $key $value) }}
   {{- end }}
   {{- $depth := add $depth 1 }}
-  
+
   {{- $fileMatches := regexFindAll $.Values.ELCICD_FILE_REF_REGEX $value -1 | uniq }}
   {{- $processDefList = (concat $processDefList $fileMatches | uniq) }}
   {{- include "elCicdRenderer.replaceFileRefs" (list $ $map $key $fileMatches) }}
   {{- $value := get $map $key }}
-  
+
   {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $value -1 | uniq }}
   {{- include "elCicdRenderer.replaceParamRefs" (list $ $map $key $elCicdDefs $matches) }}
   {{- $value := get $map $key }}
@@ -143,7 +193,7 @@
   {{- $map := index . 1 }}
   {{- $key := index . 2 }}
   {{- $fileMatches := index . 3 }}
-  
+
   {{- $value := get $map $key }}
   {{- range $elCicdFileRef := $fileMatches }}
     {{- $fileContent := "" }}
@@ -151,12 +201,12 @@
       {{- $filePath := ( $elCicdFileRef | trimPrefix $.Values.FILE_PREFIX | trimSuffix "}") }}
       {{- $fileContent = $.Files.Get $filePath }}
     {{- else if  (hasPrefix $.Values.CONFIG_FILE_PREFIX $elCicdFileRef) }}
-      {{- $filePath := ( $elCicdFileRef | trimPrefix $.Values.CONFIG_FILE_PREFIX | trimSuffix "}") }} 
+      {{- $filePath := ( $elCicdFileRef | trimPrefix $.Values.CONFIG_FILE_PREFIX | trimSuffix "}") }}
       {{- $fileContent = $.Files.AsConfig $filePath }}
     {{- end }}
     {{- $value = replace $elCicdFileRef (toString $fileContent) $value }}
   {{- end }}
-  
+
   {{- $_ := set $map $key $value }}
 {{- end }}
 
@@ -166,13 +216,13 @@
   {{- $key := index . 2 }}
   {{- $elCicdDefs := index . 3 }}
   {{- $matches := index . 4 }}
-  
+
   {{- $value := get $map $key }}
   {{- range $elCicdRef := $matches }}
     {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
 
     {{- $paramVal := get $elCicdDefs $elCicdDef }}
-    
+
     {{- if (kindIs "string" $paramVal) }}
       {{- $value = replace $elCicdRef (toString $paramVal) $value }}
     {{- else }}
@@ -191,7 +241,7 @@
       {{- $value = $paramVal }}
     {{- end }}
   {{- end }}
-  
+
   {{- $_ := set $map $key $value }}
 {{- end }}
 
@@ -209,7 +259,7 @@
     {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
     {{- include "elCicdRenderer.circularReferenceCheck" (list $value $key $elCicdRef $elCicdDef $processDefList) }}
     {{- $processDefList = append $processDefList $elCicdDef }}
-    
+
     {{- $paramVal := get $elCicdDefs $elCicdDef }}
     {{- $_ := unset $map $key }}
     {{- $key = replace $elCicdRef (toString $paramVal) $key }}

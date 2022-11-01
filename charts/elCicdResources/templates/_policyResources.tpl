@@ -1,13 +1,6 @@
 {{/*
 ResourceQuota
 */}}
-{{- define "elCicdResources.quota" }}
-  {{- include "elCicdResources.resourceQuota" . }}  
-{{- end }}
-
-{{/*
-ResourceQuota
-*/}}
 {{- define "elCicdResources.resourceQuota" }}
 {{- $ := index . 0 }}
 {{- $quotaValues := index . 1 }}
@@ -16,13 +9,13 @@ ResourceQuota
 {{- include "elCicdResources.apiObjectHeader" . }}
 spec:
   hard:
-  {{- range $key, $value := $quotaValues }}
-    {{- if (hasPrefix "limits." $key) }}
-      {{ $key }}: {{ $value }} 
-    {{- end }}
-  {{- end }}
+  {{- $quotaValues.hard | toYaml | nindent 4 }}
+  {{- if $quotaValues.scopeSelector }}
   scopeSelector:
   {{- $quotaValues.scopeSelector | toYaml | nindent 4 }}
+  {{- end }}
+  {{- if $quotaValues.scopes }}
   scopes:
-  {{- $quotaValues.scopes | toYaml | indent 2 }}
+  {{- $quotaValues.scopes | toYaml | nindent 2 }}
+  {{- end }}
 {{- end }}
