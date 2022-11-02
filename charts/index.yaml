@@ -2,18 +2,18 @@ apiVersion: v1
 entries:
   elCicdImageRegistry:
   - apiVersion: v2
-    created: "2022-11-01T00:04:13.545322804Z"
+    created: "2022-11-02T15:52:06.293192916Z"
     dependencies:
     - name: elCicdRenderer
-      repository: https://raw.githubusercontent.com/elcicd/el-CICD-deploy/main/charts/
+      repository: file://../elCicdRenderer
       version: 0.1.0
     - import-values:
       - data
       name: elCicdResources
-      repository: https://raw.githubusercontent.com/elcicd/el-CICD-deploy/main/charts/
+      repository: file://../elCicdResources
       version: 0.1.0
     description: A Helm chart for deploying one or more image registries into a namespace
-    digest: 7868df14936674cc7375eabffd30de5ea522a06e8cd4b1b3867537dc4a9cb9b7
+    digest: 760ab8a986a50e4cebd381de30f500b245eed85aec62d59760111d7d4b032b14
     name: elCicdImageRegistry
     type: application
     urls:
@@ -21,16 +21,16 @@ entries:
     version: 0.1.0
   elCicdJenkins:
   - apiVersion: v2
-    created: "2022-11-01T00:04:13.546743493Z"
+    created: "2022-11-02T15:52:06.295845726Z"
     dependencies:
     - name: elCicdRenderer
-      repository: https://raw.githubusercontent.com/elcicd/el-CICD-deploy/main/charts/
+      repository: file://../elCicdRenderer
       version: 0.1.0
     - name: elCicdResources
-      repository: https://raw.githubusercontent.com/elcicd/el-CICD-deploy/main/charts/
+      repository: file://../elCicdResources
       version: 0.1.0
     description: A Helm chart for Deploying Jenkins
-    digest: c01a360f5662a209f8cf6e99886e1d51f590a480902cc2736b16c6b509fced4c
+    digest: b00a2bdd5516b65748a0bf015c5ba177ae32b35c5d9c668b79e1e3f2568ae815
     name: elCicdJenkins
     type: application
     urls:
@@ -38,17 +38,17 @@ entries:
     version: 0.1.0
   elCicdProject:
   - apiVersion: v2
-    created: "2022-11-01T00:04:13.548159482Z"
+    created: "2022-11-02T15:52:06.297599833Z"
     dependencies:
     - name: elCicdRenderer
-      repository: https://raw.githubusercontent.com/elcicd/el-CICD-deploy/main/charts/
+      repository: file://../elCicdRenderer
       version: 0.1.0
     - name: elCicdResources
-      repository: https://raw.githubusercontent.com/elcicd/el-CICD-deploy/main/charts/
+      repository: file://../elCicdResources
       version: 0.1.0
     description: A Helm chart for creating config maps defining build pipelines in
       Jenkins
-    digest: b3c96bab46f9217edd29481c6b5c7f6497b355d594348e4696b0282ee85fdcd6
+    digest: df8974df63dc1fc4a63179894351c859639c2aa44583613eea072b53b79f09b4
     name: elCicdProject
     type: application
     urls:
@@ -56,10 +56,10 @@ entries:
     version: 0.1.0
   elCicdRenderer:
   - apiVersion: v2
-    created: "2022-11-01T00:04:13.54844658Z"
+    created: "2022-11-02T15:52:06.298003435Z"
     description: A chart meant to be added as a dependency for rendering parameterized
       values.yml files with profiles.
-    digest: 898cf291e7d42aa24e075c4333118e4277ebd4679eac79c3b782a6b2ab0d3e88
+    digest: 6305b2e84ef9de56a73138c696566c95deb6dd36b8ad57add41d518baae7678c
     keywords:
     - parameterized
     - profiles
@@ -73,12 +73,12 @@ entries:
     version: 0.1.0
   elCicdResources:
   - apiVersion: v2
-    created: "2022-11-01T00:04:13.548909076Z"
+    created: "2022-11-02T15:52:06.298601037Z"
     description: A library chart with the a complete set of Kubernetes resources that
       might be needed for application deployments. Built to be used in conjuction
       with the elCicdRenderer for rendering as a general Helm-based deployment solution
       across multiple environments.
-    digest: aeb8d481b6e46bfab252bd0a080d23e3c92cb00465fcecf4b8ee6b3f7743068b
+    digest: 6239464d81ceb6d3f4c9a8ef76d5081edc3c38c5a11b666cc9e0b92da31cab43
     keywords:
     - generic
     - parameterized
@@ -90,4 +90,4 @@ entries:
     urls:
     - elCicdResources-0.1.0.tgz
     version: 0.1.0
-generated: "2022-11-01T00:04:13.543821915Z"
+generated: "2022-11-02T15:52:06.290291405Z"
