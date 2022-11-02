@@ -3,8 +3,10 @@
 {{- define "elCicdRenderer.generateAllTemplates" }}
   {{- $ := . }}
   
-  {{- if $.Values.elCicdSupplementalTemplates }}
-    {{- $_ := set $.Values "elCicdTemplates" (concat $.Values.elCicdTemplates $.Values.elCicdSupplementalTemplates) }}
+  {{- range $key, $value := $.Values }}
+    {{- if hasPrefix "elCicdTemplates-" $key }}
+      {{- $_ := set $.Values "elCicdTemplates" (concat $.Values.elCicdTemplates (get $.Values $key)) }}
+    {{- end }}
   {{- end }}
 
   {{- include "elCicdRenderer.filterTemplates" $ }}

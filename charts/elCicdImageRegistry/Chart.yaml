@@ -10,11 +10,9 @@ version: "0.1.0"
 dependencies:
 - name: elCicdRenderer
   version: 0.1.0
-  repository: https://raw.githubusercontent.com/elcicd/el-CICD-deploy/main/charts/
-  # repository: file://../elCicdRenderer
+  repository: file://../elCicdRenderer
 - name: elCicdResources
   version: 0.1.0
-  repository: https://raw.githubusercontent.com/elcicd/el-CICD-deploy/main/charts/
-  # repository: file://../elCicdResources
+  repository: file://../elCicdResources
   import-values:
   - data

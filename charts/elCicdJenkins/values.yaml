@@ -13,6 +13,11 @@ elCicdDefs:
   - name: ${JENKINS_SERVICE_NAME}-data
     persistentVolumeClaim:
       claimName: ${JENKINS_SERVICE_NAME}
+  EL_CICD_PIPELINE_DATA:
+    contentKey: config.xml
+    config.xml: ${FILE|pipelines/${APP_NAME}.xml}
+    path: ${APP_NAME}/jobs/config.xml
+    optional: 'true'
 
 elCicdTemplates:
 - templateName: deployment
@@ -76,8 +81,6 @@ elCicdTemplates:
       cpu: ${CPU_REQUEST}
       memory: ${MEMORY_REQUEST}
   volumeMounts: ${JENKINS_VOLUME_MNTS}
-  # - mountPath: /etc/pki/ca-trust/source/anchors
-  #   name: ${JENKINS_SERVICE_NAME}-trusted-ca-bundle
   volumes: ${JENKINS_VOLUMES}
   projectedVolumeLabels:
   - name: mounted-jenkins-jobs
@@ -85,17 +88,6 @@ elCicdTemplates:
     labels:
     - jenkins-folder
     - jenkins-pipeline
-    
-  
-  # - configMap:
-  #     name: ${JENKINS_SERVICE_NAME}-trusted-ca-bundle
-  #     optional: true
-  #   name: ${JENKINS_SERVICE_NAME}-trusted-ca-bundle
-  
-# - templateName: configMap
-#   appName: ${JENKINS_SERVICE_NAME}-trusted-ca-bundle
-#   annotations:
-#     config.openshift.io/inject-trusted-cabundle: "true"
 
 - templateName: configMap
   appName: openshift-jenkins-login-plugin-config
@@ -142,3 +134,23 @@ elCicdTemplates:
   appName: ${JENKINS_SERVICE_NAME}-agent-home
   storageRequest: ${VOLUME_CAPACITY}
   accessMode: ReadWriteMany
+
+- templateName: configMap
+  appNames:
+  - delete-project
+  - non-prod-project-onboarding
+  - non-prod-refresh-credentials
+  mustHaveProfile:
+  - elcicd-non-prod
+  labels:
+    jenkins-pipeline: 'true'
+  data: ${PROJECT_PIPELINE}
+
+- templateName: configMap
+  appNames:
+  - promote-and-deploy-to-prod
+  mustHaveProfile:
+  - elcicd-prod
+  labels:
+    jenkins-pipeline: 'true'
+  data: ${PROMOTION_PIPELINE}

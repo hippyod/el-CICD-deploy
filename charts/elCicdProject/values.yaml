@@ -69,7 +69,7 @@ elCicdTemplates:
           buildComponent(args)
       }
     AUTH_TOKEN:
-      ${PROJECT_ID}-${BASE_APP_N`AME}-scm-repo-private-contentKey
+      ${PROJECT_ID}-${BASE_APP_NAME}-scm-repo-private-contentKey
   data: ${PIPELINE_CONFIG_MAP_DATA}
 
 - templateName: configMap
