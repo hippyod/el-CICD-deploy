@@ -2,7 +2,7 @@ apiVersion: v1
 entries:
   elCicdChart:
   - apiVersion: v2
-    created: "2022-11-03T15:42:18.482144175Z"
+    created: "2022-11-03T22:20:05.1326051Z"
     dependencies:
     - name: elCicdRenderer
       repository: file://../elCicdRenderer
@@ -12,7 +12,7 @@ entries:
       version: 0.1.0
     description: A generic helm chart which uses elCicdRenderer and elCicdResources
       to deploy any application give an elCicdRenderer compliant values file(s).
-    digest: 0ab1fda65999811b2f590b436e5ef949125619a14d60396b5a05a87a6b6d837f
+    digest: 28f9e3c96bfb7f4d326551f49b99f4cc65ebd958933dbcb83deb6505c34fd1b8
     name: elCicdChart
     type: application
     urls:
@@ -20,18 +20,16 @@ entries:
     version: 0.1.0
   elCicdImageRegistry:
   - apiVersion: v2
-    created: "2022-11-03T15:42:18.483392108Z"
+    created: "2022-11-03T22:20:05.133862118Z"
     dependencies:
     - name: elCicdRenderer
       repository: file://../elCicdRenderer
       version: 0.1.0
-    - import-values:
-      - data
-      name: elCicdResources
+    - name: elCicdResources
       repository: file://../elCicdResources
       version: 0.1.0
     description: A Helm chart for deploying one or more image registries into a namespace
-    digest: ec0031d28a2662807884f80c963c838320dcf0a647253918d89298f958f26da1
+    digest: 8bca13e8b1c73e6b23436f87d69b74fc4878d00ef8e3f847703c41bf6fd07478
     name: elCicdImageRegistry
     type: application
     urls:
@@ -39,7 +37,7 @@ entries:
     version: 0.1.0
   elCicdJenkins:
   - apiVersion: v2
-    created: "2022-11-03T15:42:18.484933548Z"
+    created: "2022-11-03T22:20:05.135250738Z"
     dependencies:
     - name: elCicdRenderer
       repository: file://../elCicdRenderer
@@ -48,7 +46,7 @@ entries:
       repository: file://../elCicdResources
       version: 0.1.0
     description: A Helm chart for Deploying Jenkins
-    digest: 8fe622db3ee7938c729a464c6c97fb7eeac797943a6e3c3e031bc0db936f0f69
+    digest: fb5fc2a85f979efe412fcd3cb2976e5d3af12c230e66628c52f952fe717119a9
     name: elCicdJenkins
     type: application
     urls:
@@ -56,7 +54,7 @@ entries:
     version: 0.1.0
   elCicdProject:
   - apiVersion: v2
-    created: "2022-11-03T15:42:18.486374786Z"
+    created: "2022-11-03T22:20:05.136552657Z"
     dependencies:
     - name: elCicdRenderer
       repository: file://../elCicdRenderer
@@ -66,7 +64,7 @@ entries:
       version: 0.1.0
     description: A Helm chart for creating config maps defining build pipelines in
       Jenkins
-    digest: 5c45cbfdbd0bb285414b5ea0d5dbcde13231fa31b4531e43444d081df15c074d
+    digest: 22b7195bf429ac7c9b137aa947f81b56ba847ef9df1ce625e6eaec98dad5fe95
     name: elCicdProject
     type: application
     urls:
@@ -74,10 +72,10 @@ entries:
     version: 0.1.0
   elCicdRenderer:
   - apiVersion: v2
-    created: "2022-11-03T15:42:18.486661194Z"
+    created: "2022-11-03T22:20:05.136809561Z"
     description: A chart meant to be added as a dependency for rendering parameterized
       values.yml files with profiles.
-    digest: 1dfad97a6d032d80584398e3285c36d96da8785b4a7d7d2e2dca0e59e26459c2
+    digest: 1369b576e7626b90f990b0d80db7e4234f165da9d0a13aeb1710dc992cfa09e1
     keywords:
     - parameterized
     - profiles
@@ -91,12 +89,12 @@ entries:
     version: 0.1.0
   elCicdResources:
   - apiVersion: v2
-    created: "2022-11-03T15:42:18.487144706Z"
+    created: "2022-11-03T22:20:05.137289468Z"
     description: A library chart with the a complete set of Kubernetes resources that
       might be needed for application deployments. Built to be used in conjuction
       with the elCicdRenderer for rendering as a general Helm-based deployment solution
       across multiple environments.
-    digest: 72f2ffd8191082932c548bfe295d50c5c17b768001ae0e14c5a6fca265a3e411
+    digest: 6041363546f01044a30b242de677bc1fdb9597503c299978f7f134294649509d
     keywords:
     - generic
     - parameterized
@@ -108,4 +106,4 @@ entries:
     urls:
     - elCicdResources-0.1.0.tgz
     version: 0.1.0
-generated: "2022-11-03T15:42:18.480679036Z"
+generated: "2022-11-03T22:20:05.131547785Z"
