@@ -1,0 +1,17 @@
+apiVersion: v2
+name: elCicdChart
+description: |-
+  A generic helm chart which uses elCicdRenderer and elCicdResources to deploy any
+  application give an elCicdRenderer compliant values file(s).
+
+type: application
+
+version: "0.1.0"
+
+dependencies:
+- name: elCicdRenderer
+  version: 0.1.0
+  repository: file://../elCicdRenderer
+- name: elCicdResources
+  version: 0.1.0
+  repository: file://../elCicdResources
