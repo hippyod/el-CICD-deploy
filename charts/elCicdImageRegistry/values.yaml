@@ -44,8 +44,8 @@ elCicdTemplates:
   volumeMounts:
   - ${VOLUME_MNT_HTPASSWD}
   - ${VOLUME_MNT_NFS}
-  # limitsCpu: ${LIMITS_CPU}
-  # limitsMemory: ${LIMITS_MEMORY}
+  limitsCpu: ${LIMITS_CPU}
+  limitsMemory: ${LIMITS_MEMORY}
   volumes:
   - ${VOLUME_HTPASSWD}
   - ${VOLUME_NFS}
