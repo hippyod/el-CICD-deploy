@@ -88,6 +88,7 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: {{ $tplNamespace }}
+      {{- end }}
     {{- end }}
   {{- end }}
 {{- end }}
