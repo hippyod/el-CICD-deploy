@@ -62,7 +62,6 @@ elCicdTemplates:
   storageCapacity: 10Gi
   accessModes:
   - ReadWriteMany
-  storageClassName: ${DEMO_IMAGE_REGISTRY}-nfs
   nfs:
     path: /mnt/${DEMO_IMAGE_REGISTRY}
     server: ${HOST_IP}
@@ -74,7 +73,6 @@ elCicdTemplates:
   anyProfiles:
   - nfs
   accessMode: ReadWriteMany
-  storageClassName: ${DEMO_IMAGE_REGISTRY}-nfs
   storageRequest: 10Gi
     
   
