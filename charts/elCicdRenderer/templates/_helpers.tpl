@@ -70,25 +70,24 @@
   {{- $_ := set $.Values "skippedTemplates" $skippedList }}
 {{- end }}
 
-{{- define "elCicdRenderer.addNamespaces" }}
+{{- define "elCicdRenderer.createNamespaces" }}
   {{- $ := . }}
 
-  {{- $namespaceSet := dict }}
   {{- if $.Values.createNamespaces }}
+    {{- $tplNamespaceSet := dict $.Release.Namespace "foo" }}
     {{- range $template := $.Values.allTemplates }}
       {{- if $template.namespace }}
-        {{- if not (hasKey $namespaceSet $template.namespace) }}
-          {{- $_ := set $namespaceSet $template.namespace "foo" }}
-          {{- $namespace := (lookup "v1" "namespace" "" $template.namespace) }}
-          {{- if (not $namespace) }}
+        {{- $_ := set $tplNamespaceSet $template.namespace "foo" }}
+      {{- end }}
+    {{- end }}
+  
+    {{- range $tplNamespace := (keys $tplNamespaceSet | uniq) }}
+      {{- if (not (lookup "v1" "namespace" "" $tplNamespace)) }}
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: {{ $template.namespace }}
-          {{- end }}
-        {{- end }}
-      {{- end }}
+  name: {{ $tplNamespace }}
     {{- end }}
   {{- end }}
 {{- end }}

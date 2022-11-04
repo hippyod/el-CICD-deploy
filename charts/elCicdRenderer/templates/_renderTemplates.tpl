@@ -11,7 +11,7 @@
 
   {{- include "elCicdRenderer.processTemplates" (list $ $.Values.allTemplates $.Values.elCicdDefs) }}
 
-  {{- include "elCicdRenderer.addNamespaces" . }}
+  {{- include "elCicdRenderer.createNamespaces" . }}
 
   {{- $skippedList := list }}
   {{- range $template := $.Values.allTemplates  }}
