@@ -74,14 +74,14 @@
   {{- $ := . }}
 
   {{- if $.Values.createNamespaces }}
-    {{- $tplNamespaceSet := dict $.Release.Namespace "foo" }}
+    {{- $tplNamespaceSet := dict }}
     {{- range $template := $.Values.allTemplates }}
       {{- if $template.namespace }}
         {{- $_ := set $tplNamespaceSet $template.namespace "foo" }}
       {{- end }}
     {{- end }}
   
-    {{- range $tplNamespace := (keys $tplNamespaceSet | uniq) }}
+    {{- range $tplNamespace := (keys $tplNamespaceSet) }}
       {{- if (not (lookup "v1" "namespace" "" $tplNamespace)) }}
 ---
 apiVersion: v1
