@@ -33,7 +33,7 @@ spec:
                          "manualSelector"
                          "parallelism"
                          "ttlSecondsAfterFinished" }}
-  {{- $_ := set $jobValues "restartPolicy" ($cjValues.restartPolicy | default "Never") }}
+  {{- $_ := set $jobValues "restartPolicy" ($jobValues.restartPolicy | default "Never") }}
   {{- include "elCicdResources.outputToYaml" (list $jobValues $whiteList) }}
   template: {{ include "elCicdResources.podTemplate" (list $ $jobValues false) | nindent 4 }}
 {{- end }}
