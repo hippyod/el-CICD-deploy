@@ -75,7 +75,6 @@
   {{- $projectVolume := dict "name" $volumeByLabels.name
                              "projected" $projectedMap }}
 
-        # foo {{ len $podValues.volumes }}
   {{- $_ := set $podValues "volumes" (append ($podValues.volumes | default list) $projectVolume) }}
         # foo {{ len $podValues.volumes }}
 {{- end }}
