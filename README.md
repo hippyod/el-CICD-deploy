@@ -4,7 +4,7 @@ Deployment support for the el-CICD project.  See [`el-CICD-docs`](https://github
 
 This document is part of the el-CICD project, a complete CICD COTS solution for the OKD Container Platform.
 
-Copyright (C) 2021 Evan "Hippy" Slatis
+Copyright (C) 2022 Evan "Hippy" Slatis
 email: hippyod -at- yahoo -dot- com
 
 ===================================
