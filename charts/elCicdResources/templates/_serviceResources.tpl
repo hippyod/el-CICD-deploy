@@ -22,7 +22,7 @@ spec:
     http:
       paths:
       - path: {{ $ingressValues.path | default $.Values.elCicdDefaults.ingressRulePath }}
-        pathType: {{ $ingressValues.pathType | default $.Values.defaultIngressRulePathType }}
+        pathType: {{ $ingressValues.pathType | default $.Values.elCicdDefaults.ingressRulePathType }}
         backend:
           service:
             name: {{ $ingressValues.appName }}
