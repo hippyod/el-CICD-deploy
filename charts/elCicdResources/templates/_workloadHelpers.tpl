@@ -34,7 +34,7 @@ spec:
                          "parallelism"
                          "ttlSecondsAfterFinished" }}
   {{- $_ := set $jobValues "restartPolicy" ($jobValues.restartPolicy | default "Never") }}
-  {{- include "elCicdResources.outputToYaml" (list $jobValues $whiteList) }}
+  {{- include "elCicdResources.outputToYaml" (list $ $jobValues $whiteList) }}
   template: {{ include "elCicdResources.podTemplate" (list $ $jobValues false) | nindent 4 }}
 {{- end }}
 
@@ -111,7 +111,7 @@ spec:
       type: RuntimeDefault
     {{- end }}
   {{- end }}
-  {{- include "elCicdResources.outputToYaml" (list $podValues $whiteList) }}
+  {{- include "elCicdResources.outputToYaml" (list $ $podValues $whiteList) }}
 {{- end }}
 
 {{/*
@@ -143,37 +143,37 @@ Container definition
     {{- include "elCicdResources.envFrom" }}
   {{- end }}
   image: {{ $containerVals.image | default $.Values.defaultImage }}
-  imagePullPolicy: {{ $containerVals.imagePullPolicy | default $.Values.defaultImagePullPolicy }}
-  {{- if or $containerVals.ports $containerVals.port $.Values.defaultPort $containerVals.usePrometheus }}
+  imagePullPolicy: {{ $containerVals.imagePullPolicy | default $.Values.elCicdDefaults.imagePullPolicy }}
+  {{- if or $containerVals.ports $containerVals.port $.Values.elCicdDefaults.port $containerVals.usePrometheus }}
   ports:
     {{- if and $containerVals.ports $containerVals.port }}
       {{- fail "A Container cannot define both port and ports values!" }}
     {{- end }}
     {{- if $containerVals.ports }}
       {{- $containerVals.ports | toYaml | nindent 2 }}
-    {{- else if or $containerVals.port $.Values.defaultPort }}
+    {{- else if or $containerVals.port $.Values.elCicdDefaults.port }}
   - name: default-port
-    containerPort: {{ $containerVals.port | default $.Values.defaultPort }}
-    protocol: {{ $containerVals.protocol | default $.Values.defaultProtocol }}
+    containerPort: {{ $containerVals.port | default $.Values.elCicdDefaults.port }}
+    protocol: {{ $containerVals.protocol | default $.Values.elCicdDefaults.protocol }}
     {{- end }}
-    {{- if or ($containerVals.prometheus).port (and $containerVals.usePrometheus $.Values.defaultPrometheusPort) }}
+    {{- if or ($containerVals.prometheus).port (and $containerVals.usePrometheus $.Values.elCicdDefaults.prometheusPort) }}
   - name: prometheus-port
-    containerPort: {{ ($containerVals.prometheus).port | default $.Values.defaultPrometheusPort }}
-    protocol: {{ ($containerVals.prometheus).protocol | default ($.Values.defaultPrometheusProtocol | default $.Values.defaultProtocol) }}
+    containerPort: {{ ($containerVals.prometheus).port | default $.Values.elCicdDefaults.prometheusPort }}
+    protocol: {{ ($containerVals.prometheus).protocol | default ($.Values.elCicdDefaults.prometheusProtocol | default $.Values.elCicdDefaults.protocol) }}
     {{- end }}
   {{- end }}
   resources:
     limits:
-      cpu: {{ $containerVals.limitsCpu | default (($containerVals.resources).limits).cpu | default $.Values.defaultLimitsCpu }}
-      memory: {{ $containerVals.limitsMemory | default (($containerVals.resources).limits).memory | default $.Values.defaultLimitsMemory }}
+      cpu: {{ $containerVals.limitsCpu | default (($containerVals.resources).limits).cpu | default $.Values.elCicdDefaults.limitsCpu }}
+      memory: {{ $containerVals.limitsMemory | default (($containerVals.resources).limits).memory | default $.Values.elCicdDefaults.limitsMemory }}
       {{- range $limit, $value := ($containerVals.resources).limits }}
         {{- if and (ne $limit "cpu") (ne $limit "memory") }}
       {{ $limit }}: {{ $value }}
         {{- end }}
       {{- end }}
     requests:
-      cpu: {{ $containerVals.requestsCpu | default (($containerVals.resources).requests).cpu | default $.Values.defaultRequestsCpu }}
-      memory: {{ $containerVals.requestsMemory | default (($containerVals.resources).requests).memory | default $.Values.defaultRequestsMemory }}
+      cpu: {{ $containerVals.requestsCpu | default (($containerVals.resources).requests).cpu | default $.Values.elCicdDefaults.requestsCpu }}
+      memory: {{ $containerVals.requestsMemory | default (($containerVals.resources).requests).memory | default $.Values.elCicdDefaults.requestsMemory }}
       {{- range $limit, $value := ($containerVals.resources).requests }}
         {{- if and (ne $limit "cpu") (ne $limit "memory") }}
       {{ $limit }}: {{ $value }}
@@ -191,6 +191,6 @@ Container definition
   {{- if $containerVals.projectedVolumeLabels }}
     {{- include "elCicdResources.createProjectedVolumesByLabels" (list $ $podValues $containerVals)}}
   {{- end }}
-  {{- include "elCicdResources.outputToYaml" (list $containerVals $whiteList) }}
+  {{- include "elCicdResources.outputToYaml" (list $ $containerVals $whiteList) }}
 {{- end }}
 {{- end }}

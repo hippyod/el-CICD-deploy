@@ -1,26 +1,27 @@
-defaultDeploymentRevisionHistoryLimit: 0
+elCicdDefaults:
+  deploymentRevisionHistoryLimit: 0
 
-defaultImagePullPolicy: "Always"
+  imagePullPolicy: "Always"
 
-defaultPort: "8080"
-defaultProtocol: "TCP"
+  port: "8080"
+  protocol: "TCP"
 
-defaultLimitsCpu: "200m"
-defaultLimitsMemory: "500Mi"
+  limitsCpu: "200m"
+  limitsMemory: "500Mi"
 
-defaultRequestsCpu: "100m"
-defaultRequestsMemory: "50Mi"
+  requestsCpu: "100m"
+  requestsMemory: "50Mi"
 
-defaultIngressRulePath: "/"
-defaultIngressRulePathType: "Prefix"
+  ingressRulePath: "/"
+  ingressRulePathType: "Prefix"
 
-defaultPvReclaimPolicy: "Reclaim"
-defaultPvAccessMode: "ReadWriteOnce"
+  pvReclaimPolicy: "Reclaim"
+  pvAccessMode: "ReadWriteOnce"
 
-defaultPrometheusPort: "9090"
-defaultPrometheusPath: "/metrics"
-defaultPrometheusScheme: "https"
-defaultPrometheusScrape: "false"
-defaultPrometheusProtocol: "TCP"
+  prometheusPort: "9090"
+  prometheusPath: "/metrics"
+  prometheusScheme: "https"
+  prometheusScrape: "false"
+  prometheusProtocol: "TCP"
 
-default3ScaleScheme: "https"
+  3ScaleScheme: "https"

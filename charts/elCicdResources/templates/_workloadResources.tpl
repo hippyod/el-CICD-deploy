@@ -15,7 +15,7 @@ spec:
                          "parallelism"	
                          "ttlSecondsAfterFinished" }}
   schedule: "{{ $cjValues.schedule}}"
-  {{- include "elCicdResources.outputToYaml" (list $cjValues $whiteList) }}
+  {{- include "elCicdResources.outputToYaml" (list $ $cjValues $whiteList) }}
   jobTemplate: {{ include "elCicdResources.jobTemplate" . | indent 4 }}
 {{- end }}
 
@@ -32,8 +32,8 @@ spec:
   {{- $whiteList := list "minReadySeconds"	
                          "progressDeadlineSeconds"
                          "replicas" }}
-  {{- include "elCicdResources.outputToYaml" (list $deployValues $whiteList) }}
-  revisionHistoryLimit: {{ $deployValues.revisionHistoryLimit | default $.Values.defaultDeploymentRevisionHistoryLimit }}
+  {{- include "elCicdResources.outputToYaml" (list $ $deployValues $whiteList) }}
+  revisionHistoryLimit: {{ $deployValues.revisionHistoryLimit | default $.Values.elCicdDefaults.deploymentRevisionHistoryLimit }}
   selector: {{ include "elCicdResources.selector" . | indent 4 }}
   {{- if $deployValues.strategyType }}
   strategy:
@@ -60,7 +60,7 @@ spec:
   {{- $whiteList := list "behavior"	
                          "maxReplicas"	
                          "minReplicas" }}
-  {{- include "elCicdResources.outputToYaml" (list $hpaValues $whiteList) }}
+  {{- include "elCicdResources.outputToYaml" (list $ $hpaValues $whiteList) }}
   {{- if $hpaValues.metrics }}
   metrics:
     {{- $whiteList := list "name"	
@@ -71,7 +71,7 @@ spec:
     {{- range $metric := $hpaValues.metrics }}
     {{- $metricType := $metric.type }}
   - type: {{ title $metricType }}
-    {{ $metricType }}: {{ include "elCicdResources.outputToYaml" (list $metric $whiteList) | indent 4 }}
+    {{ $metricType }}: {{ include "elCicdResources.outputToYaml" (list $ $metric $whiteList) | indent 4 }}
     {{- end }}
   {{- end }}
   scaleTargetRef:
@@ -114,7 +114,7 @@ spec:
                          "revisionHistoryLimit" 
                          "updateStrategy" 
                          "volumeClaimTemplates" }}
-  {{- include "elCicdResources.outputToYaml" (list $stsValues $whiteList) }}
+  {{- include "elCicdResources.outputToYaml" (list $ $stsValues $whiteList) }}
   selector: {{ include "elCicdResources.selector" . | indent 4 }}
   template:
   {{- include "elCicdResources.selector" $stsValues.appName | indent 2 }}

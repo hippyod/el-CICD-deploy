@@ -5,32 +5,31 @@ Iniitialize elCicdResources chart
 {{- define "elCicdResources.initElCicdResources" }}
   {{- $ := . }}
   
-  {{- $_ := set $.Values "defaultDeploymentRevisionHistoryLimit" ($.Values.defaultDeploymentRevisionHistoryLimit | default 0) }}
+  {{- $_ := set $.Values "elCicdDefaults" ($.Values.elCicdDefaults | default dict) }}
+  
+  {{- $_ := set $.Values.elCicdDefaults "deploymentRevisionHistoryLimit" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default 0) }}
 
-  {{- $_ := set $.Values "defaultImagePullPolicy" ($.Values.defaultDeploymentRevisionHistoryLimit | default "Always") }}
+  {{- $_ := set $.Values.elCicdDefaults "imagePullPolicy" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "Always") }}
 
-  {{- $_ := set $.Values "defaultPort" ($.Values.defaultDeploymentRevisionHistoryLimit | default "8080") }}
-  {{- $_ := set $.Values "defaultProtocol" ($.Values.defaultDeploymentRevisionHistoryLimit | default "TCP") }}
+  {{- $_ := set $.Values.elCicdDefaults "port" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "8080") }}
+  {{- $_ := set $.Values.elCicdDefaults "protocol" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "TCP") }}
 
-  {{- $_ := set $.Values "defaultLimitsCpu" ($.Values.defaultDeploymentRevisionHistoryLimit | default "200m") }}
-  {{- $_ := set $.Values "defaultLimitsMemory" ($.Values.defaultDeploymentRevisionHistoryLimit | default "500Mi") }}
+  {{- $_ := set $.Values.elCicdDefaults "limitsCpu" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "200m") }}
+  {{- $_ := set $.Values.elCicdDefaults "limitsMemory" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "500Mi") }}
 
-  {{- $_ := set $.Values "defaultRequestsCpu" ($.Values.defaultDeploymentRevisionHistoryLimit | default "100m") }}
-  {{- $_ := set $.Values "defaultRequestsMemory" ($.Values.defaultDeploymentRevisionHistoryLimit | default "50Mi") }}
+  {{- $_ := set $.Values.elCicdDefaults "requestsCpu" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "100m") }}
+  {{- $_ := set $.Values.elCicdDefaults "requestsMemory" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "50Mi") }}
 
-  {{- $_ := set $.Values "defaultIngressRulePath" ($.Values.defaultDeploymentRevisionHistoryLimit | default "/") }}
-  {{- $_ := set $.Values "defaultIngressRulePathType" ($.Values.defaultDeploymentRevisionHistoryLimit | default "Prefix") }}
+  {{- $_ := set $.Values.elCicdDefaults "ingressRulePath" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "/") }}
+  {{- $_ := set $.Values.elCicdDefaults "ingressRulePathType" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "Prefix") }}
 
-  {{- $_ := set $.Values "defaultPvReclaimPolicy" ($.Values.defaultDeploymentRevisionHistoryLimit | default "Reclaim") }}
-  {{- $_ := set $.Values "defaultPvAccessMode" ($.Values.defaultDeploymentRevisionHistoryLimit | default "ReadWriteOnce") }}
+  {{- $_ := set $.Values.elCicdDefaults "prometheusPort" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "9090") }}
+  {{- $_ := set $.Values.elCicdDefaults "prometheusPath" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "/metrics") }}
+  {{- $_ := set $.Values.elCicdDefaults "prometheusScheme" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "https") }}
+  {{- $_ := set $.Values.elCicdDefaults "prometheusScrape" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "false") }}
+  {{- $_ := set $.Values.elCicdDefaults "prometheusProtocol" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "TCP") }}
 
-  {{- $_ := set $.Values "defaultPrometheusPort" ($.Values.defaultDeploymentRevisionHistoryLimit | default "9090") }}
-  {{- $_ := set $.Values "defaultPrometheusPath" ($.Values.defaultDeploymentRevisionHistoryLimit | default "/metrics") }}
-  {{- $_ := set $.Values "defaultPrometheusScheme" ($.Values.defaultDeploymentRevisionHistoryLimit | default "https") }}
-  {{- $_ := set $.Values "defaultPrometheusScrape" ($.Values.defaultDeploymentRevisionHistoryLimit | default "false") }}
-  {{- $_ := set $.Values "defaultPrometheusProtocol" ($.Values.defaultDeploymentRevisionHistoryLimit | default "TCP") }}
-
-  {{- $_ := set $.Values "default3ScaleScheme" ($.Values.defaultDeploymentRevisionHistoryLimit | default "https") }}
+  {{- $_ := set $.Values.elCicdDefaults "3ScaleScheme" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "https") }}
 {{- end }}
 
 
@@ -43,6 +42,7 @@ General Metadata Template
 {{- $template := index . 1 }}
 apiVersion: {{ $template.apiVersion }}
 kind: {{ $template.kind }}
+{{- $_ := set $.Values "currentTemplateKind"  $template.kind }}
 {{- include "elCicdResources.apiMetadata" . }}
 {{- end }}
 
@@ -142,20 +142,20 @@ Service Prometheus Annotations definition
   {{- $svcValues := index . 1 }}
   {{- $_ := set $svcValues "annotations" ($svcValues.annotations | default dict) }}
 
-  {{- if or ($svcValues.prometheus).path $.Values.defaultPrometheusPath }}
-    {{- $_ := set $svcValues.annotations "prometheus.io/path" ($svcValues.prometheus.path | default $.Values.defaultPrometheusPath) }}
+  {{- if or ($svcValues.prometheus).path $.Values.elCicdDefaults.prometheusPath }}
+    {{- $_ := set $svcValues.annotations "prometheus.io/path" ($svcValues.prometheus.path | default $.Values.elCicdDefaults.prometheusPath) }}
   {{- end }}
 
-  {{- if or ($svcValues.prometheus).port $.Values.defaultPrometheusPort }}
+  {{- if or ($svcValues.prometheus).port $.Values.elCicdDefaults.prometheusPort }}
     {{- $_ := set $svcValues.annotations "prometheus.io/port" ($svcValues.prometheus.port | default $svcValues.port) }}
   {{- end }}
 
-  {{- if or ($svcValues.prometheus).scheme $.Values.defaultPrometheusScheme }}
-    {{- $_ := set $svcValues.annotations "prometheus.io/scheme" ($svcValues.prometheus.scheme | default $.Values.defaultPrometheusScheme) }}
+  {{- if or ($svcValues.prometheus).scheme $.Values.elCicdDefaults.prometheusScheme }}
+    {{- $_ := set $svcValues.annotations "prometheus.io/scheme" ($svcValues.prometheus.scheme | default $.Values.elCicdDefaults.prometheusScheme) }}
   {{- end }}
 
-  {{- if or ($svcValues.prometheus).scrape $.Values.defaultPrometheusScrape }}
-    {{- $_ := set $svcValues.annotations "prometheus.io/scrape" ($svcValues.prometheus.scrape | default $.Values.defaultPrometheusScrape) }}
+  {{- if or ($svcValues.prometheus).scrape $.Values.elCicdDefaults.prometheusScrape }}
+    {{- $_ := set $svcValues.annotations "prometheus.io/scrape" ($svcValues.prometheus.scrape | default $.Values.elCicdDefaults.prometheusScrape) }}
   {{- end }}
 {{- end }}
 
@@ -166,14 +166,18 @@ Service Prometheus 3Scale definition
   {{- $ := index . 0 }}
   {{- $svcValues := index . 1 }}
   {{- $_ := set $svcValues "annotations" ($svcValues.annotations | default dict) }}
-  {{- $_ := set $svcValues.annotations "discovery.3scale.net/path" ($svcValues.threeScale.port | default $svcValues.port | default $.Values.defaultPort) }}
+  {{- $_ := set $svcValues.annotations "discovery.3scale.net/path" ($svcValues.threeScale.port | default $svcValues.port | default $.Values.elCicdDefaults.port) }}
   {{- $_ := set $svcValues.annotations "discovery.3scale.net/port" ($svcValues.threeScale.path | default $.Values.default3ScalePath) }}
-  {{- $_ := set $svcValues.annotations "discovery.3scale.net/scheme" ($svcValues.threeScale.scheme | default $.Values.default3ScaleScheme) }}
+  {{- $_ := set $svcValues.annotations "discovery.3scale.net/scheme" ($svcValues.threeScale.scheme | default (get $.Values.elCicdDefaults "3ScaleScheme")) }}
 {{- end }}
 
 {{- define "elCicdResources.outputToYaml" }}
-  {{- $templateVals := index . 0 }}
-  {{- $whiteList := index . 1 }}
+  {{- $ := index . 0 }}
+  {{- $templateVals := index . 1 }}
+  {{- $whiteList := index . 2 }}
+  
+  {{- include "elCicdResources.setTemplateDefaultValue" . }}
+  
   {{- range $key, $value := $templateVals }}
     {{- if or (has $key $whiteList) (empty $whiteList)}}
       {{- if or (kindIs "slice" $value) (kindIs "map" $value) }}
@@ -181,6 +185,35 @@ Service Prometheus 3Scale definition
     {{- $value | toYaml | nindent 4 }}
       {{- else }}
   {{ $key }}: {{ $value }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{- define "elCicdResources.setTemplateDefaultValue" }}
+  {{- $ := index . 0 }}
+  {{- $templateVals := index . 1 }}
+  {{- $defaultKeysList := index . 2 }}
+  
+  {{- $elCicdDefaultMapNames := list "elCicdDefaults" }}
+  {{- range $profile := $.Values.profiles }}
+    {{- $elCicdDefaultMapNames = prepend $elCicdDefaultMapNames (printf "elCicdDefaults-%s" $profile) }}
+  {{- end }}
+  {{- $elCicdDefaultMapNames := prepend $elCicdDefaultMapNames (printf "elCicdDefaults-%s" $.Values.currentTemplateKind) }}
+  {{- range $profile := $.Values.profiles }}
+    {{- $elCicdDefaultMapNames = prepend $elCicdDefaultMapNames (printf "elCicdDefaults-%s-%s"  $.Values.currentTemplateKind $profile) }}
+  {{- end }}
+  
+  {{- range $key := $defaultKeysList }}
+    {{- if not (get $templateVals $key) }}
+      {{- range $defaultMapName := $elCicdDefaultMapNames }}
+        {{- $defaultMap := get $.Values $defaultMapName }}
+        {{- if and $defaultMap (not (get $templateVals $key)) }}
+          {{- $value := get $defaultMap $key }}
+          {{- if $value }}
+            {{- $_ := set $templateVals $key $value }}
+          {{- end }}
+        {{- end }}
       {{- end }}
     {{- end }}
   {{- end }}
