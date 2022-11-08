@@ -9,27 +9,27 @@ Iniitialize elCicdResources chart
   
   {{- $_ := set $.Values.elCicdDefaults "deploymentRevisionHistoryLimit" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default 0) }}
 
-  {{- $_ := set $.Values.elCicdDefaults "imagePullPolicy" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "Always") }}
+  {{- $_ := set $.Values.elCicdDefaults "imagePullPolicy" ($.Values.elCicdDefaults.imagePullPolicy | default "Always") }}
 
-  {{- $_ := set $.Values.elCicdDefaults "port" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "8080") }}
-  {{- $_ := set $.Values.elCicdDefaults "protocol" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "TCP") }}
+  {{- $_ := set $.Values.elCicdDefaults "port" ($.Values.elCicdDefaults.port | default "8080") }}
+  {{- $_ := set $.Values.elCicdDefaults "protocol" ($.Values.elCicdDefaults.protocol | default "TCP") }}
 
-  {{- $_ := set $.Values.elCicdDefaults "limitsCpu" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "200m") }}
-  {{- $_ := set $.Values.elCicdDefaults "limitsMemory" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "500Mi") }}
+  {{- $_ := set $.Values.elCicdDefaults "limitsCpu" ($.Values.elCicdDefaults.limitsCpu | default "200m") }}
+  {{- $_ := set $.Values.elCicdDefaults "limitsMemory" ($.Values.elCicdDefaults.limitsMemory | default "500Mi") }}
 
-  {{- $_ := set $.Values.elCicdDefaults "requestsCpu" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "100m") }}
-  {{- $_ := set $.Values.elCicdDefaults "requestsMemory" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "50Mi") }}
+  {{- $_ := set $.Values.elCicdDefaults "requestsCpu" ($.Values.elCicdDefaults.requestsCpu | default "100m") }}
+  {{- $_ := set $.Values.elCicdDefaults "requestsMemory" ($.Values.elCicdDefaults.requestsMemory | default "50Mi") }}
 
-  {{- $_ := set $.Values.elCicdDefaults "ingressRulePath" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "/") }}
-  {{- $_ := set $.Values.elCicdDefaults "ingressRulePathType" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "Prefix") }}
+  {{- $_ := set $.Values.elCicdDefaults "ingressRulePath" ($.Values.elCicdDefaults.ingressRulePath | default "/") }}
+  {{- $_ := set $.Values.elCicdDefaults "ingressRulePathType" ($.Values.elCicdDefaults.ingressRulePathType | default "Prefix") }}
 
-  {{- $_ := set $.Values.elCicdDefaults "prometheusPort" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "9090") }}
-  {{- $_ := set $.Values.elCicdDefaults "prometheusPath" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "/metrics") }}
-  {{- $_ := set $.Values.elCicdDefaults "prometheusScheme" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "https") }}
-  {{- $_ := set $.Values.elCicdDefaults "prometheusScrape" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "false") }}
-  {{- $_ := set $.Values.elCicdDefaults "prometheusProtocol" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "TCP") }}
+  {{- $_ := set $.Values.elCicdDefaults "prometheusPort" ($.Values.elCicdDefaults.prometheusPort | default "9090") }}
+  {{- $_ := set $.Values.elCicdDefaults "prometheusPath" ($.Values.elCicdDefaults.prometheusPath | default "/metrics") }}
+  {{- $_ := set $.Values.elCicdDefaults "prometheusScheme" ($.Values.elCicdDefaults.prometheusScheme | default "https") }}
+  {{- $_ := set $.Values.elCicdDefaults "prometheusScrape" ($.Values.elCicdDefaults.prometheusScrape | default "false") }}
+  {{- $_ := set $.Values.elCicdDefaults "prometheusProtocol" ($.Values.elCicdDefaults.prometheusProtocol | default "TCP") }}
 
-  {{- $_ := set $.Values.elCicdDefaults "3ScaleScheme" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default "https") }}
+  {{- $_ := set $.Values.elCicdDefaults "3ScaleScheme" ((get $.Values.elCicdDefaults "3ScaleScheme") | default "https") }}
 {{- end }}
 
 
