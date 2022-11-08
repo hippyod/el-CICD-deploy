@@ -2,7 +2,7 @@ apiVersion: v1
 entries:
   elCicdChart:
   - apiVersion: v2
-    created: "2022-11-08T01:02:21.641459259Z"
+    created: "2022-11-08T01:08:02.921101602Z"
     dependencies:
     - name: elCicdRenderer
       repository: file://../elCicdRenderer
@@ -12,7 +12,7 @@ entries:
       version: 0.1.0
     description: A generic helm chart which uses elCicdRenderer and elCicdResources
       to deploy any application give an elCicdRenderer compliant values file(s).
-    digest: 118d781552cde4e9c94a734e7ee2241a70ab87f49007f1c89eff7f571f2c5872
+    digest: e66a5385c7ff5357fbe31f5264d21d812081f2d0ecf9afab920c86f92b517e6a
     name: elCicdChart
     type: application
     urls:
@@ -20,7 +20,7 @@ entries:
     version: 0.1.0
   elCicdImageRegistry:
   - apiVersion: v2
-    created: "2022-11-08T01:02:21.643900862Z"
+    created: "2022-11-08T01:08:02.922754126Z"
     dependencies:
     - name: elCicdRenderer
       repository: file://../elCicdRenderer
@@ -29,7 +29,7 @@ entries:
       repository: file://../elCicdResources
       version: 0.1.0
     description: A Helm chart for deploying one or more image registries into a namespace
-    digest: e03916cb1dfee6573ef2130e7cd42b027480d7b6520b1752b77b18ac31101096
+    digest: 43aeb555c36e3e906955ef9bb092a5d776ecf12bb3f023693b5d36c143718e6e
     name: elCicdImageRegistry
     type: application
     urls:
@@ -37,10 +37,10 @@ entries:
     version: 0.1.0
   elCicdRenderer:
   - apiVersion: v2
-    created: "2022-11-08T01:02:21.644274162Z"
+    created: "2022-11-08T01:08:02.923134132Z"
     description: A chart meant to be added as a dependency for rendering parameterized
       values.yml files with profiles.
-    digest: 16a0fc5eeddd9915ed81938c880599932efcba1c103537b917b9212ec8d73ed6
+    digest: c71da42d4e525c0fdf6aaa09fb24a42046cc49187c9b5ffda791549e3e4c8765
     keywords:
     - parameterized
     - profiles
@@ -54,12 +54,12 @@ entries:
     version: 0.1.0
   elCicdResources:
   - apiVersion: v2
-    created: "2022-11-08T01:02:21.644863063Z"
+    created: "2022-11-08T01:08:02.923557338Z"
     description: A library chart with the a complete set of Kubernetes resources that
       might be needed for application deployments. Built to be used in conjuction
       with the elCicdRenderer for rendering as a general Helm-based deployment solution
       across multiple environments.
-    digest: 6ba3ed4644553bb2e28e88b6dffae86df2c6b11aaae03286be38b4e11f0ff115
+    digest: e83c5821d3f86823fe780adfeacd9c6d295bef83df1bac1e8c64457d1e903172
     keywords:
     - generic
     - parameterized
@@ -67,8 +67,8 @@ entries:
     name: elCicdResources
     sources:
     - https://github.com/elcicd/el-CICD-deploy/tree/main/charts
-    type: application
+    type: library
     urls:
     - elCicdResources-0.1.0.tgz
     version: 0.1.0
-generated: "2022-11-08T01:02:21.639764657Z"
+generated: "2022-11-08T01:08:02.919797183Z"
