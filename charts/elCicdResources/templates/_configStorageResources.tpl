@@ -83,7 +83,7 @@ spec:
                          "storageClassName"		
                          "volumeMode"
                          "volumeName"	}}
-  {{- include "elCicdResources.outputToYaml" ($ list $pvcValues $whiteList) }}
+  {{- include "elCicdResources.outputToYaml" (list $ $pvcValues $whiteList) }}
   accessModes:
   {{- if $pvcValues.accessModes }}
   {{ $pvcValues.accessModes | toYaml | indent 2 }}
