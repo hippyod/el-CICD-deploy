@@ -7,9 +7,8 @@ on:
     paths:
     - 'charts/elCicdRenderer/**'
     - 'charts/elCicdResources/**'
+    - 'charts/elCicdChart/**'
     - 'charts/elCicdImageRegistry/**'
-    - 'charts/elCicdJenkinsPipelines/**'
-    - 'charts/elCicdJenkins/**'
   
   workflow_dispatch:
 
@@ -27,7 +26,7 @@ jobs:
         git config --global user.name "el-CICD"
         git rm charts/*.tgz
         
-        CHART_DIRS='elCicdRenderer elCicdResources elCicdChart elCicdImageRegistry elCicdJenkins elCicdProject'
+        CHART_DIRS='elCicdRenderer elCicdResources elCicdChart elCicdImageRegistry'
         for CHART_DIR in ${CHART_DIRS}
         do
           helm package --dependency-update ./charts/${CHART_DIR} -d ./charts
