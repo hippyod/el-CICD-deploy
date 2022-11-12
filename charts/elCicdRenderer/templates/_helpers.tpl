@@ -27,7 +27,7 @@
   
   {{- $_ := set $.Values "MAX_RECURSION" (int 5) }}
   {{- $_ := set $.Values "FILE_PREFIX" "${FILE|" }}
-  {{- $_ := set $.Values "CONFIG_FILE_PREFIX" "${CONFIG|" }}
+  {{- $_ := set $.Values "CONFIG_PREFIX" "${CONFIG|" }}
   {{- $_ := set $.Values "ELCICD_FILE_REF_REGEX" "[\\$][\\{](?:FILE\\||CONFIG\\|)([\\w]+?(?:[.-][\\w]+?)*)[\\}]" }}
   {{- $_ := set $.Values "ELCICD_PARAM_REGEX" "[\\$][\\{]([\\w]+?(?:[-][\\w]+?)*)[\\}]" }}
   {{- $_ := set $.Values.elCicdDefs "RELEASE_NAMESPACE" $.Release.Namespace }}

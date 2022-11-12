@@ -36,12 +36,3 @@
     {{- include "elCicdRenderer.skippedTemplateLog" $skippedTemplate }}
   {{- end }}
 {{- end }}
-
-{{- define "elCicdRenderer.setVarFromFile" }}
-  {{- $ := index . 0 }}
-  {{- $varName := index . 1 }}
-  {{- $filePath := index . 2 }}
-  
-  {{- $_ := set $.Values.elCicdDefs $varName ($.Files.Get $filePath) }}
-  
-{{- end }}

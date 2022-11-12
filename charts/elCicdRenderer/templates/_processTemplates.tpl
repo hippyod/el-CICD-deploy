@@ -113,6 +113,7 @@
     {{- $_ := set $template "appName" ($template.appName | default $templateDefs.APP_NAME) }}
     {{- $_ := required "elCicdRenderer must define template.appName or elCicdDefs.APP_NAME!" $template.appName }}
 
+    {{- include "elCicdRenderer.preProcessFilesAndConfig" (list $ $templateDefs) }}
     {{- include "elCicdRenderer.mergeMapInto" (list $ $template.elCicdDefs $templateDefs) }}
     {{- include "elCicdRenderer.mergeProfileDefs" (list $ $template $templateDefs) }}
 
@@ -166,17 +167,12 @@
   {{- end }}
   {{- $depth := add $depth 1 }}
 
-  {{- $fileMatches := regexFindAll $.Values.ELCICD_FILE_REF_REGEX $value -1 | uniq }}
-  {{- $processDefList = (concat $processDefList $fileMatches | uniq) }}
-  {{- include "elCicdRenderer.replaceFileRefs" (list $ $map $key $fileMatches) }}
-  {{- $value := get $map $key }}
-
   {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $value -1 | uniq }}
   {{- include "elCicdRenderer.replaceParamRefs" (list $ $map $key $elCicdDefs $matches) }}
   {{- $value := get $map $key }}
 
-  {{- $processDefList = (concat $processDefList $fileMatches $matches | uniq)  }}
-  {{- if or $fileMatches $matches }}
+  {{- $processDefList = (concat $processDefList $matches | uniq)  }}
+  {{- if $matches }}
     {{- $_ := set $map $key $value }}
     {{- if $value }}
       {{- if or (kindIs "map" $value) }}
@@ -188,28 +184,6 @@
       {{- end }}
     {{- end }}
   {{- end }}
-{{- end }}
-
-{{- define "elCicdRenderer.replaceFileRefs" }}
-  {{- $ := index . 0 }}
-  {{- $map := index . 1 }}
-  {{- $key := index . 2 }}
-  {{- $fileMatches := index . 3 }}
-
-  {{- $value := get $map $key }}
-  {{- range $elCicdFileRef := $fileMatches }}
-    {{- $fileContent := "" }}
-    {{- if (hasPrefix $.Values.FILE_PREFIX $elCicdFileRef) }}
-      {{- $filePath := ( $elCicdFileRef | trimPrefix $.Values.FILE_PREFIX | trimSuffix "}") }}
-      {{- $fileContent = $.Files.Get $filePath }}
-    {{- else if  (hasPrefix $.Values.CONFIG_FILE_PREFIX $elCicdFileRef) }}
-      {{- $filePath := ( $elCicdFileRef | trimPrefix $.Values.CONFIG_FILE_PREFIX | trimSuffix "}") }}
-      {{- $fileContent = $.Files.AsConfig $filePath }}
-    {{- end }}
-    {{- $value = replace $elCicdFileRef (toString $fileContent) $value }}
-  {{- end }}
-
-  {{- $_ := set $map $key $value }}
 {{- end }}
 
 {{- define "elCicdRenderer.replaceParamRefs" }}
