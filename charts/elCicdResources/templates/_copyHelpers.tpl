@@ -1,31 +1,11 @@
-
-{{- define "elCicdResources.copySecret" }}
-  {{- $ := index . 0 }}
-  {{- $template := index . 1 }}
-  
-  {{ $_ := set $template "kind" "Secret" }}
-  
-  {{- include "elCicdResources.copyResource" . }}
-{{- end }}
-
-{{- define "elCicdResources.copyConfigMap" }}
-  {{- $ := index . 0 }}
-  {{- $template := index . 1 }}
-  
-  {{ $_ := set $template "kind" "ConfigMap" }}
-  
-  {{- include "elCicdResources.copyResource" . }}
-{{- end }}
-
 {{- define "elCicdResources.copyResource" }}
   {{- $ := index . 0 }}
   {{- $template := index . 1 }}
-  {{- $kind := index . 1 }}
   
   {{- $resource := (lookup ($template.apiVersion | default "v1") $template.kind $template.fromNamespace $template.appName) }}
   
   {{- if and (not $resource) (not $template.optional) }}
-    {{- fail "Cannot find % %s in namespace %s" $template.kind $template.appName $template.fromNamespace }}
+    {{- fail (printf "Cannot find %s %s in namespace %s" $template.kind $template.appName $template.fromNamespace) }}
   {{- end }}
   
   {{- $newResource := dict }}
@@ -55,7 +35,11 @@
     {{ $_ := mergeOverwrite $newResource.metadata.annotations  $template.annotations }}
   {{- end }}
   
-  {{- $_ := set $newResource "data" (deepCopy $resource.data) }}
+  {{- if $resource.data }}
+    {{- $_ := set $newResource "data" (deepCopy $resource.data) }}
+  {{- else if $resource.spec }}
+    {{- $_ := set $newResource "spec" (deepCopy $resource.spec) }}
+  {{- end }}
 
   {{- $newResource | toYaml }}
   
