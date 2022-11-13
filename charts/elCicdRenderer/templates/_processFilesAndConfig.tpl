@@ -35,6 +35,8 @@
     {{- $keyValue := (regexSplit "\\s*=\\s*" $configLine -1) }}
     {{- if (eq (len $keyValue) 2) }}
       {{- $_ := set $newValue (index $keyValue 0) (index $keyValue 1) }}
+    {{- else }}
+      {{- $_ := set $newValue (index $keyValue 0) "" }}
     {{- end }}
   {{- end }}
   
