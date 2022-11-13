@@ -51,7 +51,7 @@
 
     {{- $mustHaveProfiles := true }}
     {{- range $profile := $template.mustHaveProfiles }}
-      {{- $mustHaveRender = and $mustHaveRender (has $profile $.Values.profiles) }}
+      {{- $mustHaveProfiles := and $mustHaveProfiles (has $profile $.Values.profiles) }}
     {{- end }}
     
     {{- $ignoreAnyProfiles := false }}
