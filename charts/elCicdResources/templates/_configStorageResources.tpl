@@ -49,7 +49,7 @@ Image Registry Secret
 {{- include "elCicdResources.apiObjectHeader" . }}
 data:
   {{- if $secretValues.usernamePassword }}
-    {{- $_ := set $secretValues "usernamePassword" (regexSplit ":" $secretValues.usernamePassword) }}
+    {{- $_ := set $secretValues "usernamePassword" (regexSplit ":" $secretValues.usernamePassword -1) }}
     {{- $_ := set $secretValues "username" (index $secretValues.usernamePassword 0) }}
     {{- $_ := set $secretValues "password" (index $secretValues.usernamePassword 1) }}
   {{- end }}
