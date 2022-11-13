@@ -39,6 +39,32 @@ immutable: {{ $secretValues.immutable }}
 {{- end }}
 
 {{/*
+Image Registry Secret
+*/}}
+{{- define "elCicdResources.docker-registry-secret" }}
+{{- $ := index . 0 }}
+{{- $secretValues := index . 1 }}
+{{- $_ := set $secretValues "kind" "Secret" }}
+{{- $_ := set $secretValues "apiVersion" "v1" }}
+{{- include "elCicdResources.apiObjectHeader" . }}
+{{- if $secretValues.data }}
+data:
+  {{- if $secretValues.usernamePassword }}
+    {{- $_ := set $secretValues "usernamePassword" (regexSplit ":" $secretValues.usernamePassword) }}
+    {{- $_ := set $secretValues "username" (index $secretValues.usernamePassword 0) }}
+    {{- $_ := set $secretValues "password" (index $secretValues.usernamePassword 1) }}
+  {{- end }}
+  
+  {{- $dockerconfigjson := "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"auth\":\"%s\"}}}"
+  {{- $base64Auths := (printf "%s:%s" $secretValues.username $secretValues.password | b64enc)
+  .dockerconfigjson: {{ printf $dockerconfigjson $secretValues.server $secretValues.username $secretValues.password $base64Auths | b64enc }}
+{{- end }}
+{{- if $secretValues.immutable }}
+immutable: {{ $secretValues.immutable }}
+{{- end }}
+{{- end }}
+
+{{/*
 PersistentVolume
 */}}
 {{- define "elCicdResources.persistentVolume" }}

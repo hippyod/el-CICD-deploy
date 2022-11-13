@@ -113,9 +113,9 @@
     {{- $_ := set $template "appName" ($template.appName | default $templateDefs.APP_NAME) }}
     {{- $_ := required "elCicdRenderer must define template.appName or elCicdDefs.APP_NAME!" $template.appName }}
 
-    {{- include "elCicdRenderer.preProcessFilesAndConfig" (list $ $templateDefs) }}
     {{- include "elCicdRenderer.mergeMapInto" (list $ $template.elCicdDefs $templateDefs) }}
     {{- include "elCicdRenderer.mergeProfileDefs" (list $ $template $templateDefs) }}
+    {{- include "elCicdRenderer.preProcessFilesAndConfig" (list $ $templateDefs) }}
 
     {{- $_ := set $templateDefs "APP_NAME" $template.appName }}
     {{- $_ := set $templateDefs "BASE_APP_NAME" ($templateDefs.BASE_APP_NAME | default $templateDefs.APP_NAME) }}
