@@ -6,7 +6,7 @@
   {{- range $param, $value := $tplDefs }}
     {{- if $value }}
       {{- if or (kindIs "map" $value) }}
-        {{- include "elCicdRenderer.preProcessFilesAndConfig" (list $ $tplDefs) }}
+        {{- include "elCicdRenderer.preProcessFilesAndConfig" (list $ $value) }}
       {{- else if (kindIs "string" $value) }}
         {{- if or (hasPrefix $.Values.FILE_PREFIX $value) }}
           {{- $filePath := ( $value | trimPrefix $.Values.FILE_PREFIX | trimSuffix "}") }}
