@@ -35,23 +35,33 @@
 
 {{- define "elCicdRenderer.filterTemplates" }}
   {{- $ := . }}
+  {{ $_ := set $.Values "profiles" ($.Values.profiles | default list) }}
   
   {{- $renderList := list }}
   {{- $skippedList := list }}
   {{- range $template := $.Values.elCicdTemplates  }}
+    {{ $_ := set $template "anyProfiles" ($template.anyProfiles | default list) }}
+    {{ $_ := set $template "ignoreExactlyProfiles" ($template.ignoreExactlyProfiles | default list) }}
+    {{ $_ := set $template "mustHaveProfiles" ($template.mustHaveProfiles | default list) }}
+    {{ $_ := set $template "ignoreAnyProfiles" ($template.ignoreAnyProfiles | default list) }}
+  
     {{- $anyProfile := not $template.anyProfiles }}
     {{- range $profile := $template.anyProfiles }}
       {{- $anyProfile = or $anyProfile (has $profile $.Values.profiles) }}
     {{- end }}
-    
-    {{- $ignoreExactlyProfiles := $template.ignoreExactlyProfiles }}
-    {{- range $profile := $template.ignoreExactlyProfilesProfiles }}
-      {{- $ignoreExactlyProfiles = and $ignoreExactlyProfiles (has $profile $.Values.profiles) }}
+        
+    {{- $ignoreExactlyProfiles := and $template.ignoreExactlyProfiles (eq (len $template.ignoreExactlyProfiles) (len $.Values.profiles)) }}
+    {{- if and $ignoreExactlyProfiles $template.ignoreExactlyProfiles }}
+      {{- range $profile := $template.ignoreExactlyProfiles }}
+        {{- $ignoreExactlyProfiles = and $ignoreExactlyProfiles (has $profile $.Values.profiles) }}
+      {{- end }}
     {{- end }}
 
-    {{- $mustHaveProfiles := true }}
-    {{- range $profile := $template.mustHaveProfiles }}
-      {{- $mustHaveProfiles := and $mustHaveProfiles (has $profile $.Values.profiles) }}
+    {{- $mustHaveProfiles := or (empty $template.mustHaveProfiles) (eq (len $template.mustHaveProfiles) (len $.Values.profiles)) }}
+    {{- if and $mustHaveProfiles $template.mustHaveProfiles }}
+      {{- range $profile := $template.mustHaveProfiles }}
+        {{- $mustHaveProfiles = and $mustHaveProfiles (has $profile $.Values.profiles) }}
+      {{- end }}
     {{- end }}
     
     {{- $ignoreAnyProfiles := false }}
