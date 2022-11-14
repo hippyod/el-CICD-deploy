@@ -2,6 +2,24 @@
 {{/*
 Role Binding
 */}}
+{{- define "elCicdResources.clusterRoleBinding" }}
+{{- $ := index . 0 }}
+{{- $roleBindingValues := index . 1 }}
+{{- $_ := set $roleBindingValues "kind" "ClusterRoleBinding" }}
+{{- $_ := set $roleBindingValues "apiVersion" "rbac.authorization.k8s.io/v1" }}
+{{- include "elCicdResources.apiObjectHeader" . }}
+roleRef:
+  {{- $roleBindingValues.roleRef | toYaml | nindent 2 }}
+subjects:
+{{- range subject := $roleBindingValues.subjects }}
+  {{ $_ := required (printf "Missing namespace on subject in clusterRoleBinding %s" ${APP_NAME}) subject.namespace }}
+{{- end }}
+{{ $roleBindingValues.subjects | toYaml }}
+{{- end }}
+
+{{/*
+Role Binding
+*/}}
 {{- define "elCicdResources.roleBinding" }}
 {{- $ := index . 0 }}
 {{- $roleBindingValues := index . 1 }}
