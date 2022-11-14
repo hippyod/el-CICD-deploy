@@ -72,7 +72,7 @@ metadata:
     {{- range $key, $value := $.Values.defaultLabels }}
     {{ $key }}: "{{ $value }}"
     {{- end }}
-  name: {{ required "Unnamed apiObject Name!" $metadataValues.appName }}
+  name: {{ required (printf "Unnamed apiObject Name in template: %s!" $metadataValues.templateName) $metadataValues.appName }}
   {{- if $metadataValues.namespace }}
   namespace: {{ $metadataValues.namespace }}
   {{- end }}
