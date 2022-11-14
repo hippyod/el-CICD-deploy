@@ -11,8 +11,8 @@ Role Binding
 roleRef:
   {{- $roleBindingValues.roleRef | toYaml | nindent 2 }}
 subjects:
-{{- range subject := $roleBindingValues.subjects }}
-  {{ $_ := required (printf "Missing namespace on subject in clusterRoleBinding %s" ${APP_NAME}) subject.namespace }}
+{{- range $subject := $roleBindingValues.subjects }}
+  {{ $_ := required (printf "Missing namespace on subject in clusterRoleBinding %s" ${APP_NAME}) $subject.namespace }}
 {{- end }}
 {{ $roleBindingValues.subjects | toYaml }}
 {{- end }}
