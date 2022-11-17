@@ -2,7 +2,7 @@
   {{- $ := index . 0 }}
   {{- $template := index . 1 }}
   
-  {{- if or $.Release.IsUpgrade $.IsInstall }}  
+  {{- if or $.Release.IsUpgrade $.Release.IsInstall }}  
     {{- $resource := (lookup ($template.apiVersion | default "v1") $template.kind $template.fromNamespace $template.appName) }}
     
     {{- if and (not $resource) (not $template.optional) }}
