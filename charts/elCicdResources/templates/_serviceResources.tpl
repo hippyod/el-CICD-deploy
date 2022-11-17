@@ -23,7 +23,7 @@ spec:
     {{- if (regexMatch "^[\\w]" $ingressHostDomain) }}
       {{- $ingressHostDomain = (printf ".%s" $ingressHostDomain) }}
     {{- end }}
-    {{- $_ := set $ingressValues "host" (printf "%s%s" $ingressValues.appName $.Values.ingressHostDomain) }}
+    {{- $_ := set $ingressValues "host" (printf "%s%s" $ingressValues.appName $ingressHostDomain) }}
   {{- end }}
   - host: {{ $ingressValues.host }}
     http:
