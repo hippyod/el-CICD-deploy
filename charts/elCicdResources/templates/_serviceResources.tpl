@@ -18,7 +18,14 @@ spec:
   rules: {{ $ingressValues.rules | toYaml | nindent 4 }}
   {{- else }}
   rules:
-  - host: {{ $ingressValues.host | default (printf "%s%s" $ingressValues.appName $.Values.ingressHostDomain) }}
+  {{- if (not $ingressValues.host) }}
+    {{ $ingressHostDomain := $.Values.ingressHostDomain) }}
+    {{- if (regexMatch "^[\\w]" $ingressHostDomain) }}
+      {{- $ingressHostDomain = (printf ".%s" $ingressHostDomain) }}
+    {{- end }}
+    {{- $_ := set $ingressValues "host" (printf "%s%s" $ingressValues.appName $.Values.ingressHostDomain) }}
+  {{- end }}
+  - host: {{ $ingressValues.host }}
     http:
       paths:
       - path: {{ $ingressValues.path | default $.Values.elCicdDefaults.ingressRulePath }}
