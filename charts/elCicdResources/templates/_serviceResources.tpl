@@ -19,7 +19,7 @@ spec:
   {{- else }}
   rules:
   {{- if (not $ingressValues.host) }}
-    {{ $ingressHostDomain := $.Values.ingressHostDomain) }}
+    {{ $ingressHostDomain := $.Values.ingressHostDomain }}
     {{- if (regexMatch "^[\\w]" $ingressHostDomain) }}
       {{- $ingressHostDomain = (printf ".%s" $ingressHostDomain) }}
     {{- end }}
