@@ -53,7 +53,7 @@ data:
     {{- $_ := set $secretValues "username" (index $secretValues.usernamePassword 0) }}
     {{- $_ := set $secretValues "password" (index $secretValues.usernamePassword 1) }}
   {{- end }}
-  
+
   {{- $dockerconfigjson := "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"auth\":\"%s\"}}}" }}
   {{- $base64Auths := (printf "%s:%s" $secretValues.username $secretValues.password | b64enc) }}
   .dockerconfigjson: {{ printf $dockerconfigjson $secretValues.server $secretValues.username $secretValues.password $base64Auths | b64enc }}
@@ -72,8 +72,32 @@ PersistentVolume
 {{- $_ := set $pvValues "apiVersion" "v1" }}
 {{- include "elCicdResources.apiObjectHeader" . }}
 spec:
-  {{- $whiteList := list "persistentVolumeReclaimPolicy"	
-                         "storageClassName"	
+  {{- $whiteList := list "awsElasticBlockStore"
+                         "azureDisk"
+                         "azureFile"
+                         "cephfs"
+                         "cinder"
+                         "claimRef"
+                         "csi"
+                         "fc"
+                         "flexVolume"
+                         "flocker"
+                         "gcePersistentDisk"
+                         "glusterfs"
+                         "hostPath"
+                         "iscsi"
+                         "local"
+                         "mountOptions"
+                         "nfs"
+                         "nodeAffinity"
+                         "persistentVolumeReclaimPolicy"
+                         "portworxVolume"
+                         "quobyte"
+                         "rbd"
+                         "scaleIO"
+                         "storageClassName"
+                         "storageos	"
+                         "vsphereVolume"
                          "volumeMode"	}}
   {{- include "elCicdResources.outputToYaml" (list $ $pvValues $whiteList) }}
   accessModes:
@@ -84,11 +108,6 @@ spec:
   {{- end }}
   capacity:
     storage: {{ required "PV's must specify storageCapacity" $pvValues.storageCapacity }}
-  {{- range $pvKey, $values := $pvValues }}
-    {{- if kindIs "map" $values }}
-  {{ $pvKey }}: {{ $values | toYaml | nindent 4 }}
-    {{- end }}
-  {{- end }}
 {{- end }}
 
 {{/*
@@ -101,10 +120,10 @@ PersistentVolumeClaim
 {{- $_ := set $pvcValues "apiVersion" "v1" }}
 {{- include "elCicdResources.apiObjectHeader" . }}
 spec:
-  {{- $whiteList := list "dataSource"	
-                         "dataSourceRef"	
-                         "selector"		
-                         "storageClassName"		
+  {{- $whiteList := list "dataSource"
+                         "dataSourceRef"
+                         "selector"
+                         "storageClassName"
                          "volumeMode"
                          "volumeName"	}}
   {{- include "elCicdResources.outputToYaml" (list $ $pvcValues $whiteList) }}
@@ -114,7 +133,7 @@ spec:
   {{- else }}
   - {{ $pvcValues.accessMode }}
   {{- end }}
-  resources: 
+  resources:
   {{- if $pvcValues.resources }}
     {{- $pvcValues.resources | toYaml | nindent 4 }}
   {{- else }}
@@ -122,5 +141,4 @@ spec:
       storage: {{ required "PVC's must set storageRequest or fully define resources" $pvcValues.storageRequest }}
   {{- end }}
 {{- end }}
-    
-    
+
