@@ -54,3 +54,39 @@ secrets:
 {{- end }}
 {{- end }}
 {{- end }}
+
+{{/*
+Security Context Constraints
+*/}}
+{{- define "elCicdResources.securityContextConstraints" }}
+{{- $ := index . 0 }}
+{{- $sccAcctValues := index . 1 }}
+{{- $_ := set $sccAcctValues "kind" "SecurityContextConstraints" }}
+{{- $_ := set $sccAcctValues "apiVersion" "security.openshift.io/v1" }}
+{{- include "elCicdResources.apiObjectHeader" . }} 
+{{- $whiteList := list "allowHostDirVolumePlugin"
+                       "allowHostIPC"
+                       "allowHostNetwork"
+                       "allowHostPID"
+                       "allowHostPorts"
+                       "allowPrivilegeEscalation"
+                       "allowPrivilegedContainer"
+                       "allowedCapabilities"
+                       "allowedFlexVolumes"
+                       "allowedUnsafeSysctls"
+                       "defaultAddCapabilities"
+                       "defaultAllowPrivilegeEscalation"
+                       "forbiddenSysctls"
+                       "fsGroup"
+                       "groups"
+                       "priority"
+                       "readOnlyRootFilesystem"
+                       "requiredDropCapabilities"
+                       "runAsUser"
+                       "seLinuxContext"
+                       "seccompProfiles"
+                       "supplementalGroups"
+                       "users"
+                       "volumes"" }}
+{{- include "elCicdResources.outputToYaml" (list $ $containerVals $whiteList) }}
+{{- end }}
