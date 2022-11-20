@@ -44,5 +44,4 @@
 
     {{- $newResource | toYaml }}
   {{- end }}
-  
 {{- end }}

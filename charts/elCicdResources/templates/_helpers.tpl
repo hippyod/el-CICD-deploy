@@ -62,20 +62,13 @@ metadata:
     {{- end }}
   {{- end }}
   labels:
+    {{ $_ := set $metadataValues "labels" (mergeOverwrite ($metadataValues.labels | default dict) $.Values.defaultLabels) }}
     {{- include "elCicdResources.labels" . | indent 4 }}
     {{- range $key, $value := $metadataValues.labels }}
-    {{ $key }}: "{{ $value }}"
-    {{- end }}
-    {{- range $key, $value := $.Values.labels }}
-    {{ $key }}: "{{ $value }}"
-    {{- end }}
-    {{- range $key, $value := $.Values.defaultLabels }}
-    {{ $key }}: "{{ $value }}"
+    {{ $key }}: {{ $value | toString }}
     {{- end }}
   name: {{ required (printf "Unnamed apiObject Name in template: %s!" $metadataValues.templateName) $metadataValues.appName }}
-  {{- if $metadataValues.namespace }}
-  namespace: {{ $metadataValues.namespace }}
-  {{- end }}
+  namespace: {{ $metadataValues.namespace | default $.Release.Namespace }}
 {{- end }}
 
 {{/*
@@ -119,10 +112,11 @@ Common labels
 {{- $template := index . 1 }}
 {{- include "elCicdResources.selectorLabels" . }}
 helm.sh/chart: {{ include "elCicdResources.chart" $ }}
-{{- if $.Chart.AppVersion }}
+{{- if $.Chart.Version }}
 app.kubernetes.io/version: {{ $.Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ $.Release.Service }}
+app.kubernetes.io/instance: {{ $.Release.Name }}
 {{- end }}
 
 {{/*

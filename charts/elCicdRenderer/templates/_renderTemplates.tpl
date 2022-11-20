@@ -2,7 +2,7 @@
 
 {{- define "elCicdRenderer.render" }}
   {{- $ := . }}
-  
+
   {{- include "elCicdRenderer.initElCicdRenderer" . }}
 
   {{- include "elCicdRenderer.mergeProfileDefs" (list $ $.Values $.Values.elCicdDefs) }}
@@ -19,19 +19,29 @@
     {{- if not (contains "." $templateName) }}
       {{- $templateName = printf "%s.%s" $.Values.defaultRenderChart $template.templateName }}
     {{- end }}
----    
+---
     {{- include $templateName (list $ $template) }}
-  # Rendered -> {{ $template.templateName }} {{ $template.appName }}
+# Rendered -> {{ $template.templateName }} {{ $template.appName }}
   {{- end }}
 
-{{- if $.Values.renderValuesForKust }}
+  {{- range $yamlMapKey, $rawYamlValue := $.Values }}
+    {{- if and (hasPrefix "elCicdRawYaml" $yamlMapKey) (kindIs "map" $rawYamlValue) }}
+      {{- range $yamlKey, $rawYaml := $rawYamlValue }}
+---
+        {{- $rawYaml | toYaml }}
+# Rendered From {{ $yamlMapKey }} -> {{ $yamlKey }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+
+  {{- if $.Values.renderValuesForKust }}
 ---
 # __VALUES_START__
 {{ $.Values | toYaml }}
 # __VALUES_END__
-{{- end }}
+  {{- end }}
 ---
-  # Profiles: {{ $.Values.profiles }}
+# Profiles: {{ $.Values.profiles }}
   {{- range $skippedTemplate := $.Values.skippedTemplates }}
     {{- include "elCicdRenderer.skippedTemplateLog" $skippedTemplate }}
   {{- end }}
