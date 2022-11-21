@@ -14,7 +14,7 @@
     {{- include "elCicdRenderer.processMapValue" (list $ $.Values "defaultLabels" $.Values.elCicdDefs list 0) }}
   {{- else }}
     {{- include "elCicdRenderer.processMap" (list $ $.Values.defaultLabels $.Values.elCicdDefs) }}
-  {{- else }}
+  {{- end }}
 
   {{- include "elCicdRenderer.generateAllTemplates" . }}
 
