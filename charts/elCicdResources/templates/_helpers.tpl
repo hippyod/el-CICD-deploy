@@ -61,7 +61,7 @@ metadata:
   labels:
     {{- include "elCicdResources.labels" . | indent 4 }}
     {{- range $key, $value := $metadataValues.labels }}
-    {{ $key }}: {{ $value | toString }}
+    {{ $key }}: {{ $value | quote }}
     {{- end }}
   {{- end }}
   name: {{ required (printf "Unnamed apiObject Name in template: %s!" $metadataValues.templateName) $metadataValues.appName }}
