@@ -3,18 +3,13 @@
 {{- define "elCicdRenderer.render" }}
   {{- $ := . }}
   
-  {{- $_ := set $.Values "EL_CICD_DEPLOYMENT_TIME" (now | quote) }}
+  {{- $_ := set $.Values "EL_CICD_DEPLOYMENT_TIME" (now | date "Mon Jan 2 15:04:05 MST 2006") }}
 
   {{- include "elCicdRenderer.initElCicdRenderer" . }}
 
   {{- include "elCicdRenderer.mergeProfileDefs" (list $ $.Values $.Values.elCicdDefs) }}
 
-  {{- $_ := set $.Values "defaultLabels" ($.Values.defaultLabels | default dict) }}
-  {{- if kindIs "string" $.Values.defaultLabels }}
-    {{- include "elCicdRenderer.processMapValue" (list $ $.Values "defaultLabels" $.Values.elCicdDefs list 0) }}
-  {{- else }}
-    {{- include "elCicdRenderer.processMap" (list $ $.Values.defaultLabels $.Values.elCicdDefs) }}
-  {{- end }}
+  {{- include "elCicdRenderer.processMap" (list $ $.Values.elCicdDefaults $.Values.elCicdDefs) }}
 
   {{- include "elCicdRenderer.generateAllTemplates" . }}
 
@@ -26,7 +21,7 @@
   {{- range $template := $.Values.allTemplates  }}
     {{- $templateName := $template.templateName }}
     {{- if not (contains "." $templateName) }}
-      {{- $templateName = printf "%s.%s" $.Values.defaultRenderChart $template.templateName }}
+      {{- $templateName = printf "%s.%s" $.Values.elCicdDefaults.templatesChart $template.templateName }}
     {{- end }}
 ---
     {{- include $templateName (list $ $template) }}

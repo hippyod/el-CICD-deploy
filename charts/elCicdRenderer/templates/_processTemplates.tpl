@@ -15,10 +15,12 @@
   {{- $_ := set $.Values "appNameTemplates" list }}
   {{- $_ := set $.Values "namespaceTemplates" list }}
   {{- range $template := $.Values.renderingTemplates  }}
-
     {{- if $template.appNames }}
       {{- include "elCicdRenderer.processTemplateGenerator" (list $ $template "appNames") }}
       {{- include "elCicdRenderer.processTplAppNames" (list $ $template) }}
+    {{- else }}
+      {{- $_ := set $template "appName" ($template.appName | default $.Values.elCicdDefaults.appName) }}
+      {{- $_ := required "elCicdRenderer must define template.appName or elCicdDefs.APP_NAME!" $template.appName }}
     {{- end }}
 
     {{- if $template.namespaces }}
@@ -108,11 +110,8 @@
   {{- $templates := index . 1 }}
   {{- $elCicdDefs := index . 2 }}
 
-  {{- range $template := $templates }}
+  {{- range $template := $templates }}    
     {{- $templateDefs := deepCopy $elCicdDefs }}
-    {{- $_ := set $template "appName" ($template.appName | default $templateDefs.APP_NAME) }}
-    {{- $_ := required "elCicdRenderer must define template.appName or elCicdDefs.APP_NAME!" $template.appName }}
-
     {{- include "elCicdRenderer.mergeMapInto" (list $ $template.elCicdDefs $templateDefs) }}
     {{- include "elCicdRenderer.mergeProfileDefs" (list $ $template $templateDefs) }}
     {{- include "elCicdRenderer.preProcessFilesAndConfig" (list $ $templateDefs) }}

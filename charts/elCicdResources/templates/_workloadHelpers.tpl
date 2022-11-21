@@ -84,8 +84,8 @@ spec:
   ephemeralContainers:
     {{- include "elCicdResources.containers" (list $ $podValues.ephemeralContainers false) | trim | nindent 2 }}
   {{- end }}
-  {{- $_ := set $podValues "imagePullSecrets" ($podValues.imagePullSecrets | default $.Values.defaultImagePullSecrets) }}
-  {{- $_ := set $podValues "imagePullSecret" ($podValues.imagePullSecret | default $.Values.defaultImagePullSecret) }}
+  {{- $_ := set $podValues "imagePullSecrets" ($podValues.imagePullSecrets | default $.Values.elCicdDefaults.imagePullSecrets) }}
+  {{- $_ := set $podValues "imagePullSecret" ($podValues.imagePullSecret | default $.Values.elCicdDefaults.imagePullSecret) }}
   {{- if $podValues.imagePullSecrets }}
   imagePullSecrets:
     {{- range $secretName := $podValues.imagePullSecrets }}
@@ -142,7 +142,7 @@ Container definition
   {{- if $containerVals.envFromSelectors }}
     {{- include "elCicdResources.envFrom" }}
   {{- end }}
-  image: {{ $containerVals.image | default $.Values.defaultImage }}
+  image: {{ $containerVals.image | default $.Values.elCicdDefaults.image }}
   imagePullPolicy: {{ $containerVals.imagePullPolicy | default $.Values.elCicdDefaults.imagePullPolicy }}
   {{- if or $containerVals.ports $containerVals.port $.Values.elCicdDefaults.port $containerVals.usePrometheus }}
   ports:

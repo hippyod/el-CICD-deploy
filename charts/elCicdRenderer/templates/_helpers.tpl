@@ -2,12 +2,6 @@
 
 {{- define "elCicdRenderer.initElCicdRenderer" }}
   {{- $ := . }}
-  
-  {{- range $dep := $.Chart.Dependencies }}
-    {{- if (eq $dep.Name "elCicdResources") }}
-      {{- include "elCicdResources.initElCicdResources" $ }}
-    {{- end }}
-  {{- end }}
     
   {{- if $.Values.profiles }}
     {{- if not (kindIs "slice" $.Values.profiles) }}
@@ -21,10 +15,16 @@
   {{- end }}
   
   {{- $_ := set $.Values "elCicdDefs" ($.Values.elCicdDefs | default dict) }}
+  {{- $_ := set $.Values "elCicdDefaults" ($.Values.elCicdDefaults | default dict) }}
   {{- $_ := set $.Values "skippedTemplates" list }}
   
-  {{- $_ := set $.Values "defaultRenderChart" ($.Values.defaultRenderChart | default "elCicdResources") }}
-  
+  {{- range $dep := $.Chart.Dependencies }}
+    {{- if (eq $dep.Name "elCicdResources") }}
+      {{- include "elCicdResources.initElCicdResources" $ }}
+      {{- $_ := set $.Values.elCicdDefaults "templatesChart" ($.Values.elCicdDefaults.templatesChart | default "elCicdResources") }}
+    {{- end }}
+  {{- end }}
+    
   {{- $_ := set $.Values "MAX_RECURSION" (int 5) }}
   {{- $_ := set $.Values "FILE_PREFIX" "${FILE|" }}
   {{- $_ := set $.Values "CONFIG_PREFIX" "${CONFIG|" }}
@@ -35,15 +35,15 @@
 
 {{- define "elCicdRenderer.filterTemplates" }}
   {{- $ := . }}
-  {{ $_ := set $.Values "profiles" ($.Values.profiles | default list) }}
+  {{- $_ := set $.Values "profiles" ($.Values.profiles | default list) }}
   
   {{- $renderList := list }}
   {{- $skippedList := list }}
   {{- range $template := $.Values.elCicdTemplates  }}
-    {{ $_ := set $template "anyProfiles" ($template.anyProfiles | default list) }}
-    {{ $_ := set $template "ignoreExactlyProfiles" ($template.ignoreExactlyProfiles | default list) }}
-    {{ $_ := set $template "mustHaveProfiles" ($template.mustHaveProfiles | default list) }}
-    {{ $_ := set $template "ignoreAnyProfiles" ($template.ignoreAnyProfiles | default list) }}
+    {{- $_ := set $template "anyProfiles" ($template.anyProfiles | default list) }}
+    {{- $_ := set $template "ignoreExactlyProfiles" ($template.ignoreExactlyProfiles | default list) }}
+    {{- $_ := set $template "mustHaveProfiles" ($template.mustHaveProfiles | default list) }}
+    {{- $_ := set $template "ignoreAnyProfiles" ($template.ignoreAnyProfiles | default list) }}
   
     {{- $anyProfile := not $template.anyProfiles }}
     {{- range $profile := $template.anyProfiles }}

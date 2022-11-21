@@ -33,14 +33,16 @@ spec:
                          "progressDeadlineSeconds"
                          "replicas" }}
   {{- include "elCicdResources.outputToYaml" (list $ $deployValues $whiteList) }}
+  {{- if or $deployValues.revisionHistoryLimit $.Values.elCicdDefaults.deploymentRevisionHistoryLimit }}
   revisionHistoryLimit: {{ $deployValues.revisionHistoryLimit | default $.Values.elCicdDefaults.deploymentRevisionHistoryLimit }}
+  {{- end }}
   selector: {{ include "elCicdResources.selector" . | indent 4 }}
   {{- if $deployValues.strategyType }}
   strategy:
     {{- if (eq $deployValues.strategyType "RollingUpdate") }}
     rollingUpdate:
-      maxSurge: {{ $deployValues.rollingUpdateMaxSurge | default $.Values.defaultRollingUpdateMaxSurge }}
-      maxUnavailable: {{ $deployValues.rollingUpdateMaxUnavailable | default $.Values.defaultRollingUpdateMaxUnavailable }}
+      maxSurge: {{ $deployValues.rollingUpdateMaxSurge | default $.Values.elCicdDefaults.rollingUpdateMaxSurge }}
+      maxUnavailable: {{ $deployValues.rollingUpdateMaxUnavailable | default $.Values.elCicdDefaults.rollingUpdateMaxUnavailable }}
     {{- end }}
     type: {{ $deployValues.strategyType }}
   {{- end }}

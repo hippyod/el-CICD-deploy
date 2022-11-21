@@ -5,7 +5,8 @@ Iniitialize elCicdResources chart
 {{- define "elCicdResources.initElCicdResources" }}
   {{- $ := . }}
   
-  {{- $_ := set $.Values "elCicdDefaults" ($.Values.elCicdDefaults | default dict) }}
+  {{- $_ := set $.Values.elCicdDefaults "annotations" ($.Values.elCicdDefaults.annotations | default dict) }}
+  {{- $_ := set $.Values.elCicdDefaults "labels" ($.Values.elCicdDefaults.labels | default dict) }}
   
   {{- $_ := set $.Values.elCicdDefaults "deploymentRevisionHistoryLimit" ($.Values.elCicdDefaults.deploymentRevisionHistoryLimit | default 0) }}
 
@@ -32,8 +33,6 @@ Iniitialize elCicdResources chart
   {{- $_ := set $.Values.elCicdDefaults "3ScaleScheme" ((get $.Values.elCicdDefaults "3ScaleScheme") | default "https") }}
 {{- end }}
 
-
-
 {{/*
 General Metadata Template
 */}}
@@ -50,25 +49,25 @@ kind: {{ $template.kind }}
 {{- $ := index . 0 }}
 {{- $metadataValues := index . 1 }}
 metadata:
-  {{- if or $metadataValues.annotations $.Values.defaultAnnotations }}
+  {{- $_ := set $metadataValues "annotations" (mergeOverwrite ($metadataValues.annotations | default dict) $.Values.elCicdDefaults.annotations) }}
+  {{- if $metadataValues.annotations }}
   annotations:
-    {{- if $metadataValues.annotations }}
-      {{- range $key, $value := $metadataValues.annotations }}
+    {{- range $key, $value := $metadataValues.annotations }}
     {{ $key }}: {{ $value | quote }}
-      {{- end }}
-    {{- end }}
-    {{- if $.Values.defaultAnnotations}}
-      {{- $.Values.defaultAnnotations | toYaml | nindent 4 }}
     {{- end }}
   {{- end }}
+  {{- $_ := set $metadataValues "labels" (mergeOverwrite ($metadataValues.labels | default dict) $.Values.elCicdDefaults.labels) }}
+  {{- if $metadataValues.labels }}
   labels:
-    {{ $_ := set $metadataValues "labels" (mergeOverwrite ($metadataValues.labels | default dict) $.Values.defaultLabels) }}
     {{- include "elCicdResources.labels" . | indent 4 }}
     {{- range $key, $value := $metadataValues.labels }}
     {{ $key }}: {{ $value | toString }}
     {{- end }}
+  {{- end }}
   name: {{ required (printf "Unnamed apiObject Name in template: %s!" $metadataValues.templateName) $metadataValues.appName }}
-  namespace: {{ $metadataValues.namespace | default $.Release.Namespace }}
+  {{- if $metadataValues.namespace }}
+  namespace: {{ $metadataValues.namespace }}
+  {{- end }}
 {{- end }}
 
 {{/*
@@ -112,7 +111,7 @@ Common labels
 {{- $template := index . 1 }}
 {{- include "elCicdResources.selectorLabels" . }}
 helm.sh/chart: {{ include "elCicdResources.chart" $ }}
-{{- if $.Chart.Version }}
+{{- if $.Chart.AppVersion }}
 app.kubernetes.io/version: {{ $.Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ $.Release.Service }}
@@ -161,7 +160,7 @@ Service Prometheus 3Scale definition
   {{- $svcValues := index . 1 }}
   {{- $_ := set $svcValues "annotations" ($svcValues.annotations | default dict) }}
   {{- $_ := set $svcValues.annotations "discovery.3scale.net/path" ($svcValues.threeScale.port | default $svcValues.port | default $.Values.elCicdDefaults.port) }}
-  {{- $_ := set $svcValues.annotations "discovery.3scale.net/port" ($svcValues.threeScale.path | default $.Values.default3ScalePath) }}
+  {{- $_ := set $svcValues.annotations "discovery.3scale.net/port" ($svcValues.threeScale.path | default (get $.Values.elCicdDefaults "3ScalePath")) }}
   {{- $_ := set $svcValues.annotations "discovery.3scale.net/scheme" ($svcValues.threeScale.scheme | default (get $.Values.elCicdDefaults "3ScaleScheme")) }}
 {{- end }}
 

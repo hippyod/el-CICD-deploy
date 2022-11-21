@@ -14,7 +14,7 @@
           {{- $_ := set $tplDefs $param (toString $value) }}
         {{- end }}
   
-        {{ if (hasPrefix $.Values.CONFIG_PREFIX $param) }}
+        {{- if (hasPrefix $.Values.CONFIG_PREFIX $param) }}
           {{- include "elCicdRenderer.asConfig" (list $ $param $value $tplDefs) }}
         {{- end }}
       {{- end }}
@@ -40,5 +40,5 @@
     {{- end }}
   {{- end }}
   
-  {{ $_ := set $tplDefs $param $newValue }}
+  {{- $_ := set $tplDefs $param $newValue }}
 {{- end }}

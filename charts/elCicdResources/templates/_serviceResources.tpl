@@ -19,7 +19,7 @@ spec:
   {{- else }}
   rules:
   {{- if (not $ingressValues.host) }}
-    {{ $defaultIngressHostDomain := $.Values.defaultIngressHostDomain }}
+    {{ $defaultIngressHostDomain := $.Values.elCicdDefaults.ingressHostDomain }}
     {{- if (regexMatch "^[\\w]" $defaultIngressHostDomain) }}
       {{- $defaultIngressHostDomain = (printf ".%s" $defaultIngressHostDomain) }}
     {{- end }}

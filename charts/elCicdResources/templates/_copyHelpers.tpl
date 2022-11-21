@@ -17,19 +17,19 @@
     {{- $_ := set $newResource.metadata  "namespace" $template.toNamespace }}
     
     {{- if $template.copyLabels }}
-      {{ $_ := set $newResource.metadata  "labels" (deepCopy $resource.metadata.labels) }}
+      {{- $_ := set $newResource.metadata  "labels" (deepCopy $resource.metadata.labels) }}
     {{- else }}
-      {{ $_ := set $newResource.metadata  "labels" dict }}
+      {{- $_ := set $newResource.metadata  "labels" dict }}
     {{- end }}
     
     {{- if $template.labels }}
-      {{ $_ := mergeOverwrite $newResource.metadata.labels  $template.labels }}
+      {{- $_ := mergeOverwrite $newResource.metadata.labels  $template.labels }}
     {{- end }}
     
     {{- if $template.copyAnnotations }}
-      {{ $_ := set $newResource.metadata  "annotations" (deepCopy $resource.metadata.annotations) }}
+      {{- $_ := set $newResource.metadata  "annotations" (deepCopy $resource.metadata.annotations) }}
     {{- else }}
-      {{ $_ := set $newResource.metadata  "annotations" dict }}
+      {{- $_ := set $newResource.metadata  "annotations" dict }}
     {{- end }}
     
     {{- if $template.annotations }}
