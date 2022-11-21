@@ -2,10 +2,14 @@
 
 {{- define "elCicdRenderer.render" }}
   {{- $ := . }}
+  
+  {{- $_ := set $.Values "EL_CICD_DEPLOYMENT_TIME" dateInZone }}
 
   {{- include "elCicdRenderer.initElCicdRenderer" . }}
 
   {{- include "elCicdRenderer.mergeProfileDefs" (list $ $.Values $.Values.elCicdDefs) }}
+
+  {{- include "elCicdRenderer.processMap" (list $ $.Values.defaultLabels $templateDefs) }}
 
   {{- include "elCicdRenderer.generateAllTemplates" . }}
 

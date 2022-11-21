@@ -117,6 +117,7 @@
     {{- include "elCicdRenderer.mergeProfileDefs" (list $ $template $templateDefs) }}
     {{- include "elCicdRenderer.preProcessFilesAndConfig" (list $ $templateDefs) }}
 
+    {{- $_ := set $.Values.elCicdDefs "EL_CICD_DEPLOYMENT_TIME" $.Values.EL_CICD_DEPLOYMENT_TIME }}
     {{- $_ := set $templateDefs "APP_NAME" $template.appName }}
     {{- $_ := set $templateDefs "BASE_APP_NAME" ($templateDefs.BASE_APP_NAME | default $templateDefs.APP_NAME) }}
     {{- $_ := set $templateDefs "NAME_SPACE" $template.namespace }}
