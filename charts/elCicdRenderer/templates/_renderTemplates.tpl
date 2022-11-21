@@ -9,7 +9,7 @@
 
   {{- include "elCicdRenderer.mergeProfileDefs" (list $ $.Values $.Values.elCicdDefs) }}
 
-  {{- include "elCicdRenderer.processMap" (list $ $.Values.defaultLabels $templateDefs) }}
+  {{- include "elCicdRenderer.processMap" (list $ $.Values.defaultLabels $.Values.elCicdDefs) }}
 
   {{- include "elCicdRenderer.generateAllTemplates" . }}
 
