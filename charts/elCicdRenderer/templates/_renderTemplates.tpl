@@ -12,7 +12,7 @@
   {{- $_ := set $.Values "defaultLabels" ($.Values.defaultLabels | default dict) }}
   {{- if kindIs "string" $.Values.defaultLabels }}
     {{- include "elCicdRenderer.processMapValue" (list $ $.Values "defaultLabels" $.Values.elCicdDefs list 0) }}
-  {{- else if }}
+  {{- else }}
     {{- include "elCicdRenderer.processMap" (list $ $.Values.defaultLabels $.Values.elCicdDefs) }}
   {{- else }}
 
