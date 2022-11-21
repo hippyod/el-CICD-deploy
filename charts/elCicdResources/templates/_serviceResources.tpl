@@ -19,11 +19,11 @@ spec:
   {{- else }}
   rules:
   {{- if (not $ingressValues.host) }}
-    {{ $ingressHostDomain := $.Values.ingressHostDomain }}
-    {{- if (regexMatch "^[\\w]" $ingressHostDomain) }}
-      {{- $ingressHostDomain = (printf ".%s" $ingressHostDomain) }}
+    {{ $defaultIngressHostDomain := $.Values.defaultIngressHostDomain }}
+    {{- if (regexMatch "^[\\w]" $defaultIngressHostDomain) }}
+      {{- $defaultIngressHostDomain = (printf ".%s" $defaultIngressHostDomain) }}
     {{- end }}
-    {{- $_ := set $ingressValues "host" (printf "%s%s" $ingressValues.appName $ingressHostDomain) }}
+    {{- $_ := set $ingressValues "host" (printf "%s%s" $ingressValues.appName $defaultIngressHostDomain) }}
   {{- end }}
   - host: {{ $ingressValues.host }}
     http:
