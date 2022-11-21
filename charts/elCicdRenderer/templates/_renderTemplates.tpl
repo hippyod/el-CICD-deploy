@@ -32,7 +32,7 @@
     {{- if and (hasPrefix "elCicdRawYaml" $yamlMapKey) (kindIs "map" $rawYamlValue) }}
       {{- range $yamlKey, $rawYaml := $rawYamlValue }}
 ---
-        {{- $rawYaml | toYaml }}
+{{ $rawYaml }}
 # Rendered From {{ $yamlMapKey }} -> {{ $yamlKey }}
       {{- end }}
     {{- end }}
