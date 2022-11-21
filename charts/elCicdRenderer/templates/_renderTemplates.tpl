@@ -3,7 +3,7 @@
 {{- define "elCicdRenderer.render" }}
   {{- $ := . }}
   
-  {{- $_ := set $.Values "EL_CICD_DEPLOYMENT_TIME" {{ now | quote }} }}
+  {{- $_ := set $.Values "EL_CICD_DEPLOYMENT_TIME" (now | quote) }}
 
   {{- include "elCicdRenderer.initElCicdRenderer" . }}
 
