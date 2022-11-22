@@ -36,10 +36,20 @@
       {{ $_ := mergeOverwrite $newResource.metadata.annotations  $template.annotations }}
     {{- end }}
     
+    {{- if $resource.spec }}
+      {{- $_ := set $newResource "spec" (deepCopy $resource.spec) }}
+    {{- end }}
+    
     {{- if $resource.data }}
       {{- $_ := set $newResource "data" (deepCopy $resource.data) }}
-    {{- else if $resource.spec }}
-      {{- $_ := set $newResource "spec" (deepCopy $resource.spec) }}
+    {{- end }}
+    
+    {{- if $resource.dataBinary }}
+      {{- $_ := set $newResource "dataBinary" (deepCopy $resource.dataBinary) }}
+    {{- end }}
+    
+    {{- if $resource.type }}
+      {{- $_ := set $newResource "type" (deepCopy $resource.data) }}
     {{- end }}
 
     {{- $newResource | toYaml }}
