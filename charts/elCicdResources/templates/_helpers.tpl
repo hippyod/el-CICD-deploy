@@ -57,13 +57,13 @@ metadata:
     {{- end }}
   {{- end }}
   {{- $_ := set $metadataValues "labels" (mergeOverwrite ($metadataValues.labels | default dict) $.Values.elCicdDefaults.labels) }}
-  {{- if $metadataValues.labels }}
   labels:
     {{- include "elCicdResources.labels" . | indent 4 }}
-    {{- range $key, $value := $metadataValues.labels }}
+    {{- if $metadataValues.labels }}
+      {{- range $key, $value := $metadataValues.labels }}
     {{ $key }}: {{ $value | quote }}
+      {{- end }}
     {{- end }}
-  {{- end }}
   name: {{ required (printf "Unnamed apiObject Name in template: %s!" $metadataValues.templateName) $metadataValues.appName }}
   {{- if $metadataValues.namespace }}
   namespace: {{ $metadataValues.namespace }}
