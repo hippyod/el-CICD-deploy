@@ -60,6 +60,7 @@ data:
 {{- if $secretValues.immutable }}
 immutable: {{ $secretValues.immutable }}
 {{- end }}
+type: kubernetes.io/dockerconfigjson
 {{- end }}
 
 {{/*
