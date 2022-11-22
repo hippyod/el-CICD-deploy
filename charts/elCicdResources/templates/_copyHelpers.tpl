@@ -49,7 +49,7 @@
     {{- end }}
     
     {{- if $resource.type }}
-      {{- $_ := set $newResource "type" (deepCopy $resource.data) }}
+      {{- $_ := set $newResource "type" $resource.type }}
     {{- end }}
 
     {{- $newResource | toYaml }}
