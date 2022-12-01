@@ -138,8 +138,12 @@ spec:
   {{- if $pvcValues.resources }}
     {{- $pvcValues.resources | toYaml | nindent 4 }}
   {{- else }}
+    {{- if $pvcValues.storageRequest }}
     requests:
-      storage: {{ required "PVC's must set storageRequest or fully define resources" $pvcValues.storageRequest }}
+      storage: {{ $pvcValues.storageRequest }}
+    {{- end }}
+    limits:
+      storage: {{ required "PVC's must set storageLimit or fully define resources" $pvcValues.storageLimit }}
   {{- end }}
 {{- end }}
 
