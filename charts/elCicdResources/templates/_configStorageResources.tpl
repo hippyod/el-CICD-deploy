@@ -117,7 +117,7 @@ PersistentVolumeClaim
 {{- define "elCicdResources.persistentVolumeClaim" }}
 {{- $ := index . 0 }}
 {{- $pvcValues := index . 1 }}
-{{- $_ := set $pvcValues "kind" "PersistentVolumeClaim" }}
+{{- $_ := set $pvcValues "kind" "PersistentVolumeClaim" }}xxxxxxxxxxxxxxxxxxxxxxxxxxxx
 {{- $_ := set $pvcValues "apiVersion" "v1" }}
 {{- include "elCicdResources.apiObjectHeader" . }}
 spec:
@@ -138,12 +138,12 @@ spec:
   {{- if $pvcValues.resources }}
     {{- $pvcValues.resources | toYaml | nindent 4 }}
   {{- else }}
-    {{- if $pvcValues.storageRequest }}
     requests:
-      storage: {{ $pvcValues.storageRequest }}
-    {{- end }}
+      storage: {{ required "PVC's must set storageLimit or fully define resources" $pvcValues.storageRequest }}
+    {{- if $pvcValues.storageLimit }}
     limits:
-      storage: {{ required "PVC's must set storageLimit or fully define resources" $pvcValues.storageLimit }}
+      storage: {{ $pvcValues.storageLimit }}
+    {{- end }}
   {{- end }}
 {{- end }}
 
