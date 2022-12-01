@@ -117,7 +117,7 @@ PersistentVolumeClaim
 {{- define "elCicdResources.persistentVolumeClaim" }}
 {{- $ := index . 0 }}
 {{- $pvcValues := index . 1 }}
-{{- $_ := set $pvcValues "kind" "PersistentVolumeClaim" }}xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+{{- $_ := set $pvcValues "kind" "PersistentVolumeClaim" }}
 {{- $_ := set $pvcValues "apiVersion" "v1" }}
 {{- include "elCicdResources.apiObjectHeader" . }}
 spec:
