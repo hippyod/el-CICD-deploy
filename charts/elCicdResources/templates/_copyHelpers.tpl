@@ -35,10 +35,6 @@
       {{- end }}
     {{- end }}
     
-    {{- if $template.annotations }}
-      {{ $_ := mergeOverwrite $newResource.metadata.annotations  $template.annotations }}
-    {{- end }}
-    
     {{- if $resource.spec }}
       {{- $_ := set $newResource "spec" (deepCopy $resource.spec) }}
     {{- end }}
