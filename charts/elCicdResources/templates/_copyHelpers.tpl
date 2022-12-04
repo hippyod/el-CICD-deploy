@@ -28,7 +28,7 @@
     
     {{- if $template.copyAnnotations }}
       {{- range $annKey, $annValue := $resource.metadata.annotations }}
-        {{- if not (contains "helm" $annKey) }}
+        {{- if not (contains "meta.helm.sh" $annKey) }}
           {{- $_ := set $newResource.metadata.annotations $annKey $annValue }}
         {{- end }}
       {{- end }}
