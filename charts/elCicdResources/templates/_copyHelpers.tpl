@@ -22,10 +22,6 @@
       {{- $_ := set $newResource.metadata  "labels" dict }}
     {{- end }}
     
-    {{- if $template.labels }}
-      {{- $_ := mergeOverwrite $newResource.metadata.labels  $template.labels }}
-    {{- end }}
-    
     {{- if $template.copyAnnotations }}
       {{- $_ := set $newResource.metadata "annotations" dict }}
       {{- range $annKey, $annValue := $resource.metadata.annotations }}
@@ -33,6 +29,14 @@
           {{- $_ := set $newResource.metadata.annotations $annKey $annValue }}
         {{- end }}
       {{- end }}
+    {{- end }}
+    
+    {{- if $template.labels }}
+      {{- $_ := mergeOverwrite $newResource.metadata.labels  $template.labels }}
+    {{- end }}
+    
+    {{- if $template.annotations }}
+      {{- $_ := mergeOverwrite $newResource.metadata.annotations  $template.annotations }}
     {{- end }}
     
     {{- if $resource.spec }}
