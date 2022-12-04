@@ -16,6 +16,12 @@
     {{- $_ := set $newResource.metadata  "name" $resource.metadata.name }}
     {{- $_ := set $newResource.metadata  "namespace" $template.toNamespace }}
     
+    {{- range $annKey, $annValue := $newResource.metadata.annotations }}
+      {{- if contains "helm" $annKey }}
+        {{- $_ := unset $newResource.metadata.annotations $annKey }}
+      {{- end }}
+    {[- end }}
+    
     {{- if $template.copyLabels }}
       {{- $_ := set $newResource.metadata  "labels" (deepCopy $resource.metadata.labels) }}
     {{- else }}
