@@ -32,8 +32,6 @@
           {{- $_ := set $newResource.metadata.annotations $annKey $annValue }}
         {{- end }}
       {{- end }}
-    {{- else }}
-      {{- $_ := set $newResource.metadata  "annotations" dict }}
     {{- end }}
     
     {{- if $template.annotations }}
