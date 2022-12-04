@@ -16,12 +16,6 @@
     {{- $_ := set $newResource.metadata  "name" $resource.metadata.name }}
     {{- $_ := set $newResource.metadata  "namespace" $template.toNamespace }}
     
-    {{- range $annKey, $annValue := $newResource.metadata.annotations }}
-      {{- if contains "helm" $annKey }}
-        {{- $_ := unset $newResource.metadata.annotations $annKey }}
-      {{- end }}
-    {[- end }}
-    
     {{- if $template.copyLabels }}
       {{- $_ := set $newResource.metadata  "labels" (deepCopy $resource.metadata.labels) }}
     {{- else }}
@@ -33,7 +27,11 @@
     {{- end }}
     
     {{- if $template.copyAnnotations }}
-      {{- $_ := set $newResource.metadata  "annotations" (deepCopy $resource.metadata.annotations) }}
+      {{- range $annKey, $annValue := $resource.metadata.annotations }}
+        {{- if not (contains "helm" $annKey) }}
+          {{- $_ := set $newResource.metadata.annotations $annKey $annValue }}
+        {{- end }}
+      {{- end }}
     {{- else }}
       {{- $_ := set $newResource.metadata  "annotations" dict }}
     {{- end }}
