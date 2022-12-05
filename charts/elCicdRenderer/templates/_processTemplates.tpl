@@ -18,9 +18,11 @@
     {{- if $template.appNames }}
       {{- include "elCicdRenderer.processTemplateGenerator" (list $ $template "appNames") }}
       {{- include "elCicdRenderer.processTplAppNames" (list $ $template) }}
+    {{- else if eq $template.appName "${APP_NAME}" }}
+      {{- fail (printf "templateName %s appName: ${APP_NAME}: APP_NAME IS RESERVED; use different variable def or default appName in elCicdDefaults.appName" $template.templateName) }}
     {{- else }}
       {{- $_ := set $template "appName" ($template.appName | default $.Values.elCicdDefaults.appName) }}
-      {{- $_ := required "elCicdRenderer must define template.appName or elCicdDefs.APP_NAME!" $template.appName }}
+      {{- $_ := required "elCicdRenderer must define template.appName or elCicdDefaults.appName!" $template.appName }}
     {{- end }}
 
     {{- if $template.namespaces }}
@@ -110,7 +112,7 @@
   {{- $templates := index . 1 }}
   {{- $elCicdDefs := index . 2 }}
 
-  {{- range $template := $templates }}    
+  {{- range $template := $templates }}
     {{- $templateDefs := deepCopy $elCicdDefs }}
     {{- include "elCicdRenderer.mergeMapInto" (list $ $template.elCicdDefs $templateDefs) }}
     {{- include "elCicdRenderer.mergeProfileDefs" (list $ $template $templateDefs) }}
