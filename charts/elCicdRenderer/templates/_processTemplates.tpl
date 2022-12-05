@@ -15,11 +15,16 @@
   {{- $_ := set $.Values "appNameTemplates" list }}
   {{- $_ := set $.Values "namespaceTemplates" list }}
   {{- range $template := $.Values.renderingTemplates  }}
+    {{- if $template.appName }}
+      {{- if eq $template.appName "${APP_NAME}" }}
+        {{- $failMsgTpl := "templateName %s appName: ${APP_NAME}: APP_NAME IS RESERVED; use different variable name or elCicdDefaults.appName" }}
+        {{- fail (printf $failMsgTpl $template.templateName) }}
+      {{- end }}
+    {{- end }}
+  
     {{- if $template.appNames }}
       {{- include "elCicdRenderer.processTemplateGenerator" (list $ $template "appNames") }}
       {{- include "elCicdRenderer.processTplAppNames" (list $ $template) }}
-    {{- else if eq $template.appName "${APP_NAME}" }}
-      {{- fail (printf "templateName %s appName: ${APP_NAME}: APP_NAME IS RESERVED; use different variable def or default appName in elCicdDefaults.appName" $template.templateName) }}
     {{- else }}
       {{- $_ := set $template "appName" ($template.appName | default $.Values.elCicdDefaults.appName) }}
       {{- $_ := required "elCicdRenderer must define template.appName or elCicdDefaults.appName!" $template.appName }}
