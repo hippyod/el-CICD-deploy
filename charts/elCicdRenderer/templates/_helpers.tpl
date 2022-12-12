@@ -92,13 +92,11 @@
     {{- end }}
   
     {{- range $tplNamespace := (keys $tplNamespaceSet) }}
-      {{- if (not (lookup "v1" "Namespace" "" $tplNamespace)) }}
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
   name: {{ $tplNamespace }}
-      {{- end }}
     {{- end }}
   {{- end }}
 {{- end }}
