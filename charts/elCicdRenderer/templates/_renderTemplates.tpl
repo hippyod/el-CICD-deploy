@@ -7,6 +7,8 @@
 
   {{- include "elCicdRenderer.initElCicdRenderer" . }}
 
+  {{- include "elCicdRenderer.createNamespaces" . }}
+
   {{- include "elCicdRenderer.mergeProfileDefs" (list $ $.Values $.Values.elCicdDefs) }}
 
   {{- include "elCicdRenderer.processMap" (list $ $.Values.elCicdDefaults $.Values.elCicdDefs) }}
@@ -14,8 +16,6 @@
   {{- include "elCicdRenderer.generateAllTemplates" . }}
 
   {{- include "elCicdRenderer.processTemplates" (list $ $.Values.allTemplates $.Values.elCicdDefs) }}
-
-  {{- include "elCicdRenderer.createNamespaces" . }}
 
   {{- $skippedList := list }}
   {{- range $template := $.Values.allTemplates  }}

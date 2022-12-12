@@ -83,12 +83,12 @@
 {{- define "elCicdRenderer.createNamespaces" }}
   {{- $ := . }}
 
-  {{- range $namespace := $.Values.elCicdNamepaces }}
+  {{- range $elCicdNamepace := $.Values.elCicdNamepaces }}
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: {{ $tplNamespace }}
+  name: {{ $elCicdNamepace }}
   {{- end }}
 {{- end }}
 
