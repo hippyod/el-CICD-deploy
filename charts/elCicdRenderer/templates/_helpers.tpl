@@ -83,21 +83,12 @@
 {{- define "elCicdRenderer.createNamespaces" }}
   {{- $ := . }}
 
-  {{- if $.Values.createNamespaces }}
-    {{- $tplNamespaceSet := dict }}
-    {{- range $template := $.Values.allTemplates }}
-      {{- if $template.namespace }}
-        {{- $_ := set $tplNamespaceSet $template.namespace "foo" }}
-      {{- end }}
-    {{- end }}
-  
-    {{- range $tplNamespace := (keys $tplNamespaceSet) }}
+  {{- range $namespace := $.Values.elCicdNamepaces }}
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
   name: {{ $tplNamespace }}
-    {{- end }}
   {{- end }}
 {{- end }}
 
