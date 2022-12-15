@@ -1,6 +1,21 @@
+{{/*
+ClusterRole
+*/}}
+{{- define "elCicdResources.clusterRole" }}
+{{- $newList := append . "ClusterRole" }}
+{{- include "elCicdResources.genericRoleDefinition" . }}
+{{- end }}
 
 {{/*
-Role Binding
+Role
+*/}}
+{{- define "elCicdResources.role" }}
+{{- $newList := append . "Role" }}
+{{- include "elCicdResources.genericRoleDefinition" . }}
+{{- end }}
+
+{{/*
+ClusterRole Binding
 */}}
 {{- define "elCicdResources.clusterRoleBinding" }}
 {{- $ := index . 0 }}

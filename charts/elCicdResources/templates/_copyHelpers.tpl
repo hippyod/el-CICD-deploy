@@ -3,7 +3,10 @@
   {{- $template := index . 1 }}
   
   {{- if or $.Release.IsUpgrade $.Release.IsInstall }}  
-    {{- $resource := (lookup ($template.apiVersion | default "v1") $template.kind $template.fromNamespace $template.appName) }}
+    {{- $resource := (lookup ($template.apiVersion | default "v1") 
+                              $template.kind 
+                              $template.fromNamespace
+                              ($template.srcMetadataName | default $template.appName)) }}
     
     {{- if and (not $resource) (not $template.optional) }}
       {{- fail (printf "Cannot find %s %s in namespace %s" $template.kind $template.appName $template.fromNamespace) }}
