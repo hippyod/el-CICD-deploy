@@ -33,7 +33,7 @@ spec:
                          "progressDeadlineSeconds"
                          "replicas" }}
   {{- include "elCicdResources.outputToYaml" (list $ $deployValues $whiteList) }}
-  revisionHistoryLimit: {{ $deployValues.revisionHistoryLimit | default $.Values.elCicdDefaults.deploymentRevisionHistoryLimit }}
+  revisionHistoryLimit: {{ ($deployValues.revisionHistoryLimit | default $.Values.elCicdDefaults.deploymentRevisionHistoryLimit) | int }}
   selector: {{ include "elCicdResources.selector" . | indent 4 }}
   {{- if $deployValues.strategyType }}
   strategy:
