@@ -7,24 +7,9 @@ genericRoleDefinition: all ClusterRoles and Roles have this structure
 {{- $_ := set $roleValues "apiVersion" "rbac.authorization.k8s.io/v1" }}
 {{- include "elCicdResources.apiObjectHeader" . }}
 {{- if $roleValues.aggregationRule }}
-aggregationRule: {{- $roleValues.aggregationRule | toYaml | nindent 2 }}
+aggregationRule: {{ $roleValues.aggregationRule | toYaml | nindent 2 }}
 {{- end }}
-rules:
-{{- range $rule := $roleValues.rules }}
-  {{- if $rule.apiGroups }}
-  apiGroups: {{- $rule.apiGroups | toYaml | nindent 2 }}
-  {{- end }}
-  {{- if $rule.nonResourceURLs }}
-  nonResourceURLs: {{- $rule.roleRef | toYaml | nindent 2 }}
-  {{- end }}
-  {{- if $rule.resourceNames }}
-  resourceNames: {{- $rule.roleRef | toYaml | nindent 2 }}
-  {{- end }}
-  {{- if $rule.resources }}
-  resources: {{- $rule.resources | toYaml | nindent 2 }}
-  {{- end }}
-  verbs: {{- $roleValues.verbs | toYaml | nindent 2 }}
-{{- end }}
+rules: {{ $roleValues.rules | toYaml }}
 {{- end }}
 
 {{/*
