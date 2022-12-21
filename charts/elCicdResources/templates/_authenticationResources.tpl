@@ -4,7 +4,7 @@ ClusterRole
 {{- define "elCicdResources.clusterRole" }}
 {{- $ := index . 0 }}
 {{- $roleValues := index . 1 }}
-{{- $_ := set $roleValues "kind" ClusterRole }}
+{{- $_ := set $roleValues "kind" "ClusterRole" }}
 {{- include "elCicdResources.genericRoleDefinition" . }}
 {{- end }}
 
@@ -24,7 +24,7 @@ Role
 {{- define "elCicdResources.role" }}
 {{- $ := index . 0 }}
 {{- $roleValues := index . 1 }}
-{{- $_ := set $roleValues "kind" Role }}
+{{- $_ := set $roleValues "kind" "Role" }}
 {{- include "elCicdResources.genericRoleDefinition" . }}
 {{- end }}
 
