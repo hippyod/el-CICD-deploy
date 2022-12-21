@@ -2,15 +2,9 @@
 ClusterRole
 */}}
 {{- define "elCicdResources.clusterRole" }}
+{{- $ := index . 0 }}
+{{- $roleValues := index . 1 }}
 {{- $_ := set $roleValues "kind" ClusterRole }}
-{{- include "elCicdResources.genericRoleDefinition" . }}
-{{- end }}
-
-{{/*
-Role
-*/}}
-{{- define "elCicdResources.role" }}
-{{- $_ := set $roleValues "kind" Role }}
 {{- include "elCicdResources.genericRoleDefinition" . }}
 {{- end }}
 
@@ -22,6 +16,16 @@ ClusterRole Binding
 {{- $roleBindingValues := index . 1 }}
 {{- $_ := set $roleBindingValues "kind" "ClusterRoleBinding" }}
 {{- include "elCicdResources.genericRoleBindingDefinition" . }}
+{{- end }}
+
+{{/*
+Role
+*/}}
+{{- define "elCicdResources.role" }}
+{{- $ := index . 0 }}
+{{- $roleValues := index . 1 }}
+{{- $_ := set $roleValues "kind" Role }}
+{{- include "elCicdResources.genericRoleDefinition" . }}
 {{- end }}
 
 {{/*
