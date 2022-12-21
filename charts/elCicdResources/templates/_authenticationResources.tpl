@@ -11,7 +11,7 @@ Role
 */}}
 {{- define "elCicdResources.role" }}
 {{- $_ := set $roleValues "kind" Role }}
-{{- include "elCicdResources.genericRoleDefinition" $newList }}
+{{- include "elCicdResources.genericRoleDefinition" . }}
 {{- end }}
 
 {{/*

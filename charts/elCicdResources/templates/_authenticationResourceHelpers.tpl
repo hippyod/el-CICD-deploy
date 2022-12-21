@@ -31,7 +31,7 @@ genericRoleBindingDefinition: all ClusterRoleBindings and RoleBindings have this
 {{- define "elCicdResources.genericRoleBindingDefinition" }}
 {{- $ := index . 0 }}
 {{- $roleBindingValues := index . 1 }}
-{{- $_ := set $roleValues "apiVersion" "rbac.authorization.k8s.io/v1" }}
+{{- $_ := set $roleBindingValues "apiVersion" "rbac.authorization.k8s.io/v1" }}
 {{- include "elCicdResources.apiObjectHeader" . }}
 roleRef:
   {{- $roleBindingValues.roleRef | toYaml | nindent 2 }}
