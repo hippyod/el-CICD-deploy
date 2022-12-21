@@ -2,7 +2,7 @@
 ClusterRole
 */}}
 {{- define "elCicdResources.clusterRole" }}
-{{- $newList := append . "ClusterRole" }}
+{{- $_ := set $roleValues "kind" ClusterRole }}
 {{- include "elCicdResources.genericRoleDefinition" . }}
 {{- end }}
 
@@ -10,8 +10,8 @@ ClusterRole
 Role
 */}}
 {{- define "elCicdResources.role" }}
-{{- $newList := append . "Role" }}
-{{- include "elCicdResources.genericRoleDefinition" . }}
+{{- $_ := set $roleValues "kind" Role }}
+{{- include "elCicdResources.genericRoleDefinition" $newList }}
 {{- end }}
 
 {{/*

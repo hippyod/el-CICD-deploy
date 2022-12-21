@@ -4,8 +4,6 @@ ClusterRole
 {{- define "elCicdResources.genericRoleDefinition" }}
 {{- $ := index . 0 }}
 {{- $roleValues := index . 1 }}
-{{- $roleType := index . 2 }}
-{{- $_ := set $roleValues "kind" $roleType }}
 {{- $_ := set $roleValues "apiVersion" "rbac.authorization.k8s.io/v1" }}
 {{- include "elCicdResources.apiObjectHeader" . }}
 rules:
