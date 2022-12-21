@@ -9,7 +9,9 @@ genericRoleDefinition: all ClusterRoles and Roles have this structure
 {{- if $roleValues.aggregationRule }}
 aggregationRule: {{ $roleValues.aggregationRule | toYaml | nindent 2 }}
 {{- end }}
+{{- if $roleValues.rules }}
 rules: {{ $roleValues.rules | toYaml }}
+{{- end }}
 {{- end }}
 
 {{/*
