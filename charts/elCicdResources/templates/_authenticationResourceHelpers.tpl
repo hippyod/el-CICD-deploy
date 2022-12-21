@@ -7,8 +7,7 @@ genericRoleDefinition: all ClusterRoles and Roles have this structure
 {{- $_ := set $roleValues "apiVersion" "rbac.authorization.k8s.io/v1" }}
 {{- include "elCicdResources.apiObjectHeader" . }}
 {{- if $roleValues.aggregationRule }}
-aggregationRule:
-{{ $roleValues.aggregationRule | toYaml | nindent 2 }}
+aggregationRule: {{ $roleValues.aggregationRule | toYaml | nindent 2 }}
 {{- end }}
 {{- if $roleValues.rules }}
 rules:
@@ -24,8 +23,7 @@ genericRoleBindingDefinition: all ClusterRoleBindings and RoleBindings have this
 {{- $roleBindingValues := index . 1 }}
 {{- $_ := set $roleBindingValues "apiVersion" "rbac.authorization.k8s.io/v1" }}
 {{- include "elCicdResources.apiObjectHeader" . }}
-roleRef:
-  {{- $roleBindingValues.roleRef | toYaml | nindent 2 }}
+roleRef: {{ $roleBindingValues.roleRef | toYaml | nindent 2 }}
 subjects:
 {{ $roleBindingValues.subjects | toYaml }}
 {{- end }}
