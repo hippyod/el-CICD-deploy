@@ -286,9 +286,5 @@
     {{- end }}
   {{- end }}
 
-  {{- if eq $key "anyProfiles" }}
-# Rendered -> list {{ $list }}
-# Rendered -> newList {{ $newList }}
-  {{- end }}
   {{- $_ := set $map $key $newList }}
 {{- end }}
