@@ -21,12 +21,7 @@ ClusterRole Binding
 {{- $ := index . 0 }}
 {{- $roleBindingValues := index . 1 }}
 {{- $_ := set $roleBindingValues "kind" "ClusterRoleBinding" }}
-{{- $_ := set $roleBindingValues "apiVersion" "rbac.authorization.k8s.io/v1" }}
-{{- include "elCicdResources.apiObjectHeader" . }}
-roleRef:
-  {{- $roleBindingValues.roleRef | toYaml | nindent 2 }}
-subjects:
-{{ $roleBindingValues.subjects | toYaml }}
+{{- include "elCicdResources.genericRoleBindingDefinition" . }}
 {{- end }}
 
 {{/*
@@ -36,12 +31,7 @@ Role Binding
 {{- $ := index . 0 }}
 {{- $roleBindingValues := index . 1 }}
 {{- $_ := set $roleBindingValues "kind" "RoleBinding" }}
-{{- $_ := set $roleBindingValues "apiVersion" "rbac.authorization.k8s.io/v1" }}
-{{- include "elCicdResources.apiObjectHeader" . }}
-roleRef:
-  {{- $roleBindingValues.roleRef | toYaml | nindent 2 }}
-subjects:
-{{ $roleBindingValues.subjects | toYaml }}
+{{- include "elCicdResources.genericRoleBindingDefinition" . }}
 {{- end }}
 
 {{/*
