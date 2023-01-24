@@ -16,7 +16,7 @@ spec:
   {{- end }}
   {{- if $quotaValues.scopes }}
   scopes:
-  {{- $quotaValues.scopes | toYaml | nindent 2 }}
+  {{- $quotaValues.scopes | toYaml | nindent 6 }}
   {{- end }}
 {{- end }}
 
@@ -32,19 +32,19 @@ LimitRange
 spec:
   limits:
     {{- if $limitValues.default }}
-    default: {{ $limitValues.default | toYaml | nindent 2 }}
+    default: {{ $limitValues.default | toYaml | nindent 6 }}
     {{- end }}
     {{- if $limitValues.defaultRequest }}
-    defaultRequest: {{ $limitValues.defaultRequest | toYaml | nindent 2 }}
+    defaultRequest: {{ $limitValues.defaultRequest | toYaml | nindent 6 }}
     {{- end }}
     {{- if $limitValues.max }}
-    max: {{ $limitValues.max | toYaml | nindent 2 }}
+    max: {{ $limitValues.max | toYaml | nindent 6 }}
     {{- end }}
     {{- if $limitValues.maxLimitRequestRatio }}
-    maxLimitRequestRatio: {{ $limitValues.maxLimitRequestRatio | toYaml | nindent 2 }}
+    maxLimitRequestRatio: {{ $limitValues.maxLimitRequestRatio | toYaml | nindent 6 }}
     {{- end }}
     {{- if $limitValues.min }}
-    min: {{ $limitValues.min | toYaml | nindent 2 }}
+    min: {{ $limitValues.min | toYaml | nindent 6 }}
     {{- end }}
     type: {{ $limitValues.type }}
 {{- end }}
