@@ -31,22 +31,22 @@ LimitRange
 {{- include "elCicdResources.apiObjectHeader" . }}
 spec:
   limits:
-  {{- if $limitValues.default }}
-  default: {{ $limitValues.default | toYaml | nindent 2 }}
-  {{- end }}
-  {{- if $limitValues.defaultRequest }}
-  defaultRequest: {{ $limitValues.defaultRequest | toYaml | nindent 2 }}
-  {{- end }}
-  {{- if $limitValues.max }}
-  max: {{ $limitValues.max | toYaml | nindent 2 }}
-  {{- end }}
-  {{- if $limitValues.maxLimitRequestRatio }}
-  maxLimitRequestRatio: {{ $limitValues.maxLimitRequestRatio | toYaml | nindent 2 }}
-  {{- end }}
-  {{- if $limitValues.min }}
-  min: {{ $limitValues.min | toYaml | nindent 2 }}
-  {{- end }}
-  {{- if $limitValues.type }}
-  type: {{ $limitValues.type }}
-  {{- end }}    
+    {{- if $limitValues.default }}
+    default: {{ $limitValues.default | toYaml | nindent 2 }}
+    {{- end }}
+    {{- if $limitValues.defaultRequest }}
+    defaultRequest: {{ $limitValues.defaultRequest | toYaml | nindent 2 }}
+    {{- end }}
+    {{- if $limitValues.max }}
+    max: {{ $limitValues.max | toYaml | nindent 2 }}
+    {{- end }}
+    {{- if $limitValues.maxLimitRequestRatio }}
+    maxLimitRequestRatio: {{ $limitValues.maxLimitRequestRatio | toYaml | nindent 2 }}
+    {{- end }}
+    {{- if $limitValues.min }}
+    min: {{ $limitValues.min | toYaml | nindent 2 }}
+    {{- end }}
+    {{- if $limitValues.type }}
+    type: {{ $limitValues.type }}
+    {{- end }}    
 {{- end }}
