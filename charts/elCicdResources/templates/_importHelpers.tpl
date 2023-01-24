@@ -2,22 +2,24 @@
   {{- $ := index . 0 }}
   {{- $containerVals := index . 0 }}
 
-  {{- $resources := ((lookup "v1" "ConfigMap" $.Release.Namespace "").items | default list) }}
-  {{- $resources := concat $resources.items ((lookup "v1" "Secret" $.Release.Namespace "").items | default list) }}
+  {{- if or $.Release.IsUpgrade $.Release.IsInstall }}  
+    {{- $resources := ((lookup "v1" "ConfigMap" $.Release.Namespace "").items | default list) }}
+    {{- $resources := concat $resources.items ((lookup "v1" "Secret" $.Release.Namespace "").items | default list) }}
 
-  {{- range $envFromLabels := $containerVals.envFromLabels }}
-    {{- $resultMap := dict }}
-    {{- include "elCicdResources.getResourcesByLabel" (list $ $resources $envFromLabels.labels $resultMap) }}
-    {{- $labelResources := $resultMap.result }}
-    
-    {{- $envFromList := list }}
-    {{- range $resourceName, $resource := $labelResources }}
-      {{- $resourceMap := dict "name" $resourceName "optional" ($envFromLabels.optional | default false) }}
-    
-      {{- $sourceKey := printf "%sRef" ((eq $resource.kind "ConfigMap") | ternary "configMap" "secret") }}
-      {{- $envFromList = append $envFromList (dict $sourceKey $resourceMap) }}
+    {{- range $envFromLabels := $containerVals.envFromLabels }}
+      {{- $resultMap := dict }}
+      {{- include "elCicdResources.getResourcesByLabel" (list $ $resources $envFromLabels.labels $resultMap) }}
+      {{- $labelResources := $resultMap.result }}
+      
+      {{- $envFromList := list }}
+      {{- range $resourceName, $resource := $labelResources }}
+        {{- $resourceMap := dict "name" $resourceName "optional" ($envFromLabels.optional | default false) }}
+      
+        {{- $sourceKey := printf "%sRef" ((eq $resource.kind "ConfigMap") | ternary "configMap" "secret") }}
+        {{- $envFromList = append $envFromList (dict $sourceKey $resourceMap) }}
+      {{- end }}
+      {{- $_ := set $containerVals "envFrom" (concat ($containerVals.envFrom | default list) $envFromList) }}
     {{- end }}
-    {{- $_ := set $containerVals "envFrom" (concat ($containerVals.envFrom | default list) $envFromList) }}
   {{- end }}
 {{- end }}
 
@@ -26,23 +28,25 @@
   {{- $podValues := index . 1 }}
   {{- $containerVals := index . 2 }}
 
-  {{- $resources := ((lookup "v1" "ConfigMap" $.Release.Namespace "").items | default list) }}
-  {{- $resources := concat $resources ((lookup "v1" "Secret" $.Release.Namespace "").items | default list) }}
-  
-  {{- range $volumeByLabels := $containerVals.projectedVolumeLabels }}
-    {{- $resultMap := dict }}
-    {{- include "elCicdResources.getResourcesByLabel" (list $ $resources $volumeByLabels.labels $resultMap) }}
-    {{- $labeledResources := $resultMap.result }}
+  {{- if or $.Release.IsUpgrade $.Release.IsInstall }}  
+    {{- $resources := ((lookup "v1" "ConfigMap" $.Release.Namespace "").items | default list) }}
+    {{- $resources := concat $resources ((lookup "v1" "Secret" $.Release.Namespace "").items | default list) }}
+    
+    {{- range $volumeByLabels := $containerVals.projectedVolumeLabels }}
+      {{- $resultMap := dict }}
+      {{- include "elCicdResources.getResourcesByLabel" (list $ $resources $volumeByLabels.labels $resultMap) }}
+      {{- $labeledResources := $resultMap.result }}
 
-    {{- if $labeledResources }}
-      {{- include "elCicdResources.createProjectedVolume" (list $ $podValues $volumeByLabels $labeledResources) }}
+      {{- if $labeledResources }}
+        {{- include "elCicdResources.createProjectedVolume" (list $ $podValues $volumeByLabels $labeledResources) }}
 
-      {{- $mountedVolume := dict "name" $volumeByLabels.name
-                                 "mountPath" $volumeByLabels.mountPath
-                                 "readOnly" $volumeByLabels.readOnly
-                                 "subPath" $volumeByLabels.subPath
-                                 "subPathExpr" $volumeByLabels.subPathExpr }}
-      {{- $_ := set $containerVals "volumeMounts" (append ($containerVals.volumeMounts | default list) $mountedVolume) }}
+        {{- $mountedVolume := dict "name" $volumeByLabels.name
+                                  "mountPath" $volumeByLabels.mountPath
+                                  "readOnly" $volumeByLabels.readOnly
+                                  "subPath" $volumeByLabels.subPath
+                                  "subPathExpr" $volumeByLabels.subPathExpr }}
+        {{- $_ := set $containerVals "volumeMounts" (append ($containerVals.volumeMounts | default list) $mountedVolume) }}
+      {{- end }}
     {{- end }}
   {{- end }}
 {{- end }}

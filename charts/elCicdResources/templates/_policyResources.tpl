@@ -46,7 +46,5 @@ spec:
     {{- if $limitValues.min }}
     min: {{ $limitValues.min | toYaml | nindent 2 }}
     {{- end }}
-    {{- if $limitValues.type }}
     type: {{ $limitValues.type }}
-    {{- end }}    
 {{- end }}
