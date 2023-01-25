@@ -164,19 +164,33 @@ Container definition
   {{- end }}
   resources:
     limits:
-      cpu: {{ $containerVals.limitsCpu | default (($containerVals.resources).limits).cpu | default $.Values.elCicdDefaults.limitsCpu }}
-      memory: {{ $containerVals.limitsMemory | default (($containerVals.resources).limits).memory | default $.Values.elCicdDefaults.limitsMemory }}
-      {{- range $limit, $value := ($containerVals.resources).limits }}
-        {{- if and (ne $limit "cpu") (ne $limit "memory") }}
+      {{- if ($containerVals.resources).limits }}
+        {{- range $limit, $value := ($containerVals.resources).limits }}
+          {{- if and (ne $limit "cpu") (ne $limit "memory") }}
       {{ $limit }}: {{ $value }}
+          {{- end }}
+        {{- end }}
+      {{- else }}
+        {{- if or $containerVals.limitsCpu $.Values.elCicdDefaults.limitsCpu }}
+      cpu: {{ $containerVals.limitsCpu | default $.Values.elCicdDefaults.limitsCpu }}
+        {{- end }}
+        {{- if or $containerVals.limitsMemory $.Values.elCicdDefaults.limitsMemory }}
+      memory: {{ $containerVals.limitsMemory | default $.Values.elCicdDefaults.limitsMemory }}
         {{- end }}
       {{- end }}
     requests:
-      cpu: {{ $containerVals.requestsCpu | default (($containerVals.resources).requests).cpu | default $.Values.elCicdDefaults.requestsCpu }}
-      memory: {{ $containerVals.requestsMemory | default (($containerVals.resources).requests).memory | default $.Values.elCicdDefaults.requestsMemory }}
-      {{- range $limit, $value := ($containerVals.resources).requests }}
-        {{- if and (ne $limit "cpu") (ne $limit "memory") }}
+      {{- if ($containerVals.resources).requests }}
+        {{- range $limit, $value := ($containerVals.resources).requests }}
+          {{- if and (ne $limit "cpu") (ne $limit "memory") }}
       {{ $limit }}: {{ $value }}
+          {{- end }}
+        {{- end }}
+      {{- else }}
+        {{- if or $containerVals.requestsCpu $.Values.elCicdDefaults.requestsCpu }}
+      cpu: {{ $containerVals.requestsCpu | default $.Values.elCicdDefaults.requestsCpu }}
+        {{- end }}
+        {{- if or $containerVals.requestsMemory $.Values.elCicdDefaults.requestsMemory }}
+      memory: {{ $containerVals.requestsMemory | default $.Values.elCicdDefaults.requestsMemory }}
         {{- end }}
       {{- end }}
   {{- if $containerVals.securityContext }}
