@@ -31,3 +31,4 @@ LimitRange
 {{- include "elCicdResources.apiObjectHeader" . }}
 spec:
   limits: {{ $limitValues.limits | toYaml | nindent 2 }}
+{{- end }}
