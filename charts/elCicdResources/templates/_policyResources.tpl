@@ -30,21 +30,4 @@ LimitRange
 {{- $_ := set $limitValues "apiVersion" "v1" }}
 {{- include "elCicdResources.apiObjectHeader" . }}
 spec:
-  limits:
-    {{- if $limitValues.default }}
-    default: {{ $limitValues.default | toYaml | nindent 6 }}
-    {{- end }}
-    {{- if $limitValues.defaultRequest }}
-    defaultRequest: {{ $limitValues.defaultRequest | toYaml | nindent 6 }}
-    {{- end }}
-    {{- if $limitValues.max }}
-    max: {{ $limitValues.max | toYaml | nindent 6 }}
-    {{- end }}
-    {{- if $limitValues.maxLimitRequestRatio }}
-    maxLimitRequestRatio: {{ $limitValues.maxLimitRequestRatio | toYaml | nindent 6 }}
-    {{- end }}
-    {{- if $limitValues.min }}
-    min: {{ $limitValues.min | toYaml | nindent 6 }}
-    {{- end }}
-    type: {{ $limitValues.type }}
-{{- end }}
+  limits: {{ limitValues.limits | toYaml  | nindent 2 }}
