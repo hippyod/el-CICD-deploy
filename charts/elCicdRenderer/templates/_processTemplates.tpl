@@ -274,8 +274,10 @@
         {{- $paramVal := get $elCicdDefs $elCicdDef }}
         {{- if (kindIs "string" $paramVal) }}
           {{- $element = replace $elCicdRef (toString $paramVal) $element }}
-        {{- else if and (kindIs "map" $paramVal) }}
-          {{- include "elCicdRenderer.processMap" (list $ $paramVal $elCicdDefs) }}
+        {{- else }}
+          {{- if (kindIs "map" $paramVal) }}
+            {{- include "elCicdRenderer.processMap" (list $ $paramVal $elCicdDefs) }}
+          {{- end }}
           {{- $element = $paramVal }}
         {{- end }}
       {{- end }}
