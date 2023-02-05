@@ -15,7 +15,6 @@ Iniitialize elCicdResources chart
   {{- $_ := set $.Values.elCicdDefaults "port" ($.Values.elCicdDefaults.port | default "8080") }}
   {{- $_ := set $.Values.elCicdDefaults "protocol" ($.Values.elCicdDefaults.protocol | default "TCP") }}
 
-  {{- $_ := set $.Values.elCicdDefaults "limitsCpu" ($.Values.elCicdDefaults.limitsCpu | default "200m") }}
   {{- $_ := set $.Values.elCicdDefaults "limitsMemory" ($.Values.elCicdDefaults.limitsMemory | default "500Mi") }}
 
   {{- $_ := set $.Values.elCicdDefaults "requestsCpu" ($.Values.elCicdDefaults.requestsCpu | default "100m") }}
