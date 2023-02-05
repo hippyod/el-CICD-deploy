@@ -166,31 +166,27 @@ Container definition
     limits:
       {{- if ($containerVals.resources).limits }}
         {{- range $limit, $value := ($containerVals.resources).limits }}
-          {{- if and (ne $limit "cpu") (ne $limit "memory") }}
       {{ $limit }}: {{ $value }}
-          {{- end }}
         {{- end }}
       {{- else }}
-        {{- if or $containerVals.limitsCpu $.Values.elCicdDefaults.limitsCpu }}
-      cpu: {{ $containerVals.limitsCpu | default $.Values.elCicdDefaults.limitsCpu }}
+        {{- if $containerVals.limitsCpu }}
+      cpu: {{ $containerVals.limitsCpu }}
         {{- end }}
-        {{- if or $containerVals.limitsMemory $.Values.elCicdDefaults.limitsMemory }}
-      memory: {{ $containerVals.limitsMemory | default $.Values.elCicdDefaults.limitsMemory }}
+        {{- if $containerVals.limitsMemory }}
+      memory: {{ $containerVals.limitsMemory }}
         {{- end }}
       {{- end }}
     requests:
       {{- if ($containerVals.resources).requests }}
-        {{- range $limit, $value := ($containerVals.resources).requests }}
-          {{- if and (ne $limit "cpu") (ne $limit "memory") }}
-      {{ $limit }}: {{ $value }}
-          {{- end }}
+        {{- range $request, $value := ($containerVals.resources).requests }}
+      {{ $request }}: {{ $value }}
         {{- end }}
       {{- else }}
-        {{- if or $containerVals.requestsCpu $.Values.elCicdDefaults.requestsCpu }}
-      cpu: {{ $containerVals.requestsCpu | default $.Values.elCicdDefaults.requestsCpu }}
+        {{- if $containerVals.requestsCpu }}
+      cpu: {{ $containerVals.requestsCpu }}
         {{- end }}
-        {{- if or $containerVals.requestsMemory $.Values.elCicdDefaults.requestsMemory }}
-      memory: {{ $containerVals.requestsMemory | default $.Values.elCicdDefaults.requestsMemory }}
+        {{- if $containerVals.requestsMemory }}
+      memory: {{ $containerVals.requestsMemory }}
         {{- end }}
       {{- end }}
   {{- if $containerVals.securityContext }}
