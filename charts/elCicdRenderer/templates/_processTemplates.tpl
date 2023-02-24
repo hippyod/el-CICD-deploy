@@ -52,7 +52,7 @@
   {{- if kindIs "string" $generatorVal }}
     {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $generatorVal -1 }}
     {{- range $elCicdRef := $matches }}
-      {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${2}" }}
+      {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
 
       {{- $paramVal := get $.Values.elCicdDefs $elCicdDef }}
       {{- if not $paramVal }}
@@ -202,11 +202,14 @@
 
   {{- $value := get $map $key }}
   {{- range $elCicdRef := $matches }}
-    {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${2}" }}
+    {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
 
     {{- $paramVal := get $elCicdDefs $elCicdDef }}
 
     {{- if (kindIs "string" $paramVal) }}
+      {{- if not (hasPrefix $elCicdRef "$" ) }}
+        {{- $elCicdRef = substr 1 (len $elCicdRef) $elCicdRef }}
+      {{- end }}
       {{- $value = replace $elCicdRef (toString $paramVal) $value }}
     {{- else }}
       {{- if (kindIs "map" $paramVal) }}
@@ -239,12 +242,15 @@
   {{- $oldKey := $key }}
   {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $key -1 }}
   {{- range $elCicdRef := $matches }}
-    {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${2}" }}
+    {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
     {{- include "elCicdRenderer.circularReferenceCheck" (list $value $key $elCicdRef $elCicdDef $processDefList) }}
     {{- $processDefList = append $processDefList $elCicdDef }}
 
     {{- $paramVal := get $elCicdDefs $elCicdDef }}
     {{- $_ := unset $map $key }}
+    {{- if not (hasPrefix $elCicdRef "$" ) }}
+      {{- $elCicdRef = substr 1 (len $elCicdRef) $elCicdRef }}
+    {{- end }}
     {{- $key = replace $elCicdRef (toString $paramVal) $key }}
   {{- end }}
   {{- if ne $oldKey $key }}
@@ -270,9 +276,12 @@
     {{- else if (kindIs "string" $element) }}
       {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $element -1 }}
       {{- range $elCicdRef := $matches }}
-        {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${2}" }}
+        {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
         {{- $paramVal := get $elCicdDefs $elCicdDef }}
         {{- if (kindIs "string" $paramVal) }}
+          {{- if not (hasPrefix $elCicdRef "$" ) }}
+            {{- $elCicdRef = substr 1 (len $elCicdRef) $elCicdRef }}
+          {{- end }}
           {{- $element = replace $elCicdRef (toString $paramVal) $element }}
         {{- else }}
           {{- if (kindIs "map" $paramVal) }}
