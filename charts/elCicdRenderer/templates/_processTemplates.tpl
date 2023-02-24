@@ -207,7 +207,7 @@
     {{- $paramVal := get $elCicdDefs $elCicdDef }}
 
     {{- if (kindIs "string" $paramVal) }}
-      {{- if not (hasPrefix $elCicdRef "$" ) }}
+      {{- if not (hasPrefix "$" $elCicdRef ) }}
         {{- $elCicdRef = substr 1 (len $elCicdRef) $elCicdRef }}
       {{- end }}
       {{- $value = replace $elCicdRef (toString $paramVal) $value }}
@@ -248,7 +248,7 @@
 
     {{- $paramVal := get $elCicdDefs $elCicdDef }}
     {{- $_ := unset $map $key }}
-    {{- if not (hasPrefix $elCicdRef "$" ) }}
+    {{- if not (hasPrefix "$" $elCicdRef ) }}
       {{- $elCicdRef = substr 1 (len $elCicdRef) $elCicdRef }}
     {{- end }}
     {{- $key = replace $elCicdRef (toString $paramVal) $key }}
@@ -279,7 +279,7 @@
         {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
         {{- $paramVal := get $elCicdDefs $elCicdDef }}
         {{- if (kindIs "string" $paramVal) }}
-          {{- if not (hasPrefix $elCicdRef "$" ) }}
+          {{- if not (hasPrefix "$" $elCicdRef ) }}
             {{- $elCicdRef = substr 1 (len $elCicdRef) $elCicdRef }}
           {{- end }}
           {{- $element = replace $elCicdRef (toString $paramVal) $element }}

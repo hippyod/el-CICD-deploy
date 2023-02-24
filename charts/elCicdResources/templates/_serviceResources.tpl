@@ -15,7 +15,7 @@ spec:
                          "ingressClassName"	}}
   {{- include "elCicdResources.outputToYaml" (list $ $ingressValues $whiteList) }}
   {{- if $ingressValues.rules }}
-  rules: {{ $ingressValues.rules | toYaml | nindent 4 }}
+  rules: {{- $ingressValues.rules | toYaml | nindent 4 }}
   {{- else }}
   rules:
   {{- if (not $ingressValues.host) }}
