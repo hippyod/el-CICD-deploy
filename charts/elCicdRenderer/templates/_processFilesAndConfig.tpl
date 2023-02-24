@@ -1,9 +1,9 @@
 
 {{- define "elCicdRenderer.preProcessFilesAndConfig" }}
   {{- $ := index . 0 }}
-  {{- $tplDefs := index . 1 }}
+  {{- $templateDefs := index . 1 }}
   
-  {{- range $param, $value := $tplDefs }}
+  {{- range $param, $value := $templateDefs }}
     {{- if $value }}
       {{- if or (kindIs "map" $value) }}
         {{- include "elCicdRenderer.preProcessFilesAndConfig" (list $ $value) }}
@@ -11,11 +11,11 @@
         {{- if or (hasPrefix $.Values.FILE_PREFIX $value) }}
           {{- $filePath := ( $value | trimPrefix $.Values.FILE_PREFIX | trimSuffix "}") }}
           {{- $value = $.Files.Get $filePath }}
-          {{- $_ := set $tplDefs $param (toString $value) }}
+          {{- $_ := set $templateDefs $param (toString $value) }}
         {{- end }}
   
         {{- if (hasPrefix $.Values.CONFIG_PREFIX $param) }}
-          {{- include "elCicdRenderer.asConfig" (list $ $param $value $tplDefs) }}
+          {{- include "elCicdRenderer.asConfig" (list $ $param $value $templateDefs) }}
         {{- end }}
       {{- end }}
     {{- end }}
@@ -26,9 +26,9 @@
   {{- $ := index . 0 }}
   {{- $param := index . 1 }}
   {{- $value := index . 2 }}
-  {{- $tplDefs := index . 3 }}
+  {{- $templateDefs := index . 3 }}
   
-  {{- $_ := unset $tplDefs $param }}
+  {{- $_ := unset $templateDefs $param }}
   {{- $param = ( $param | trimPrefix $.Values.CONFIG_PREFIX | trimSuffix "}") }}
   {{- $newValue := dict }}
   {{- range $configLine := (regexSplit "\n" $value -1) }}
@@ -40,5 +40,5 @@
     {{- end }}
   {{- end }}
   
-  {{- $_ := set $tplDefs $param $newValue }}
+  {{- $_ := set $templateDefs $param $newValue }}
 {{- end }}
