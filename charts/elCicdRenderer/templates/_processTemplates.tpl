@@ -52,7 +52,7 @@
   {{- if kindIs "string" $generatorVal }}
     {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $generatorVal -1 }}
     {{- range $elCicdRef := $matches }}
-      {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
+      {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${2}" }}
 
       {{- $paramVal := get $.Values.elCicdDefs $elCicdDef }}
       {{- if not $paramVal }}
@@ -202,7 +202,7 @@
 
   {{- $value := get $map $key }}
   {{- range $elCicdRef := $matches }}
-    {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
+    {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${2}" }}
 
     {{- $paramVal := get $elCicdDefs $elCicdDef }}
 
@@ -239,7 +239,7 @@
   {{- $oldKey := $key }}
   {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $key -1 }}
   {{- range $elCicdRef := $matches }}
-    {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
+    {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${2}" }}
     {{- include "elCicdRenderer.circularReferenceCheck" (list $value $key $elCicdRef $elCicdDef $processDefList) }}
     {{- $processDefList = append $processDefList $elCicdDef }}
 
@@ -270,7 +270,7 @@
     {{- else if (kindIs "string" $element) }}
       {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $element -1 }}
       {{- range $elCicdRef := $matches }}
-        {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
+        {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${2}" }}
         {{- $paramVal := get $elCicdDefs $elCicdDef }}
         {{- if (kindIs "string" $paramVal) }}
           {{- $element = replace $elCicdRef (toString $paramVal) $element }}
