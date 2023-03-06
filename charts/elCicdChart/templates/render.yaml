@@ -1,1 +1,6 @@
-{{- include "elCicdRenderer.render" . }}
+{{- if .Values.collateValues }}
+  {{- unset .Values.collateValues }}
+  {{- .Values | toYaml }}
+{{- else }}
+  {{- include "elCicdRenderer.render" . }}
+{{- end }}
