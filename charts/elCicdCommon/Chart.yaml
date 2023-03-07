@@ -1,9 +1,7 @@
 apiVersion: v2
 name: elCicdCommon
 description: |-
-  A library chart with the ArgoCD resources defined for Application, ApplicationSets, and AppProject deployments.
-  Built to be used in conjunction with the elCicdRenderer for rendering as a general Helm-based deployment solution
-  across multiple environments.
+  A library chart with basic, common functionality shared by all elCicd charts.
 keywords:
 - generic
 - parameterized

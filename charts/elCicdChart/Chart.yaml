@@ -19,3 +19,6 @@ dependencies:
 - name: elCicdArgoCd
   version: 0.1.0
   repository: file://../elCicdArgoCd
+- name: elCicdCommon
+  version: 0.1.0
+  repository: file://../elCicdCommon
