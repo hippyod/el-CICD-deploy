@@ -1,9 +1,8 @@
 apiVersion: v2
 name: elCicdChart
 description: |-
-  A generic helm chart which uses elCicdRenderer and elCicdK8s to deploy any
-  application give an elCicdRenderer compliant values file(s).  ArgoCd templates
-  are also included.
+  A generic helm chart used to deploy any size group of components onto a kubernetes cluster.
+  Library charts included: elCicdRenderer, elCicdK8s, elCicdArgoCd, elCicdCommon.
 
 type: application
 
