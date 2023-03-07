@@ -11,3 +11,8 @@ sources: [https://github.com/elcicd/el-CICD-deploy/tree/main/charts]
 type: library
 
 version: "0.1.0"
+
+dependencies:
+- name: elCicdCommmon
+  version: 0.1.0
+  repository: file://../elCicdCommmon

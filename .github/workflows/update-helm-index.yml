@@ -5,9 +5,7 @@ on:
     branches:
     - main
     paths:
-    - 'charts/elCicdRenderer/**'
-    - 'charts/elCicdResources/**'
-    - 'charts/elCicdChart/**'
+    - 'charts/**'
   
   workflow_dispatch:
 
@@ -23,17 +21,14 @@ jobs:
       run: |
         git config --global user.email "elcicd@donotreply.org"
         git config --global user.name "el-CICD"
-        git rm charts/*.tgz
         
-        CHART_DIRS='elCicdRenderer elCicdResources elCicdChart'
-        for CHART_DIR in ${CHART_DIRS}
+        for CHART_DIR in $(find ./charts/* -maxdepth 0 -type d -printf '%p ')
         do
-          helm package --dependency-update ./charts/${CHART_DIR} -d ./charts
-          rm -rf ./charts/${CHART_DIR}/charts
-          rm -f ./charts/${CHART_DIR}/Chart.lock
+          helm package --dependency-update ${CHART_DIR} -d ./charts
+          rm -rf ${CHART_DIR}/charts ${CHART_DIR}/Chart.lock
         done
 
         helm repo index ./charts
-        git add .
+        git add -A
         git commit -m "Update Helm Index Workflow: updating packages and index of all elCicd Helm charts"
         git push

@@ -1,7 +1,7 @@
 {{/*
 Ingress
 */}}
-{{- define "elCicdResources.ingress" }}
+{{- define "elCicdK8s.ingress" }}
 {{- $ := index . 0 }}
 {{- $ingressValues := index . 1 }}
 {{- $_ := set $ingressValues "kind" "Ingress" }}
@@ -9,11 +9,11 @@ Ingress
 {{- $_ := set $ingressValues "annotations" ($ingressValues.annotations | default dict) }}
 {{- $_ := set $ingressValues "allowHttp" ($ingressValues.allowHttp | default "false") }}
 {{- $_ := set $ingressValues.annotations "kubernetes.io/ingress.allow-http" $ingressValues.allowHttp }}
-{{- include "elCicdResources.apiObjectHeader" . }}
+{{- include "elCicdCommon.apiObjectHeader" . }}
 spec:
   {{- $whiteList := list "defaultBackend"	
                          "ingressClassName"	}}
-  {{- include "elCicdResources.outputToYaml" (list $ $ingressValues $whiteList) }}
+  {{- include "elCicdCommon.outputToYaml" (list $ $ingressValues $whiteList) }}
   {{- if $ingressValues.rules }}
   rules: {{- $ingressValues.rules | toYaml | nindent 4 }}
   {{- else }}
@@ -47,23 +47,23 @@ spec:
 {{/*
 Service
 */}}
-{{- define "elCicdResources.service" }}
+{{- define "elCicdK8s.service" }}
 {{- $ := index . 0 }}
 {{- $svcValues := index . 1 }}
 {{- if or ($svcValues.prometheus).port $.Values.usePrometheus }}
-  {{- include "elCicdResources.prometheusAnnotations" . }}
+  {{- include "elCicdK8s.prometheusAnnotations" . }}
 {{- end }}
 {{- if or $svcValues.threeScalePort $.Values.use3Scale }}
-  {{- include "elCicdResources.3ScaleAnnotations" . }}
+  {{- include "elCicdK8s.3ScaleAnnotations" . }}
   {{- $_ := set $svcValues "labels" ($svcValues.labels  | default dict) }}
   {{- $_ := set $svcValues.labels "discovery.3scale.net" true }}
 {{- end }}
 {{- $_ := set $svcValues "kind" "Service" }}
 {{- $_ := set $svcValues "apiVersion" "v1" }}
-{{- include "elCicdResources.apiObjectHeader" . }}
+{{- include "elCicdCommon.apiObjectHeader" . }}
 spec:
   selector:
-    {{- include "elCicdResources.selectorLabels" . | indent 4 }}
+    {{- include "elCicdCommon.selectorLabels" . | indent 4 }}
     {{- range $key, $value := $svcValues.selector }}
     {{ $key }}: {{ $value }}
     {{- end }}

@@ -1,12 +1,12 @@
 {{/*
 CronJob
 */}}
-{{- define "elCicdResources.cronjob" }}
+{{- define "elCicdK8s.cronjob" }}
 {{- $ := index . 0 }}
 {{- $cjValues := index . 1 }}
 {{- $_ := set $cjValues "kind" "CronJob" }}
 {{- $_ := set $cjValues "apiVersion" "batch/v1" }}
-{{- include "elCicdResources.apiObjectHeader" . }}
+{{- include "elCicdCommon.apiObjectHeader" . }}
 spec:
   {{- $whiteList := list "concurrencyPolicy"	
                          "failedJobsHistoryLimit"	
@@ -15,26 +15,26 @@ spec:
                          "parallelism"	
                          "ttlSecondsAfterFinished" }}
   schedule: "{{ $cjValues.schedule}}"
-  {{- include "elCicdResources.outputToYaml" (list $ $cjValues $whiteList) }}
-  jobTemplate: {{ include "elCicdResources.jobTemplate" . | indent 4 }}
+  {{- include "elCicdCommon.outputToYaml" (list $ $cjValues $whiteList) }}
+  jobTemplate: {{ include "elCicdK8s.jobTemplate" . | indent 4 }}
 {{- end }}
 
 {{/*
 Deployment
 */}}
-{{- define "elCicdResources.deployment" }}
+{{- define "elCicdK8s.deployment" }}
 {{- $ := index . 0 }}
 {{- $deployValues := index . 1 }}
 {{- $_ := set $deployValues "kind" "Deployment" }}
 {{- $_ := set $deployValues "apiVersion" "apps/v1" }}
-{{- include "elCicdResources.apiObjectHeader" . }}
+{{- include "elCicdCommon.apiObjectHeader" . }}
 spec:
   {{- $whiteList := list "minReadySeconds"	
                          "progressDeadlineSeconds"
                          "replicas" }}
-  {{- include "elCicdResources.outputToYaml" (list $ $deployValues $whiteList) }}
+  {{- include "elCicdCommon.outputToYaml" (list $ $deployValues $whiteList) }}
   revisionHistoryLimit: {{ ($deployValues.revisionHistoryLimit | default $.Values.elCicdDefaults.deploymentRevisionHistoryLimit) | int }}
-  selector: {{ include "elCicdResources.selector" . | indent 4 }}
+  selector: {{ include "elCicdCommon.selector" . | indent 4 }}
   {{- if $deployValues.strategyType }}
   strategy:
     {{- if (eq $deployValues.strategyType "RollingUpdate") }}
@@ -44,23 +44,23 @@ spec:
     {{- end }}
     type: {{ $deployValues.strategyType }}
   {{- end }}
-  template: {{ include "elCicdResources.podTemplate" (list $ $deployValues) | indent 4 }}
+  template: {{ include "elCicdK8s.podTemplate" (list $ $deployValues) | indent 4 }}
 {{- end }}
 
 {{/*
 HorizontalPodAutoscaler
 */}}
-{{- define "elCicdResources.horizontalPodAutoscaler" }}
+{{- define "elCicdK8s.horizontalPodAutoscaler" }}
 {{- $ := index . 0 }}
 {{- $hpaValues := index . 1 }}
 {{- $_ := set $hpaValues "kind" "HorizontalPodAutoscaler" }}
 {{- $_ := set $hpaValues "apiVersion" "autoscaling/v2" }}
-{{- include "elCicdResources.apiObjectHeader" . }}
+{{- include "elCicdCommon.apiObjectHeader" . }}
 spec:
   {{- $whiteList := list "behavior"	
                          "maxReplicas"	
                          "minReplicas" }}
-  {{- include "elCicdResources.outputToYaml" (list $ $hpaValues $whiteList) }}
+  {{- include "elCicdCommon.outputToYaml" (list $ $hpaValues $whiteList) }}
   {{- if $hpaValues.metrics }}
   metrics:
     {{- $whiteList := list "name"	
@@ -71,7 +71,7 @@ spec:
     {{- range $metric := $hpaValues.metrics }}
     {{- $metricType := $metric.type }}
   - type: {{ title $metricType }}
-    {{ $metricType }}: {{ include "elCicdResources.outputToYaml" (list $ $metric $whiteList) | indent 4 }}
+    {{ $metricType }}: {{ include "elCicdCommon.outputToYaml" (list $ $metric $whiteList) | indent 4 }}
     {{- end }}
   {{- end }}
   scaleTargetRef:
@@ -83,29 +83,29 @@ spec:
 {{/*
 Job
 */}}
-{{- define "elCicdResources.job" }}
+{{- define "elCicdK8s.job" }}
 {{- $ := index . 0 }}
 {{- $jobValues := index . 1 }}
 {{- $_ := set $jobValues "kind" "Job" }}
 {{- $_ := set $jobValues "apiVersion" "batch/v1" }}
-{{- include "elCicdResources.apiObjectHeader" . }}
+{{- include "elCicdCommon.apiObjectHeader" . }}
 spec:
-{{- include "elCicdResources.jobTemplate" . }}
+{{- include "elCicdK8s.jobTemplate" . }}
 {{- end }}
 
 {{/*
 Stateful Set
 */}}
-{{- define "elCicdResources.statefulset" }}
+{{- define "elCicdK8s.statefulset" }}
 {{- $ := index . 0 }}
 {{- $stsValues := index . 1 }}
 {{- if ($stsValues.createService | default true) }}
   {{- $_ := set $stsValues "clusterIP" "None" }}
-  {{- include "elCicdResources.service" $stsValues }}
+  {{- include "elCicdK8s.service" $stsValues }}
 {{- end }}
 {{- $_ := set $stsValues "kind" "StatefulSet" }}
 {{- $_ := set $stsValues "apiVersion" "apps/v1" }}
-{{- include "elCicdResources.apiObjectHeader" . }}
+{{- include "elCicdCommon.apiObjectHeader" . }}
 spec:
   {{- $whiteList := list "minReadySeconds"	
                          "persistentVolumeClaimRetentionPolicy" 
@@ -114,9 +114,9 @@ spec:
                          "revisionHistoryLimit" 
                          "updateStrategy" 
                          "volumeClaimTemplates" }}
-  {{- include "elCicdResources.outputToYaml" (list $ $stsValues $whiteList) }}
-  selector: {{ include "elCicdResources.selector" . | indent 4 }}
+  {{- include "elCicdCommon.outputToYaml" (list $ $stsValues $whiteList) }}
+  selector: {{ include "elCicdCommon.selector" . | indent 4 }}
   template:
-  {{- include "elCicdResources.selector" $stsValues.appName | indent 2 }}
-  {{- include "elCicdResources.podTemplate" (list $ $stsValues) | indent 4 }}
+  {{- include "elCicdCommon.selector" $stsValues.appName | indent 2 }}
+  {{- include "elCicdK8s.podTemplate" (list $ $stsValues) | indent 4 }}
 {{- end }}

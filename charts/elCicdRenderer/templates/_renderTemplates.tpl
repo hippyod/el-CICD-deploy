@@ -39,10 +39,7 @@
   {{- end }}
 
   {{- if $.Values.renderValuesForKust }}
----
-# __VALUES_START__
-{{ $.Values | toYaml }}
-# __VALUES_END__
+    {{- include "elCicdCommon.outputValues" . }}
   {{- end }}
 ---
 # Profiles: {{ $.Values.profiles }}

@@ -19,9 +19,9 @@
   {{- $_ := set $.Values "skippedTemplates" list }}
   
   {{- range $dep := $.Chart.Dependencies }}
-    {{- if (eq $dep.Name "elCicdResources") }}
-      {{- include "elCicdResources.initElCicdResources" $ }}
-      {{- $_ := set $.Values.elCicdDefaults "templatesChart" ($.Values.elCicdDefaults.templatesChart | default "elCicdResources") }}
+    {{- if (eq $dep.Name "elCicdK8s") }}
+      {{- include "elCicdK8s.initElCicdResources" $ }}
+      {{- $_ := set $.Values.elCicdDefaults "templatesChart" ($.Values.elCicdDefaults.templatesChart | default "elCicdK8s") }}
     {{- end }}
   {{- end }}
     

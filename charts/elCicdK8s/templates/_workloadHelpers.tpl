@@ -1,30 +1,30 @@
 {{/*
 Deployment and Service combination
 */}}
-{{- define "elCicdResources.deploymentService" }}
-  {{- include "elCicdResources.deployment" . }}
+{{- define "elCicdK8s.deploymentService" }}
+  {{- include "elCicdK8s.deployment" . }}
 ---
-  {{- include "elCicdResources.service" . }}
+  {{- include "elCicdK8s.service" . }}
 {{- end }}
 
 {{/*
 Deployment, Service, and Ingress combination
 */}}
-{{- define "elCicdResources.deploymentServiceIngress" }}
-  {{- include "elCicdResources.deployment" . }}
+{{- define "elCicdK8s.deploymentServiceIngress" }}
+  {{- include "elCicdK8s.deployment" . }}
 ---
-  {{- include "elCicdResources.service" . }}
+  {{- include "elCicdK8s.service" . }}
 ---
-  {{- include "elCicdResources.ingress" . }}
+  {{- include "elCicdK8s.ingress" . }}
 {{- end }}
 
 {{/*
 Job Template
 */}}
-{{- define "elCicdResources.jobTemplate" }}
+{{- define "elCicdK8s.jobTemplate" }}
 {{- $ := index . 0 }}
 {{- $jobValues := index . 1 }}
-{{- include "elCicdResources.apiMetadata" . }}
+{{- include "elCicdK8s.apiMetadata" . }}
 spec:
   {{- $whiteList := list "activeDeadlineSeconds"
                          "backoffLimit"
@@ -34,17 +34,17 @@ spec:
                          "parallelism"
                          "ttlSecondsAfterFinished" }}
   {{- $_ := set $jobValues "restartPolicy" ($jobValues.restartPolicy | default "Never") }}
-  {{- include "elCicdResources.outputToYaml" (list $ $jobValues $whiteList) }}
-  template: {{ include "elCicdResources.podTemplate" (list $ $jobValues false) | nindent 4 }}
+  {{- include "elCicdCommon.outputToYaml" (list $ $jobValues $whiteList) }}
+  template: {{ include "elCicdK8s.podTemplate" (list $ $jobValues false) | nindent 4 }}
 {{- end }}
 
 {{/*
 Pod Template
 */}}
-{{- define "elCicdResources.podTemplate" }}
+{{- define "elCicdK8s.podTemplate" }}
 {{- $ := index . 0 }}
 {{- $podValues := index . 1 }}
-{{- include "elCicdResources.apiMetadata" . }}
+{{- include "elCicdK8s.apiMetadata" . }}
 spec:
   {{- $whiteList := list  "activeDeadlineSeconds"
                           "affinity"
@@ -79,10 +79,10 @@ spec:
                           "volumes" }}
   containers:
     {{- $containers := prepend ($podValues.sidecars | default list) $podValues }}
-    {{- include "elCicdResources.containers" (list $ $podValues $containers) | trim | nindent 2 }}
+    {{- include "elCicdK8s.containers" (list $ $podValues $containers) | trim | nindent 2 }}
   {{- if $podValues.ephemeralContainers }}
   ephemeralContainers:
-    {{- include "elCicdResources.containers" (list $ $podValues.ephemeralContainers false) | trim | nindent 2 }}
+    {{- include "elCicdK8s.containers" (list $ $podValues.ephemeralContainers false) | trim | nindent 2 }}
   {{- end }}
   {{- $_ := set $podValues "imagePullSecrets" ($podValues.imagePullSecrets | default $.Values.elCicdDefaults.imagePullSecrets) }}
   {{- $_ := set $podValues "imagePullSecret" ($podValues.imagePullSecret | default $.Values.elCicdDefaults.imagePullSecret) }}
@@ -99,7 +99,7 @@ spec:
   {{- end }}
   {{- if $podValues.initContainers }}
   initContainers:
-    {{- include "elCicdResources.containers" (list $ $podValues.initContainers false) | trim | nindent 2 }}
+    {{- include "elCicdK8s.containers" (list $ $podValues.initContainers false) | trim | nindent 2 }}
   {{- end }}
   {{- if $podValues.securityContext }}
   securityContext: {{ $podValues.securityContext | toYaml | nindent 4 }}
@@ -111,13 +111,13 @@ spec:
       type: RuntimeDefault
     {{- end }}
   {{- end }}
-  {{- include "elCicdResources.outputToYaml" (list $ $podValues $whiteList) }}
+  {{- include "elCicdCommon.outputToYaml" (list $ $podValues $whiteList) }}
 {{- end }}
 
 {{/*
 Container definition
 */}}
-{{- define "elCicdResources.containers" }}
+{{- define "elCicdK8s.containers" }}
 {{- $ := index . 0 }}
 {{- $podValues := index . 1 }}
 {{- $containers := index . 2 }}
@@ -140,7 +140,7 @@ Container definition
 {{- range $containerVals := $containers }}
 - name: {{ $containerVals.name | default $containerVals.appName }}
   {{- if $containerVals.envFromSelectors }}
-    {{- include "elCicdResources.envFrom" }}
+    {{- include "elCicdK8s.envFrom" }}
   {{- end }}
   image: {{ $containerVals.image | default $.Values.elCicdDefaults.image }}
   imagePullPolicy: {{ $containerVals.imagePullPolicy | default $.Values.elCicdDefaults.imagePullPolicy }}
@@ -199,8 +199,8 @@ Container definition
       - ALL
   {{- end }}
   {{- if $containerVals.projectedVolumeLabels }}
-    {{- include "elCicdResources.createProjectedVolumesByLabels" (list $ $podValues $containerVals)}}
+    {{- include "elCicdK8s.createProjectedVolumesByLabels" (list $ $podValues $containerVals)}}
   {{- end }}
-  {{- include "elCicdResources.outputToYaml" (list $ $containerVals $whiteList) }}
+  {{- include "elCicdCommon.outputToYaml" (list $ $containerVals $whiteList) }}
 {{- end }}
 {{- end }}

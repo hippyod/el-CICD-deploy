@@ -1,12 +1,12 @@
 {{/*
 ConfigMap
 */}}
-{{- define "elCicdResources.configMap" }}
+{{- define "elCicdK8s.configMap" }}
 {{- $ := index . 0 }}
 {{- $cmValues := index . 1 }}
 {{- $_ := set $cmValues "kind" "ConfigMap" }}
 {{- $_ := set $cmValues "apiVersion" "v1" }}
-{{- include "elCicdResources.apiObjectHeader" . }}
+{{- include "elCicdCommon.apiObjectHeader" . }}
 {{- if $cmValues.binaryData }}
 binaryData: {{ $cmValues.binaryData | toYaml | nindent 2}}
 {{- end }}
@@ -21,12 +21,12 @@ immutable: {{ $cmValues.immutable }}
 {{/*
 Secret
 */}}
-{{- define "elCicdResources.secret" }}
+{{- define "elCicdK8s.secret" }}
 {{- $ := index . 0 }}
 {{- $secretValues := index . 1 }}
 {{- $_ := set $secretValues "kind" "Secret" }}
 {{- $_ := set $secretValues "apiVersion" "v1" }}
-{{- include "elCicdResources.apiObjectHeader" . }}
+{{- include "elCicdCommon.apiObjectHeader" . }}
 {{- if $secretValues.data }}
 data: {{ $secretValues.data | toYaml | nindent 2}}
 {{- end }}
@@ -41,12 +41,12 @@ immutable: {{ $secretValues.immutable }}
 {{/*
 Image Registry Secret
 */}}
-{{- define "elCicdResources.docker-registry-secret" }}
+{{- define "elCicdK8s.docker-registry-secret" }}
 {{- $ := index . 0 }}
 {{- $secretValues := index . 1 }}
 {{- $_ := set $secretValues "kind" "Secret" }}
 {{- $_ := set $secretValues "apiVersion" "v1" }}
-{{- include "elCicdResources.apiObjectHeader" . }}
+{{- include "elCicdCommon.apiObjectHeader" . }}
 data:
   {{- if $secretValues.usernamePassword }}
     {{- $_ := set $secretValues "usernamePassword" (regexSplit ":" (trim $secretValues.usernamePassword) -1) }}
@@ -66,12 +66,12 @@ type: kubernetes.io/dockerconfigjson
 {{/*
 PersistentVolume
 */}}
-{{- define "elCicdResources.persistentVolume" }}
+{{- define "elCicdK8s.persistentVolume" }}
 {{- $ := index . 0 }}
 {{- $pvValues := index . 1 }}
 {{- $_ := set $pvValues "kind" "PersistentVolume" }}
 {{- $_ := set $pvValues "apiVersion" "v1" }}
-{{- include "elCicdResources.apiObjectHeader" . }}
+{{- include "elCicdCommon.apiObjectHeader" . }}
 spec:
   {{- $whiteList := list "awsElasticBlockStore"
                          "azureDisk"
@@ -100,7 +100,7 @@ spec:
                          "storageos	"
                          "vsphereVolume"
                          "volumeMode"	}}
-  {{- include "elCicdResources.outputToYaml" (list $ $pvValues $whiteList) }}
+  {{- include "elCicdCommon.outputToYaml" (list $ $pvValues $whiteList) }}
   accessModes:
   {{- if $pvValues.accessModes }}
   {{ $pvValues.accessModes | toYaml }}
@@ -114,12 +114,12 @@ spec:
 {{/*
 PersistentVolumeClaim
 */}}
-{{- define "elCicdResources.persistentVolumeClaim" }}
+{{- define "elCicdK8s.persistentVolumeClaim" }}
 {{- $ := index . 0 }}
 {{- $pvcValues := index . 1 }}
 {{- $_ := set $pvcValues "kind" "PersistentVolumeClaim" }}
 {{- $_ := set $pvcValues "apiVersion" "v1" }}
-{{- include "elCicdResources.apiObjectHeader" . }}
+{{- include "elCicdCommon.apiObjectHeader" . }}
 spec:
   {{- $whiteList := list "dataSource"
                          "dataSourceRef"
@@ -127,7 +127,7 @@ spec:
                          "storageClassName"
                          "volumeMode"
                          "volumeName"	}}
-  {{- include "elCicdResources.outputToYaml" (list $ $pvcValues $whiteList) }}
+  {{- include "elCicdCommon.outputToYaml" (list $ $pvcValues $whiteList) }}
   accessModes:
   {{- if $pvcValues.accessModes }}
   {{ $pvcValues.accessModes | toYaml | indent 2 }}

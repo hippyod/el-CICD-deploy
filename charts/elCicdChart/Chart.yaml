@@ -1,8 +1,9 @@
 apiVersion: v2
 name: elCicdChart
 description: |-
-  A generic helm chart which uses elCicdRenderer and elCicdResources to deploy any
-  application give an elCicdRenderer compliant values file(s).
+  A generic helm chart which uses elCicdRenderer and elCicdK8s to deploy any
+  application give an elCicdRenderer compliant values file(s).  ArgoCd templates
+  are also included.
 
 type: application
 
@@ -12,6 +13,9 @@ dependencies:
 - name: elCicdRenderer
   version: 0.1.0
   repository: file://../elCicdRenderer
-- name: elCicdResources
+- name: elCicdK8s
   version: 0.1.0
-  repository: file://../elCicdResources
+  repository: file://../elCicdK8s
+- name: elCicdArgoCd
+  version: 0.1.0
+  repository: file://../elCicdArgoCd

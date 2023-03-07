@@ -1,12 +1,12 @@
 {{/*
 ResourceQuota
 */}}
-{{- define "elCicdResources.resourceQuota" }}
+{{- define "elCicdK8s.resourceQuota" }}
 {{- $ := index . 0 }}
 {{- $quotaValues := index . 1 }}
 {{- $_ := set $quotaValues "kind" "ResourceQuota" }}
 {{- $_ := set $quotaValues "apiVersion" "v1" }}
-{{- include "elCicdResources.apiObjectHeader" . }}
+{{- include "elCicdCommon.apiObjectHeader" . }}
 spec:
   hard:
   {{- $quotaValues.hard | toYaml | nindent 4 }}
@@ -23,12 +23,12 @@ spec:
 {{/*
 LimitRange
 */}}
-{{- define "elCicdResources.limitRange" }}
+{{- define "elCicdK8s.limitRange" }}
 {{- $ := index . 0 }}
 {{- $limitValues := index . 1 }}
 {{- $_ := set $limitValues "kind" "LimitRange" }}
 {{- $_ := set $limitValues "apiVersion" "v1" }}
-{{- include "elCicdResources.apiObjectHeader" . }}
+{{- include "elCicdCommon.apiObjectHeader" . }}
 spec:
   limits: {{ $limitValues.limits | toYaml | nindent 2 }}
 {{- end }}

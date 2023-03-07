@@ -7,10 +7,10 @@ entries:
     - name: elCicdRenderer
       repository: file://../elCicdRenderer
       version: 0.1.0
-    - name: elCicdResources
-      repository: file://../elCicdResources
+    - name: elCicdK8s
+      repository: file://../elCicdK8s
       version: 0.1.0
-    description: A generic helm chart which uses elCicdRenderer and elCicdResources
+    description: A generic helm chart which uses elCicdRenderer and elCicdK8s
       to deploy any application give an elCicdRenderer compliant values file(s).
     digest: 7a271bee1e835567c3a53b357c1408e8c28c22ee3adbef5c3bee1e1d7f4904e9
     name: elCicdChart
@@ -35,7 +35,7 @@ entries:
     urls:
     - elCicdRenderer-0.1.0.tgz
     version: 0.1.0
-  elCicdResources:
+  elCicdK8s:
   - apiVersion: v2
     created: "2023-03-06T01:02:38.628865729Z"
     description: A library chart with the a complete set of Kubernetes resources that
@@ -47,11 +47,11 @@ entries:
     - generic
     - parameterized
     - profiles
-    name: elCicdResources
+    name: elCicdK8s
     sources:
     - https://github.com/elcicd/el-CICD-deploy/tree/main/charts
     type: library
     urls:
-    - elCicdResources-0.1.0.tgz
+    - elCicdK8s-0.1.0.tgz
     version: 0.1.0
 generated: "2023-03-06T01:02:38.626503817Z"

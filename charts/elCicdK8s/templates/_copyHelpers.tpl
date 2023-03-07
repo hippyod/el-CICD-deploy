@@ -1,4 +1,4 @@
-{{- define "elCicdResources.copyResource" }}
+{{- define "elCicdK8s.copyResource" }}
   {{- $ := index . 0 }}
   {{- $template := index . 1 }}
   
