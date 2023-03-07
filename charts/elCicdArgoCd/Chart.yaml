@@ -16,6 +16,6 @@ type: library
 version: "0.1.0"
 
 dependencies:
-- name: elCicdCommmon
+- name: elCicdCommon
   version: 0.1.0
-  repository: file://../elCicdCommmon
+  repository: file://../elCicdCommon
