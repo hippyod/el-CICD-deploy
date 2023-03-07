@@ -21,7 +21,6 @@ jobs:
       run: |
         git config --global user.email "elcicd@donotreply.org"
         git config --global user.name "el-CICD"
-        git rm charts/*.tgz
         
         CHART_DIRS='elCicdCommon elCicdRenderer elCicdK8s elCicdArgoCd elCicdChart'
         for CHART_DIR in ${CHART_DIRS}
