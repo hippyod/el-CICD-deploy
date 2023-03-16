@@ -84,7 +84,8 @@ Selector labels
 {{- define "elCicdCommon.selectorLabels" -}}
 {{- $ := index . 0 }}
 {{- $template := index . 1 }}
-app: {{ $template.appName }}
+{{- $selectorLabelAppName := regexReplaceAll "[^\\w-.]" $template.appName "-" }}
+app: {{ $selectorLabelAppName }}
 {{- end }}
 
 {{- define "elCicdCommon.outputValues" }}
