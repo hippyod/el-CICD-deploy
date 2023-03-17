@@ -2,7 +2,7 @@
 
 {{- define "elCicdRenderer.initElCicdRenderer" }}
   {{- $ := . }}
-    
+
   {{- if $.Values.profiles }}
     {{- if not (kindIs "slice" $.Values.profiles) }}
       {{- fail (printf "Profiles must be specified as an array: %s" $.Values.profiles) }}
@@ -13,18 +13,18 @@
   {{- if (not (kindIs "slice" $.Values.elCicdTemplates)) }}
       {{- fail "elCicdRenderer elCicdTemplates: must be defined" }}
   {{- end }}
-  
+
   {{- $_ := set $.Values "elCicdDefs" ($.Values.elCicdDefs | default dict) }}
   {{- $_ := set $.Values "elCicdDefaults" ($.Values.elCicdDefaults | default dict) }}
   {{- $_ := set $.Values "skippedTemplates" list }}
-  
+
   {{- range $dep := $.Chart.Dependencies }}
     {{- if (eq $dep.Name "elCicdK8s") }}
       {{- include "elCicdK8s.initElCicdResources" $ }}
       {{- $_ := set $.Values.elCicdDefaults "templatesChart" ($.Values.elCicdDefaults.templatesChart | default "elCicdK8s") }}
     {{- end }}
   {{- end }}
-    
+
   {{- $_ := set $.Values "MAX_RECURSION" (int 5) }}
   {{- $_ := set $.Values "FILE_PREFIX" "${FILE|" }}
   {{- $_ := set $.Values "CONFIG_PREFIX" "${CONFIG|" }}
@@ -35,46 +35,44 @@
 {{- define "elCicdRenderer.filterTemplates" }}
   {{- $ := . }}
   {{- $_ := set $.Values "profiles" ($.Values.profiles | default list) }}
-  
+
   {{- $renderList := list }}
   {{- $skippedList := list }}
   {{- range $template := $.Values.elCicdTemplates  }}
-    {{- $_ := set $template "anyProfiles" ($template.anyProfiles | default list) }}
-    {{- $_ := set $template "ignoreExactlyProfiles" ($template.ignoreExactlyProfiles | default list) }}
-    {{- $_ := set $template "mustHaveProfiles" ($template.mustHaveProfiles | default list) }}
-    {{- $_ := set $template "ignoreAnyProfiles" ($template.ignoreAnyProfiles | default list) }}
-  
-    {{- $anyProfile := not $template.anyProfiles }}
-    {{- range $profile := $template.anyProfiles }}
-      {{- $anyProfile = or $anyProfile (has $profile $.Values.profiles) }}
-    {{- end }}
-        
-    {{- $ignoreExactlyProfiles := and $template.ignoreExactlyProfiles (eq (len $template.ignoreExactlyProfiles) (len $.Values.profiles)) }}
-    {{- if and $ignoreExactlyProfiles $template.ignoreExactlyProfiles }}
-      {{- range $profile := $template.ignoreExactlyProfiles }}
-        {{- $ignoreExactlyProfiles = and $ignoreExactlyProfiles (has $profile $.Values.profiles) }}
-      {{- end }}
+    {{- $_ := set $template "mustHaveAnyProfile" ($template.mustHaveAnyProfile | default list) }}
+    {{- $_ := set $template "mustNotHaveEveryProfile" ($template.mustNotHaveEveryProfile | default list) }}
+    {{- $_ := set $template "mustHaveEveryProfile" ($template.mustHaveEveryProfile | default list) }}
+    {{- $_ := set $template "mustNotHaveAnyProfile" ($template.mustNotHaveAnyProfile | default list) }}
+
+    {{- $hasMatchingProfile := not $template.mustHaveAnyProfile }}
+    {{- range $profile := $template.mustHaveAnyProfile }}
+      {{- $hasMatchingProfile = or $hasMatchingProfile (has $profile $.Values.profiles) }}
     {{- end }}
 
-    {{- $mustHaveProfiles := or (empty $template.mustHaveProfiles) (eq (len $template.mustHaveProfiles) (len $.Values.profiles)) }}
-    {{- if and $mustHaveProfiles $template.mustHaveProfiles }}
-      {{- range $profile := $template.mustHaveProfiles }}
-        {{- $mustHaveProfiles = and $mustHaveProfiles (has $profile $.Values.profiles) }}
-      {{- end }}
+    {{- $hasNoProhibitedProfiles := not $template.mustNotHaveAnyProfile }}
+    {{- range $profile := $template.mustNotHaveAnyProfile }}
+      {{- $hasNoProhibitedProfiles = or $hasNoProhibitedProfiles (has $profile $.Values.profiles) }}
+    {{- end }}
+    {{- $hasNoProhibitedProfiles := not $hasNoProhibitedProfiles }}
+
+    {{- $hasAllRequiredProfile := true }}
+    {{- range $profile := $template.mustHaveEveryProfile }}
+      {{- $hasAllRequiredProfile = and $hasAllRequiredProfile (has $profile $.Values.profiles) }}
     {{- end }}
     
-    {{- $ignoreAnyProfiles := false }}
-    {{- range $profile := $template.ignoreAnyProfiles }}
-      {{- $ignoreAnyProfiles = or $ignoreAnyProfiles (has $profile $.Values.profiles) }}
+    {{- $doesNotHaveAllProhibitedProfiles := true }}
+    {{- range $profile := $template.mustNotHaveEveryProfile }}
+      {{- $doesNotHaveAllProhibitedProfiles = and $doesNotHaveAllProhibitedProfiles (has $profile $.Values.profiles) }}
     {{- end }}
-    
-    {{- if and $anyProfile $mustHaveProfiles (not $ignoreExactlyProfiles) (not $ignoreAnyProfiles) }}
+    {{- $doesNotHaveAllProhibitedProfiles := not $doesNotHaveAllProhibitedProfiles }}
+
+    {{- if and $hasMatchingProfile $hasNoProhibitedProfiles $hasAllRequiredProfile $doesNotHaveAllProhibitedProfiles  }}
       {{- $renderList = append $renderList $template }}
     {{- else }}
       {{- $skippedList = append $skippedList (list $template.templateName ($template.appNames | default $template.appName)) }}
     {{- end }}
   {{- end }}
-  
+
   {{- $_ := set $.Values "renderingTemplates" $renderList }}
   {{- $_ := set $.Values "skippedTemplates" $skippedList }}
 {{- end }}
@@ -97,7 +95,7 @@ metadata:
   {{- $elCicdRef := index . 2 }}
   {{- $elCicdDef := index . 3 }}
   {{- $processDefList := index . 4}}
-  
+
   {{- if has $elCicdDef $processDefList }}
     {{- fail (printf "Circular elCicdDefs reference: '%s' in '%s: %s'" $elCicdRef $key $value) }}
   {{- end }}
