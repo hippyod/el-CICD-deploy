@@ -40,9 +40,9 @@
   {{- $skippedList := list }}
   {{- range $template := $.Values.elCicdTemplates  }}
     {{- $_ := set $template "mustHaveAnyProfile" ($template.mustHaveAnyProfile | default list) }}
-    {{- $_ := set $template "mustNotHaveEveryProfile" ($template.mustNotHaveEveryProfile | default list) }}
-    {{- $_ := set $template "mustHaveEveryProfile" ($template.mustHaveEveryProfile | default list) }}
     {{- $_ := set $template "mustNotHaveAnyProfile" ($template.mustNotHaveAnyProfile | default list) }}
+    {{- $_ := set $template "mustHaveEveryProfile" ($template.mustHaveEveryProfile | default list) }}
+    {{- $_ := set $template "mustNotHaveEveryProfile" ($template.mustNotHaveEveryProfile | default list) }}
 
     {{- $hasMatchingProfile := not $template.mustHaveAnyProfile }}
     {{- range $profile := $template.mustHaveAnyProfile }}
@@ -53,26 +53,26 @@
     {{- range $profile := $template.mustNotHaveAnyProfile }}
       {{- $hasNoProhibitedProfiles = or $hasNoProhibitedProfiles (has $profile $.Values.profiles) }}
     {{- end }}
-    {{- $hasNoProhibitedProfiles := not $hasNoProhibitedProfiles }}
+    {{- $hasNoProhibitedProfiles = not $hasNoProhibitedProfiles }}
 
-    {{- $hasAllRequiredProfile := true }}
+    {{- $hasAllRequiredProfiles := true }}
     {{- range $profile := $template.mustHaveEveryProfile }}
-      {{- $hasAllRequiredProfile = and $hasAllRequiredProfile (has $profile $.Values.profiles) }}
+      {{- $hasAllRequiredProfiles = and $hasAllRequiredProfiles (has $profile $.Values.profiles) }}
     {{- end }}
     
     {{- $doesNotHaveAllProhibitedProfiles := true }}
     {{- range $profile := $template.mustNotHaveEveryProfile }}
       {{- $doesNotHaveAllProhibitedProfiles = and $doesNotHaveAllProhibitedProfiles (has $profile $.Values.profiles) }}
     {{- end }}
-    {{- $doesNotHaveAllProhibitedProfiles := not $doesNotHaveAllProhibitedProfiles }}
+    {{- $doesNotHaveAllProhibitedProfiles = not $doesNotHaveAllProhibitedProfiles }}
 
-    {{- if and $hasMatchingProfile $hasNoProhibitedProfiles $hasAllRequiredProfile $doesNotHaveAllProhibitedProfiles  }}
+    {{- if and $hasMatchingProfile $hasNoProhibitedProfiles $hasAllRequiredProfiles $doesNotHaveAllProhibitedProfiles  }}
       {{- $renderList = append $renderList $template }}
     {{- else }}
       {{- $skippedList = append $skippedList (list $template.templateName ($template.appNames | default $template.appName)) }}
     {{- end }}
   {{- end }}
-
+  
   {{- $_ := set $.Values "renderingTemplates" $renderList }}
   {{- $_ := set $.Values "skippedTemplates" $skippedList }}
 {{- end }}
