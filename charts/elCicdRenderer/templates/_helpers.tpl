@@ -53,7 +53,7 @@
     {{- range $profile := $template.mustNotHaveAnyProfile }}
       {{- $hasNoProhibitedProfiles = or $hasNoProhibitedProfiles (has $profile $.Values.profiles) }}
     {{- end }}
-    {{- $hasNoProhibitedProfiles = not $hasNoProhibitedProfiles }}
+    {{- $hasNoProhibitedProfiles = or (not $template.mustNotHaveAnyProfile) (not $hasNoProhibitedProfiles) }}
 
     {{- $hasAllRequiredProfiles := true }}
     {{- range $profile := $template.mustHaveEveryProfile }}
@@ -64,7 +64,7 @@
     {{- range $profile := $template.mustNotHaveEveryProfile }}
       {{- $doesNotHaveAllProhibitedProfiles = and $doesNotHaveAllProhibitedProfiles (has $profile $.Values.profiles) }}
     {{- end }}
-    {{- $doesNotHaveAllProhibitedProfiles = not $doesNotHaveAllProhibitedProfiles }}
+    {{- $doesNotHaveAllProhibitedProfiles = or (not $template.doesNotHaveAllProhibitedProfiles) (not $doesNotHaveAllProhibitedProfiles) }}
 
     {{- if and $hasMatchingProfile $hasNoProhibitedProfiles $hasAllRequiredProfiles $doesNotHaveAllProhibitedProfiles  }}
       {{- $renderList = append $renderList $template }}
