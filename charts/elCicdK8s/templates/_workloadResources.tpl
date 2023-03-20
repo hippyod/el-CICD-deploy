@@ -6,6 +6,7 @@ CronJob
 {{- $cjValues := index . 1 }}
 {{- $_ := set $cjValues "kind" "CronJob" }}
 {{- $_ := set $cjValues "apiVersion" "batch/v1" }}
+{{- include "elCicdK8s.annotateRevision" . }}
 {{- include "elCicdCommon.apiObjectHeader" . }}
 spec:
   {{- $whiteList := list "concurrencyPolicy"	
@@ -27,6 +28,7 @@ Deployment
 {{- $deployValues := index . 1 }}
 {{- $_ := set $deployValues "kind" "Deployment" }}
 {{- $_ := set $deployValues "apiVersion" "apps/v1" }}
+{{- include "elCicdK8s.annotateRevision" . }}
 {{- include "elCicdCommon.apiObjectHeader" . }}
 spec:
   {{- $whiteList := list "minReadySeconds"	
@@ -55,6 +57,7 @@ HorizontalPodAutoscaler
 {{- $hpaValues := index . 1 }}
 {{- $_ := set $hpaValues "kind" "HorizontalPodAutoscaler" }}
 {{- $_ := set $hpaValues "apiVersion" "autoscaling/v2" }}
+{{- include "elCicdK8s.annotateRevision" . }}
 {{- include "elCicdCommon.apiObjectHeader" . }}
 spec:
   {{- $whiteList := list "behavior"	
@@ -88,6 +91,7 @@ Job
 {{- $jobValues := index . 1 }}
 {{- $_ := set $jobValues "kind" "Job" }}
 {{- $_ := set $jobValues "apiVersion" "batch/v1" }}
+{{- include "elCicdK8s.annotateRevision" . }}
 {{- include "elCicdCommon.apiObjectHeader" . }}
 spec:
 {{- include "elCicdK8s.jobTemplate" . }}
@@ -105,6 +109,7 @@ Stateful Set
 {{- end }}
 {{- $_ := set $stsValues "kind" "StatefulSet" }}
 {{- $_ := set $stsValues "apiVersion" "apps/v1" }}
+{{- include "elCicdK8s.annotateRevision" . }}
 {{- include "elCicdCommon.apiObjectHeader" . }}
 spec:
   {{- $whiteList := list "minReadySeconds"	

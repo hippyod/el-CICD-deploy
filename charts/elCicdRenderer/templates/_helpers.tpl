@@ -3,9 +3,9 @@
 {{- define "elCicdRenderer.initElCicdRenderer" }}
   {{- $ := . }}
 
-  {{- if $.Values.profiles }}
-    {{- if not (kindIs "slice" $.Values.profiles) }}
-      {{- fail (printf "Profiles must be specified as an array: %s" $.Values.profiles) }}
+  {{- if $.Values.elCicdProfiles }}
+    {{- if not (kindIs "slice" $.Values.elCicdProfiles) }}
+      {{- fail (printf "Profiles must be specified as an array: %s" $.Values.elCicdProfiles) }}
     {{- end }}
   {{- end }}
 
@@ -34,7 +34,7 @@
 
 {{- define "elCicdRenderer.filterTemplates" }}
   {{- $ := . }}
-  {{- $_ := set $.Values "profiles" ($.Values.profiles | default list) }}
+  {{- $_ := set $.Values "elCicdProfiles" ($.Values.elCicdProfiles | default list) }}
 
   {{- $renderList := list }}
   {{- $skippedList := list }}
@@ -46,23 +46,23 @@
 
     {{- $hasMatchingProfile := not $template.mustHaveAnyProfile }}
     {{- range $profile := $template.mustHaveAnyProfile }}
-      {{- $hasMatchingProfile = or $hasMatchingProfile (has $profile $.Values.profiles) }}
+      {{- $hasMatchingProfile = or $hasMatchingProfile (has $profile $.Values.elCicdProfiles) }}
     {{- end }}
 
     {{- $hasNoProhibitedProfiles := not $template.mustNotHaveAnyProfile }}
     {{- range $profile := $template.mustNotHaveAnyProfile }}
-      {{- $hasNoProhibitedProfiles = or $hasNoProhibitedProfiles (has $profile $.Values.profiles) }}
+      {{- $hasNoProhibitedProfiles = or $hasNoProhibitedProfiles (has $profile $.Values.elCicdProfiles) }}
     {{- end }}
     {{- $hasNoProhibitedProfiles = or (not $template.mustNotHaveAnyProfile) (not $hasNoProhibitedProfiles) }}
 
     {{- $hasAllRequiredProfiles := true }}
     {{- range $profile := $template.mustHaveEveryProfile }}
-      {{- $hasAllRequiredProfiles = and $hasAllRequiredProfiles (has $profile $.Values.profiles) }}
+      {{- $hasAllRequiredProfiles = and $hasAllRequiredProfiles (has $profile $.Values.elCicdProfiles) }}
     {{- end }}
     
     {{- $doesNotHaveAllProhibitedProfiles := true }}
     {{- range $profile := $template.mustNotHaveEveryProfile }}
-      {{- $doesNotHaveAllProhibitedProfiles = and $doesNotHaveAllProhibitedProfiles (has $profile $.Values.profiles) }}
+      {{- $doesNotHaveAllProhibitedProfiles = and $doesNotHaveAllProhibitedProfiles (has $profile $.Values.elCicdProfiles) }}
     {{- end }}
     {{- $doesNotHaveAllProhibitedProfiles = or (not $template.doesNotHaveAllProhibitedProfiles) (not $doesNotHaveAllProhibitedProfiles) }}
 

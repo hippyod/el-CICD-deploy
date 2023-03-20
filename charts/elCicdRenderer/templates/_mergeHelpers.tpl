@@ -7,7 +7,7 @@
 
   {{- include "elCicdRenderer.mergeMapInto" (list $ $profileDefs.elCicdDefs $elCicdDefs) }}
 
-  {{- range $profile := $.Values.profiles }}
+  {{- range $profile := $.Values.elCicdProfiles }}
     {{- $profileDefs := get $profileDefs (printf "elCicdDefs-%s" $profile) }}
     {{- include "elCicdRenderer.mergeMapInto" (list $ $profileDefs $elCicdDefs) }}
   {{- end }}
@@ -21,7 +21,7 @@
       {{- include "elCicdRenderer.mergeMapInto" (list $ $appNameDefs $elCicdDefs) }}
     {{- end }}
 
-    {{- range $profile := $.Values.profiles }}
+    {{- range $profile := $.Values.elCicdProfiles }}
       {{- $profileDefs := get $profileDefs (printf "elCicdDefs-%s-%s" $workingAppName $profile) }}
       {{- include "elCicdRenderer.mergeMapInto" (list $ $profileDefs $elCicdDefs) }}
     {{- end }}

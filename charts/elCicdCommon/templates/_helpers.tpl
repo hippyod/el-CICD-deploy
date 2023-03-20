@@ -121,11 +121,11 @@ app: {{ $selectorLabelAppName }}
   {{- $defaultKeysList := index . 2 }}
   
   {{- $elCicdDefaultMapNames := list "elCicdDefaults" }}
-  {{- range $profile := $.Values.profiles }}
+  {{- range $profile := $.Values.elCicdProfiles }}
     {{- $elCicdDefaultMapNames = prepend $elCicdDefaultMapNames (printf "elCicdDefaults-%s" $profile) }}
   {{- end }}
   {{- $elCicdDefaultMapNames := prepend $elCicdDefaultMapNames (printf "elCicdDefaults-%s" $.Values.currentTemplateKind) }}
-  {{- range $profile := $.Values.profiles }}
+  {{- range $profile := $.Values.elCicdProfiles }}
     {{- $elCicdDefaultMapNames = prepend $elCicdDefaultMapNames (printf "elCicdDefaults-%s-%s"  $.Values.currentTemplateKind $profile) }}
   {{- end }}
   
