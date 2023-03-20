@@ -19,17 +19,6 @@ Deployment, Service, and Ingress combination
 {{- end }}
 
 {{/*
-Forces redeployments on every upgrade/install if requested
-*/}}
-{{- define "elCicdK8s.annotateRevision" }}
-{{- $ := index . 0 }}
-{{- $workloadResourceValues := index . 1 }}
-  {{- if $workloadResourceValues.alwaysRedeploy }}
-    {{- $_ := set $workloadResourceValues "annotations"
-  {{- end }}
-{{- end }}
-
-{{/*
 Job Template
 */}}
 {{- define "elCicdK8s.jobTemplate" }}
