@@ -41,10 +41,10 @@
         {{- include "elCicdK8s.createProjectedVolume" (list $ $podValues $volumeByLabels $labeledResources) }}
 
         {{- $mountedVolume := dict "name" $volumeByLabels.name
-                                  "mountPath" $volumeByLabels.mountPath
-                                  "readOnly" $volumeByLabels.readOnly
-                                  "subPath" $volumeByLabels.subPath
-                                  "subPathExpr" $volumeByLabels.subPathExpr }}
+                                   "mountPath" $volumeByLabels.mountPath
+                                   "readOnly" $volumeByLabels.readOnly
+                                   "subPath" $volumeByLabels.subPath
+                                   "subPathExpr" $volumeByLabels.subPathExpr }}
         {{- $_ := set $containerVals "volumeMounts" (append ($containerVals.volumeMounts | default list) $mountedVolume) }}
       {{- end }}
     {{- end }}
