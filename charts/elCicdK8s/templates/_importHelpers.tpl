@@ -23,7 +23,7 @@
   {{- end }}
 {{- end }}
 
-{{- define "elCicdK8s.createProjectedVolumesByLabels" }}
+{{- define "elCicdK8s.createProjectedVolumesAndMountsByLabels" }}
   {{- $ := index . 0 }}
   {{- $podValues := index . 1 }}
   {{- $containerVals := index . 2 }}
@@ -38,7 +38,7 @@
       {{- $labeledResources := $resultMap.result }}
 
       {{- if $labeledResources }}
-        {{- include "elCicdK8s.createProjectedVolume" (list $ $podValues $volumeByLabels $labeledResources) }}
+        {{- include "elCicdK8s.createProjectedVolumesByLabels" (list $ $podValues $volumeByLabels $labeledResources) }}
 
         {{- $mountedVolume := dict "name" $volumeByLabels.name
                                    "mountPath" $volumeByLabels.mountPath
@@ -51,7 +51,7 @@
   {{- end }}
 {{- end }}
 
-{{- define "elCicdK8s.createProjectedVolume" }}
+{{- define "elCicdK8s.createProjectedVolumesByLabels" }}
   {{- $ := index . 0 }}
   {{- $podValues := index . 1 }}
   {{- $volumeByLabels := index . 2 }}

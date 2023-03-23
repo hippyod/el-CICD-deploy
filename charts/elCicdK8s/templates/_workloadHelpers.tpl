@@ -199,7 +199,7 @@ Container definition
       - ALL
   {{- end }}
   {{- if $containerVals.projectedVolumeLabels }}
-    {{- include "elCicdK8s.createProjectedVolumesByLabels" (list $ $podValues $containerVals)}}
+    {{- include "elCicdK8s.createProjectedVolumesAndMountsByLabels" (list $ $podValues $containerVals)}}
   {{- end }}
   {{- include "elCicdCommon.outputToYaml" (list $ $containerVals $whiteList) }}
 {{- end }}
