@@ -148,7 +148,7 @@
       {{- else if (kindIs "slice" $value) }}
         {{- include "elCicdRenderer.processSlice" (list $ $map $key $elCicdDefs) }}
       {{- else if (kindIs "string" $value) }}
-          {{- include "elCicdRenderer.processMapValue" (list $ $map $key $elCicdDefs list 0) }}
+        {{- include "elCicdRenderer.processMapValue" (list $ $map $key $elCicdDefs list 0) }}
       {{- end  }}
 
       {{- if (get $map $key) }}
@@ -174,21 +174,20 @@
   {{- end }}
   {{- $depth := add $depth 1 }}
 
+  {{- $_ := set $map $key (regexReplaceAll $.Values.ELCICD_ESCAPED_REGEX $value $.Values.ELCICD_ESCAPE_PLACEHOLDER) }}
   {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $value -1 | uniq }}
   {{- include "elCicdRenderer.replaceParamRefs" (list $ $map $key $elCicdDefs $matches) }}
+  {{- $_ := set $map $key (regexReplaceAll $.Values.ELCICD_ESCAPE_PLACEHOLDER $value $.Values.ELCICD_UNESCAPED_REGEX) }}
   {{- $value := get $map $key }}
 
   {{- $processDefList = (concat $processDefList $matches | uniq)  }}
-  {{- if $matches }}
-    {{- $_ := set $map $key $value }}
-    {{- if $value }}
-      {{- if or (kindIs "map" $value) }}
-        {{- include "elCicdRenderer.processMap" (list $ $value $elCicdDefs) }}
-      {{- else if (kindIs "slice" $value) }}
-        {{- include "elCicdRenderer.processSlice" (list $ $map $key $elCicdDefs) }}
-      {{- else if (kindIs "string" $value) }}
-        {{- include "elCicdRenderer.processMapValue" (list $ $map $key $elCicdDefs $processDefList $depth) }}
-      {{- end }}
+  {{- if and $matches $value }}
+    {{- if or (kindIs "map" $value) }}
+      {{- include "elCicdRenderer.processMap" (list $ $value $elCicdDefs) }}
+    {{- else if (kindIs "slice" $value) }}
+      {{- include "elCicdRenderer.processSlice" (list $ $map $key $elCicdDefs) }}
+    {{- else if (kindIs "string" $value) }}
+      {{- include "elCicdRenderer.processMapValue" (list $ $map $key $elCicdDefs $processDefList $depth) }}
     {{- end }}
   {{- end }}
 {{- end }}

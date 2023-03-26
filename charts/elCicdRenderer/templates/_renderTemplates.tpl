@@ -42,7 +42,7 @@
     {{- include "elCicdCommon.outputValues" . }}
   {{- end }}
 ---
-# Profiles: {{ $.Values.elCicdProfiles }}
+# Profiles: {{ $.Values.profiles }}
   {{- range $skippedTemplate := $.Values.skippedTemplates }}
     {{- include "elCicdRenderer.skippedTemplateLog" $skippedTemplate }}
   {{- end }}
