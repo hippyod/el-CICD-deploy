@@ -118,18 +118,18 @@
   {{- $elCicdDefs := index . 2 }}
 
   {{- range $template := $templates }}
-    {{- $templateDefs := deepCopy $elCicdDefs }}
-    {{- include "elCicdRenderer.mergeMapInto" (list $ $template.elCicdDefs $templateDefs) }}
-    {{- include "elCicdRenderer.mergeProfileDefs" (list $ $template $templateDefs) }}
-    {{- include "elCicdRenderer.preProcessFilesAndConfig" (list $ $templateDefs) }}
+    {{- $tplElCicdDefs := deepCopy $elCicdDefs }}
+    {{- include "elCicdRenderer.mergeMapInto" (list $ $template.elCicdDefs $tplElCicdDefs) }}
+    {{- include "elCicdRenderer.mergeProfileDefs" (list $ $template $tplElCicdDefs) }}
+    {{- include "elCicdRenderer.preProcessFilesAndConfig" (list $ $tplElCicdDefs) }}
 
     {{- $_ := set $.Values.elCicdDefs "EL_CICD_DEPLOYMENT_TIME" $.Values.EL_CICD_DEPLOYMENT_TIME }}
-    {{- $_ := set $templateDefs "APP_NAME" $template.appName }}
-    {{- $_ := set $templateDefs "BASE_APP_NAME" ($templateDefs.BASE_APP_NAME | default $templateDefs.APP_NAME) }}
-    {{- $_ := set $templateDefs "NAME_SPACE" $template.namespace }}
-    {{- $_ := set $templateDefs "BASE_NAME_SPACE" ($templateDefs.BASE_NAME_SPACE | default $templateDefs.NAME_SPACE) }}
+    {{- $_ := set $tplElCicdDefs "APP_NAME" $template.appName }}
+    {{- $_ := set $tplElCicdDefs "BASE_APP_NAME" ($tplElCicdDefs.BASE_APP_NAME | default $tplElCicdDefs.APP_NAME) }}
+    {{- $_ := set $tplElCicdDefs "NAME_SPACE" $template.namespace }}
+    {{- $_ := set $tplElCicdDefs "BASE_NAME_SPACE" ($tplElCicdDefs.BASE_NAME_SPACE | default $tplElCicdDefs.NAME_SPACE) }}
 
-    {{- include "elCicdRenderer.processMap" (list $ $template $templateDefs) }}
+    {{- include "elCicdRenderer.processMap" (list $ $template $tplElCicdDefs) }}
   {{- end }}
 {{- end }}
 
@@ -179,14 +179,17 @@
   {{- $value := get $map $key }}
 
   {{- $processDefList = (concat $processDefList $matches | uniq)  }}
-  {{- if and $matches $value }}
-    {{- if (kindIs "map" $value) }}
-      {{- include "elCicdRenderer.processMap" (list $ $value $elCicdDefs) }}
-    {{- else if (kindIs "slice" $value) }}
-      {{- include "elCicdRenderer.processSlice" (list $ $map $key $elCicdDefs) }}
-    {{- else if (kindIs "string" $value) }}
-      {{- include "elCicdRenderer.processMapValue" (list $ $map $key $elCicdDefs $processDefList $depth) }}
-      {{- $_ := set $map $key (regexReplaceAll $.Values.ELCICD_ESCAPED_REGEX $value $.Values.ELCICD_UNESCAPED_REGEX) }}
+  {{- if $matches }}
+    {{- $_ := set $map $key $value }}
+    {{- if $value }}
+      {{- if (kindIs "map" $value) }}
+        {{- include "elCicdRenderer.processMap" (list $ $value $elCicdDefs) }}
+      {{- else if (kindIs "slice" $value) }}
+        {{- include "elCicdRenderer.processSlice" (list $ $map $key $elCicdDefs) }}
+      {{- else if (kindIs "string" $value) }}
+        {{- include "elCicdRenderer.processMapValue" (list $ $map $key $elCicdDefs $processDefList $depth) }}
+        {{- $_ := set $map $key (regexReplaceAll $.Values.ELCICD_ESCAPED_REGEX $value $.Values.ELCICD_UNESCAPED_REGEX) }}
+      {{- end }}
     {{- end }}
   {{- end }}
 {{- end }}
