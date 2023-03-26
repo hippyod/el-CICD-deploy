@@ -180,7 +180,7 @@
 
   {{- $processDefList = (concat $processDefList $matches | uniq)  }}
   {{- if and $matches $value }}
-    {{- if or (kindIs "map" $value) }}
+    {{- if (kindIs "map" $value) }}
       {{- include "elCicdRenderer.processMap" (list $ $value $elCicdDefs) }}
     {{- else if (kindIs "slice" $value) }}
       {{- include "elCicdRenderer.processSlice" (list $ $map $key $elCicdDefs) }}
