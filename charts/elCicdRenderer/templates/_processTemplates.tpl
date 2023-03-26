@@ -176,20 +176,19 @@
 
   {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $value -1 | uniq }}
   {{- include "elCicdRenderer.replaceParamRefs" (list $ $map $key $elCicdDefs $matches) }}
-  {{- $value := get $map $key }}
-
   {{- $processDefList = (concat $processDefList $matches | uniq)  }}
-  {{- if $matches }}
-    {{- $_ := set $map $key $value }}
-    {{- if $value }}
-      {{- if (kindIs "map" $value) }}
-        {{- include "elCicdRenderer.processMap" (list $ $value $elCicdDefs) }}
-      {{- else if (kindIs "slice" $value) }}
-        {{- include "elCicdRenderer.processSlice" (list $ $map $key $elCicdDefs) }}
-      {{- else if (kindIs "string" $value) }}
-        {{- include "elCicdRenderer.processMapValue" (list $ $map $key $elCicdDefs $processDefList $depth) }}
-        {{- $_ := set $map $key (regexReplaceAll $.Values.ELCICD_ESCAPED_REGEX $value $.Values.ELCICD_UNESCAPED_REGEX) }}
-      {{- end }}
+
+  {{- $value := get $map $key }}
+  {{- if and $matches $value }}
+    {{- if (kindIs "map" $value) }}
+      {{- include "elCicdRenderer.processMap" (list $ $value $elCicdDefs) }}
+    {{- else if (kindIs "slice" $value) }}
+      {{- include "elCicdRenderer.processSlice" (list $ $map $key $elCicdDefs) }}
+    {{- else if (kindIs "string" $value) }}
+      {{- include "elCicdRenderer.processMapValue" (list $ $map $key $elCicdDefs $processDefList $depth) }}
+
+      {{- $value := get $map $key }}
+      {{- $_ := set $map $key (regexReplaceAll $.Values.ELCICD_ESCAPED_REGEX $value $.Values.ELCICD_UNESCAPED_REGEX) }}
     {{- end }}
   {{- end }}
 {{- end }}
