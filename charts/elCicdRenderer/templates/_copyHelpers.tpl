@@ -1,17 +1,13 @@
-{{- define "elCicdK8s.copyResource" }}
+{{- define "elCicdRenderer.copyResource" }}
   {{- $ := index . 0 }}
   {{- $template := index . 1 }}
   
-  {{- if or $.Release.IsUpgrade $.Release.IsInstall }}  
-    {{- $resource := (lookup ($template.apiVersion | default "v1") 
-                              $template.kind 
-                              $template.fromNamespace
-                              ($template.srcMetadataName | default $template.appName)) }}
-    
-    {{- if and (not $resource) (not $template.optional) }}
-      {{- fail (printf "Cannot find %s %s in namespace %s" $template.kind $template.appName $template.fromNamespace) }}
-    {{- end }}
-    
+  {{- $resource := (lookup ($template.apiVersion | default "v1") 
+                            $template.kind 
+                            $template.fromNamespace
+                            ($template.srcMetadataName | default $template.appName)) }}
+                            
+  {{- if $resource }}
     {{- $newResource := dict }}
     {{- $_ := set $newResource  "apiVersion" $resource.apiVersion }}
     {{- $_ := set $newResource  "kind" $resource.kind }}
@@ -59,5 +55,9 @@
     {{- end }}
 
     {{- $newResource | toYaml }}
+  {{- else if and (not $.Values.templateCommandRunning) (not $template.optional) }}
+    {{- fail (printf "Cannot find %s %s in namespace %s" $template.kind $template.appName $template.fromNamespace) }}
+  {{- else }}
+# WARNING: {{ printf "Cannot find %s %s in namespace %s" $template.kind $template.appName $template.fromNamespace }}
   {{- end }}
 {{- end }}

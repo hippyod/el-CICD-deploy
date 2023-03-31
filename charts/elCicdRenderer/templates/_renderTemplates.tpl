@@ -21,7 +21,11 @@
   {{- range $template := $.Values.allTemplates  }}
     {{- $templateName := $template.templateName }}
     {{- if not (contains "." $templateName) }}
-      {{- $templateName = printf "%s.%s" $.Values.elCicdDefaults.templatesChart $template.templateName }}
+      {{- if eq $templateName "copyResource" }}
+        {{- $templateName = "elCicdRenderer.copyResource" }}
+      {{- else }}
+        {{- $templateName = printf "%s.%s" $.Values.elCicdDefaults.templatesChart $template.templateName }}
+      {{- end }}
     {{- end }}
 ---
     {{- include $templateName (list $ $template) }}
