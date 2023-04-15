@@ -62,10 +62,9 @@ Service
 {{- $_ := set $svcValues "apiVersion" "v1" }}
 {{- include "elCicdCommon.apiObjectHeader" . }}
 spec:
-  selector:
-    {{- range $key, $value := $svcValues.selector }}
-    {{ $key }}: {{ $value }}
-    {{- end }}
+  {{- if $svcValues.selector }}
+  selector: {{ $svcValues.selector | toYaml | nindent 2 }}
+  {{- end }}
   ports:
   {{- if and (or ($svcValues.service).ports $svcValues.ports) $svcValues.port }}
     {{- fail "A Service cannot define both port and ports values!" }}

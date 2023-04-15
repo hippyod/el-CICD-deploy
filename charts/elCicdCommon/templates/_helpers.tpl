@@ -51,22 +51,6 @@ app.kubernetes.io/instance: {{ $.Release.Name }}
 {{- end }}
 
 {{/*
-el-CICD Selector
-*/}}
-{{- define "elCicdCommon.selector" }}
-{{- $ := index . 0 }}
-{{- $template := index . 1 }}
-matchExpressions:
-{{- if $template.matchExpressions }}
-  {{- $template.matchExpressions | toYaml }}
-{{- end }}
-matchLabels:
-{{- if $template.matchlabels }}
-  {{- $template.matchlabels | toYaml | indent 2 }}
-{{- end }}
-{{- end }}
-
-{{/*
 Create chart name and version as used by the chart label.
 */}}
 {{- define "elCicdCommon.chart" -}}
