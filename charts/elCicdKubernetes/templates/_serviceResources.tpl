@@ -1,7 +1,7 @@
 {{/*
 Ingress
 */}}
-{{- define "elCicdK8s.ingress" }}
+{{- define "elCicdKubernetes.ingress" }}
 {{- $ := index . 0 }}
 {{- $ingressValues := index . 1 }}
 {{- $_ := set $ingressValues "kind" "Ingress" }}
@@ -47,14 +47,14 @@ spec:
 {{/*
 Service
 */}}
-{{- define "elCicdK8s.service" }}
+{{- define "elCicdKubernetes.service" }}
 {{- $ := index . 0 }}
 {{- $svcValues := index . 1 }}
 {{- if or ($svcValues.prometheus).port $.Values.usePrometheus }}
-  {{- include "elCicdK8s.prometheusAnnotations" . }}
+  {{- include "elCicdKubernetes.prometheusAnnotations" . }}
 {{- end }}
 {{- if or $svcValues.threeScalePort $.Values.use3Scale }}
-  {{- include "elCicdK8s.3ScaleAnnotations" . }}
+  {{- include "elCicdKubernetes.3ScaleAnnotations" . }}
   {{- $_ := set $svcValues "labels" ($svcValues.labels  | default dict) }}
   {{- $_ := set $svcValues.labels "discovery.3scale.net" true }}
 {{- end }}

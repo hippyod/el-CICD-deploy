@@ -1,4 +1,4 @@
-{{- define "elCicdK8s.importEnvs" }}
+{{- define "elCicdKubernetes.importEnvs" }}
   {{- $ := index . 0 }}
   {{- $containerVals := index . 0 }}
 
@@ -8,7 +8,7 @@
 
     {{- range $envFromLabels := $containerVals.envFromLabels }}
       {{- $resultMap := dict }}
-      {{- include "elCicdK8s.getResourcesByLabel" (list $ $resources $envFromLabels.labels $resultMap) }}
+      {{- include "elCicdKubernetes.getResourcesByLabel" (list $ $resources $envFromLabels.labels $resultMap) }}
       {{- $labelResources := $resultMap.result }}
       
       {{- $envFromList := list }}
@@ -23,7 +23,7 @@
   {{- end }}
 {{- end }}
 
-{{- define "elCicdK8s.createProjectedVolumesAndMountsByLabels" }}
+{{- define "elCicdKubernetes.createProjectedVolumesAndMountsByLabels" }}
   {{- $ := index . 0 }}
   {{- $podValues := index . 1 }}
   {{- $containerVals := index . 2 }}
@@ -34,11 +34,11 @@
     
     {{- range $volumeByLabels := $containerVals.projectedVolumeLabels }}
       {{- $resultMap := dict }}
-      {{- include "elCicdK8s.getResourcesByLabel" (list $ $resources $volumeByLabels.labels $resultMap) }}
+      {{- include "elCicdKubernetes.getResourcesByLabel" (list $ $resources $volumeByLabels.labels $resultMap) }}
       {{- $labeledResources := $resultMap.result }}
 
       {{- if $labeledResources }}
-        {{- include "elCicdK8s.createProjectedVolumesByLabels" (list $ $podValues $volumeByLabels $labeledResources) }}
+        {{- include "elCicdKubernetes.createProjectedVolumesByLabels" (list $ $podValues $volumeByLabels $labeledResources) }}
 
         {{- $mountedVolume := dict "name" $volumeByLabels.name
                                    "mountPath" $volumeByLabels.mountPath
@@ -51,7 +51,7 @@
   {{- end }}
 {{- end }}
 
-{{- define "elCicdK8s.createProjectedVolumesByLabels" }}
+{{- define "elCicdKubernetes.createProjectedVolumesByLabels" }}
   {{- $ := index . 0 }}
   {{- $podValues := index . 1 }}
   {{- $volumeByLabels := index . 2 }}
@@ -83,7 +83,7 @@
         # foo {{ len $podValues.volumes }}
 {{- end }}
 
-{{- define "elCicdK8s.getResourcesByLabel" }}
+{{- define "elCicdKubernetes.getResourcesByLabel" }}
   {{- $ = index . 0 }}
   {{- $resources := index . 1 }}
   {{- $labels := index . 2 }}

@@ -1,47 +1,47 @@
 {{/*
 ClusterRole
 */}}
-{{- define "elCicdK8s.clusterRole" }}
+{{- define "elCicdKubernetes.clusterRole" }}
 {{- $ := index . 0 }}
 {{- $roleValues := index . 1 }}
 {{- $_ := set $roleValues "kind" "ClusterRole" }}
-{{- include "elCicdK8s.genericRoleDefinition" . }}
+{{- include "elCicdKubernetes.genericRoleDefinition" . }}
 {{- end }}
 
 {{/*
 ClusterRole Binding
 */}}
-{{- define "elCicdK8s.clusterRoleBinding" }}
+{{- define "elCicdKubernetes.clusterRoleBinding" }}
 {{- $ := index . 0 }}
 {{- $roleBindingValues := index . 1 }}
 {{- $_ := set $roleBindingValues "kind" "ClusterRoleBinding" }}
-{{- include "elCicdK8s.genericRoleBindingDefinition" . }}
+{{- include "elCicdKubernetes.genericRoleBindingDefinition" . }}
 {{- end }}
 
 {{/*
 Role
 */}}
-{{- define "elCicdK8s.role" }}
+{{- define "elCicdKubernetes.role" }}
 {{- $ := index . 0 }}
 {{- $roleValues := index . 1 }}
 {{- $_ := set $roleValues "kind" "Role" }}
-{{- include "elCicdK8s.genericRoleDefinition" . }}
+{{- include "elCicdKubernetes.genericRoleDefinition" . }}
 {{- end }}
 
 {{/*
 Role Binding
 */}}
-{{- define "elCicdK8s.roleBinding" }}
+{{- define "elCicdKubernetes.roleBinding" }}
 {{- $ := index . 0 }}
 {{- $roleBindingValues := index . 1 }}
 {{- $_ := set $roleBindingValues "kind" "RoleBinding" }}
-{{- include "elCicdK8s.genericRoleBindingDefinition" . }}
+{{- include "elCicdKubernetes.genericRoleBindingDefinition" . }}
 {{- end }}
 
 {{/*
 Service Account
 */}}
-{{- define "elCicdK8s.serviceAccount" }}
+{{- define "elCicdKubernetes.serviceAccount" }}
 {{- $ := index . 0 }}
 {{- $svcAcctValues := index . 1 }}
 {{- $_ := set $svcAcctValues "kind" "ServiceAccount" }}

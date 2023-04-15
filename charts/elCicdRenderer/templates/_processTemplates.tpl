@@ -2,12 +2,6 @@
 
 {{- define "elCicdRenderer.generateAllTemplates" }}
   {{- $ := . }}
-  
-  {{- range $key, $value := $.Values }}
-    {{- if hasPrefix "elCicdTemplates-" $key }}
-      {{- $_ := set $.Values "elCicdTemplates" (concat $.Values.elCicdTemplates (get $.Values $key)) }}
-    {{- end }}
-  {{- end }}
 
   {{- include "elCicdRenderer.filterTemplates" $ }}
 

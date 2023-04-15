@@ -1,7 +1,7 @@
 {{/*
 ConfigMap
 */}}
-{{- define "elCicdK8s.configMap" }}
+{{- define "elCicdKubernetes.configMap" }}
 {{- $ := index . 0 }}
 {{- $cmValues := index . 1 }}
 {{- $_ := set $cmValues "kind" "ConfigMap" }}
@@ -21,7 +21,7 @@ immutable: {{ $cmValues.immutable }}
 {{/*
 Secret
 */}}
-{{- define "elCicdK8s.secret" }}
+{{- define "elCicdKubernetes.secret" }}
 {{- $ := index . 0 }}
 {{- $secretValues := index . 1 }}
 {{- $_ := set $secretValues "kind" "Secret" }}
@@ -41,7 +41,7 @@ immutable: {{ $secretValues.immutable }}
 {{/*
 Image Registry Secret
 */}}
-{{- define "elCicdK8s.docker-registry-secret" }}
+{{- define "elCicdKubernetes.docker-registry-secret" }}
 {{- $ := index . 0 }}
 {{- $secretValues := index . 1 }}
 {{- $_ := set $secretValues "kind" "Secret" }}
@@ -66,7 +66,7 @@ type: kubernetes.io/dockerconfigjson
 {{/*
 PersistentVolume
 */}}
-{{- define "elCicdK8s.persistentVolume" }}
+{{- define "elCicdKubernetes.persistentVolume" }}
 {{- $ := index . 0 }}
 {{- $pvValues := index . 1 }}
 {{- $_ := set $pvValues "kind" "PersistentVolume" }}
@@ -114,7 +114,7 @@ spec:
 {{/*
 PersistentVolumeClaim
 */}}
-{{- define "elCicdK8s.persistentVolumeClaim" }}
+{{- define "elCicdKubernetes.persistentVolumeClaim" }}
 {{- $ := index . 0 }}
 {{- $pvcValues := index . 1 }}
 {{- $_ := set $pvcValues "kind" "PersistentVolumeClaim" }}

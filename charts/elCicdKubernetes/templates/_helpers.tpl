@@ -1,8 +1,8 @@
 
 {{/*
-Iniitialize elCicdK8s chart
+Iniitialize elCicdKubernetes chart
 */}}
-{{- define "elCicdK8s.initElCicdResources" }}
+{{- define "elCicdKubernetes.init" }}
   {{- $ := . }}
   
   {{- $_ := set $.Values.elCicdDefaults "annotations" ($.Values.elCicdDefaults.annotations | default dict) }}
@@ -30,7 +30,7 @@ Iniitialize elCicdK8s chart
 {{/*
 Service Prometheus Annotations definition
 */}}
-{{- define "elCicdK8s.prometheusAnnotations" }}
+{{- define "elCicdKubernetes.prometheusAnnotations" }}
   {{- $ := index . 0 }}
   {{- $svcValues := index . 1 }}
   {{- $_ := set $svcValues "annotations" ($svcValues.annotations | default dict) }}
@@ -55,7 +55,7 @@ Service Prometheus Annotations definition
 {{/*
 Service Prometheus 3Scale definition
 */}}
-{{- define "elCicdK8s.3ScaleAnnotations" }}
+{{- define "elCicdKubernetes.3ScaleAnnotations" }}
   {{- $ := index . 0 }}
   {{- $svcValues := index . 1 }}
   {{- $_ := set $svcValues "annotations" ($svcValues.annotations | default dict) }}

@@ -26,8 +26,8 @@ entries:
     - name: elCicdRenderer
       repository: file://../elCicdRenderer
       version: 0.1.0
-    - name: elCicdK8s
-      repository: file://../elCicdK8s
+    - name: elCicdKubernetes
+      repository: file://../elCicdKubernetes
       version: 0.1.0
     - name: elCicdArgoCd
       repository: file://../elCicdArgoCd
@@ -36,7 +36,7 @@ entries:
       repository: file://../elCicdCommon
       version: 0.1.0
     description: 'A generic helm chart used to deploy any size group of components
-      onto a kubernetes cluster. Library charts included: elCicdRenderer, elCicdK8s,
+      onto a kubernetes cluster. Library charts included: elCicdRenderer, elCicdKubernetes,
       elCicdArgoCd, elCicdCommon.'
     digest: e8ce196a51b0ef97723b90cf4dabf27c4038f633b1f5229ecda48e0414e26072
     name: elCicdChart
@@ -61,7 +61,7 @@ entries:
     urls:
     - elCicdCommon-0.1.0.tgz
     version: 0.1.0
-  elCicdK8s:
+  elCicdKubernetes:
   - apiVersion: v2
     created: "2023-03-31T14:30:15.722626623Z"
     description: A library chart with the a complete set of Kubernetes resources that
@@ -73,12 +73,12 @@ entries:
     - generic
     - parameterized
     - profiles
-    name: elCicdK8s
+    name: elCicdKubernetes
     sources:
     - https://github.com/elcicd/el-CICD-deploy/tree/main/charts
     type: library
     urls:
-    - elCicdK8s-0.1.0.tgz
+    - elCicdKubernetes-0.1.0.tgz
     version: 0.1.0
   elCicdRenderer:
   - apiVersion: v2

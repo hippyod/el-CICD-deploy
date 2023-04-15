@@ -1,7 +1,7 @@
 {{/*
 CronJob
 */}}
-{{- define "elCicdK8s.cronjob" }}
+{{- define "elCicdKubernetes.cronjob" }}
 {{- $ := index . 0 }}
 {{- $cjValues := index . 1 }}
 {{- $_ := set $cjValues "kind" "CronJob" }}
@@ -16,13 +16,13 @@ spec:
                          "ttlSecondsAfterFinished" }}
   schedule: "{{ $cjValues.schedule}}"
   {{- include "elCicdCommon.outputToYaml" (list $ $cjValues $whiteList) }}
-  jobTemplate: {{ include "elCicdK8s.jobTemplate" . | indent 4 }}
+  jobTemplate: {{ include "elCicdKubernetes.jobTemplate" . | indent 4 }}
 {{- end }}
 
 {{/*
 Deployment
 */}}
-{{- define "elCicdK8s.deployment" }}
+{{- define "elCicdKubernetes.deployment" }}
 {{- $ := index . 0 }}
 {{- $deployValues := index . 1 }}
 {{- $_ := set $deployValues "kind" "Deployment" }}
@@ -44,13 +44,13 @@ spec:
     {{- end }}
     type: {{ $deployValues.strategyType }}
   {{- end }}
-  template: {{ include "elCicdK8s.podTemplate" (list $ $deployValues) | indent 4 }}
+  template: {{ include "elCicdKubernetes.podTemplate" (list $ $deployValues) | indent 4 }}
 {{- end }}
 
 {{/*
 HorizontalPodAutoscaler
 */}}
-{{- define "elCicdK8s.horizontalPodAutoscaler" }}
+{{- define "elCicdKubernetes.horizontalPodAutoscaler" }}
 {{- $ := index . 0 }}
 {{- $hpaValues := index . 1 }}
 {{- $_ := set $hpaValues "kind" "HorizontalPodAutoscaler" }}
@@ -83,25 +83,25 @@ spec:
 {{/*
 Job
 */}}
-{{- define "elCicdK8s.job" }}
+{{- define "elCicdKubernetes.job" }}
 {{- $ := index . 0 }}
 {{- $jobValues := index . 1 }}
 {{- $_ := set $jobValues "kind" "Job" }}
 {{- $_ := set $jobValues "apiVersion" "batch/v1" }}
 {{- include "elCicdCommon.apiObjectHeader" . }}
 spec:
-{{- include "elCicdK8s.jobTemplate" . }}
+{{- include "elCicdKubernetes.jobTemplate" . }}
 {{- end }}
 
 {{/*
 Stateful Set
 */}}
-{{- define "elCicdK8s.statefulset" }}
+{{- define "elCicdKubernetes.statefulset" }}
 {{- $ := index . 0 }}
 {{- $stsValues := index . 1 }}
 {{- if ($stsValues.createService | default true) }}
   {{- $_ := set $stsValues "clusterIP" "None" }}
-  {{- include "elCicdK8s.service" $stsValues }}
+  {{- include "elCicdKubernetes.service" $stsValues }}
 {{- end }}
 {{- $_ := set $stsValues "kind" "StatefulSet" }}
 {{- $_ := set $stsValues "apiVersion" "apps/v1" }}
@@ -118,5 +118,5 @@ spec:
   selector: {{ include "elCicdCommon.selector" . | indent 4 }}
   template:
   {{- include "elCicdCommon.selector" $stsValues.appName | indent 2 }}
-  {{- include "elCicdK8s.podTemplate" (list $ $stsValues) | indent 4 }}
+  {{- include "elCicdKubernetes.podTemplate" (list $ $stsValues) | indent 4 }}
 {{- end }}

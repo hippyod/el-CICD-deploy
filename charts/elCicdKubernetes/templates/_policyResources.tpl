@@ -1,7 +1,7 @@
 {{/*
 ResourceQuota
 */}}
-{{- define "elCicdK8s.resourceQuota" }}
+{{- define "elCicdKubernetes.resourceQuota" }}
 {{- $ := index . 0 }}
 {{- $quotaValues := index . 1 }}
 {{- $_ := set $quotaValues "kind" "ResourceQuota" }}
@@ -23,7 +23,7 @@ spec:
 {{/*
 LimitRange
 */}}
-{{- define "elCicdK8s.limitRange" }}
+{{- define "elCicdKubernetes.limitRange" }}
 {{- $ := index . 0 }}
 {{- $limitValues := index . 1 }}
 {{- $_ := set $limitValues "kind" "LimitRange" }}

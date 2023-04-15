@@ -1,7 +1,7 @@
 {{/*
 genericRoleDefinition: all ClusterRoles and Roles have this structure
 */}}
-{{- define "elCicdK8s.genericRoleDefinition" }}
+{{- define "elCicdKubernetes.genericRoleDefinition" }}
 {{- $ := index . 0 }}
 {{- $roleValues := index . 1 }}
 {{- $_ := set $roleValues "apiVersion" "rbac.authorization.k8s.io/v1" }}
@@ -18,7 +18,7 @@ rules:
 {{/*
 genericRoleBindingDefinition: all ClusterRoleBindings and RoleBindings have this structure
 */}}
-{{- define "elCicdK8s.genericRoleBindingDefinition" }}
+{{- define "elCicdKubernetes.genericRoleBindingDefinition" }}
 {{- $ := index . 0 }}
 {{- $roleBindingValues := index . 1 }}
 {{- $_ := set $roleBindingValues "apiVersion" "rbac.authorization.k8s.io/v1" }}

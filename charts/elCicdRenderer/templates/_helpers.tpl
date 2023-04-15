@@ -9,19 +9,17 @@
     {{- end }}
   {{- end }}
 
-  {{- $_ := required "Missing elCicdTemplates: list" $.Values.elCicdTemplates }}
-  {{- if (not (kindIs "slice" $.Values.elCicdTemplates)) }}
-      {{- fail "elCicdRenderer elCicdTemplates: must be defined" }}
-  {{- end }}
+  {{- include "elCicdRenderer.gatherElCicdTemplates" $ }}
+
+  {{- include "elCicdRenderer.gatherElCicdDefaults" $ }}
 
   {{- $_ := set $.Values "elCicdDefs" ($.Values.elCicdDefs | default dict) }}
-  {{- $_ := set $.Values "elCicdDefaults" ($.Values.elCicdDefaults | default dict) }}
   {{- $_ := set $.Values "skippedTemplates" list }}
 
   {{- range $dep := $.Chart.Dependencies }}
-    {{- if (eq $dep.Name "elCicdK8s") }}
-      {{- include "elCicdK8s.initElCicdResources" $ }}
-      {{- $_ := set $.Values.elCicdDefaults "templatesChart" ($.Values.elCicdDefaults.templatesChart | default "elCicdK8s") }}
+    {{- if (eq $dep.Name "elCicdKubernetes") }}
+      {{- include "elCicdKubernetes.init" $ }}
+      {{- $_ := set $.Values.elCicdDefaults "templatesChart" ($.Values.elCicdDefaults.templatesChart | default "elCicdKubernetes") }}
     {{- end }}
   {{- end }}
 
@@ -32,6 +30,41 @@
   {{- $_ := set $.Values "ELCICD_UNESCAPED_REGEX" "${" }}
   {{- $_ := set $.Values "ELCICD_PARAM_REGEX" "(?:^|[^\\\\])[\\$][\\{]([\\w]+?(?:[-][\\w]+?)*)[\\}]" }}
   {{- $_ := set $.Values.elCicdDefs "RELEASE_NAMESPACE" $.Release.Namespace }}
+{{- end }}
+
+{{- define "elCicdRenderer.gatherElCicdDefaults" }}
+  {{- $ := . }}
+
+  {{- $_ := set $.Values "elCicdDefaults" ($.Values.elCicdDefaults | default dict) }}
+
+  {{- range $profile := $.Values.elCicdProfiles }}
+    {{- $profileDefaultsMap := (get $.Values (printf "elCicdDefaults-%s" $profile)) }}
+    {{- if $profileDefaultsMap }}
+      {{- $_ set $.Values "elCicdProfiles"  (mergeOverwrite $.Values.elCicdDefaults }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{- define "elCicdRenderer.gatherElCicdTemplates" }}
+  {{- $ := . }}
+
+  {{- if $.Values.elCicdTemplates }}
+    {{- if (not (kindIs "slice" $.Values.elCicdTemplates)) }}
+        {{- fail "elCicdRenderer elCicdTemplates: must be defined" }}
+    {{- end }}
+  {{- end }}
+
+  {{- range $key, $value := $.Values }}
+    {{- if hasPrefix "elCicdTemplates-" $key }}
+      {{- if $.Values.elCicdTemplates }}
+        {{- $_ := set $.Values "elCicdTemplates" (concat $.Values.elCicdTemplates $value) }}
+      {{- else }}
+        {{- $_ := set $.Values "elCicdTemplates" $value }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+
+  {{- $_ := required "Missing elCicdTemplates: list" $.Values.elCicdTemplates }}
 {{- end }}
 
 {{- define "elCicdRenderer.filterTemplates" }}
@@ -61,7 +94,7 @@
     {{- range $profile := $template.mustHaveEveryProfile }}
       {{- $hasAllRequiredProfiles = and $hasAllRequiredProfiles (has $profile $.Values.elCicdProfiles) }}
     {{- end }}
-    
+
     {{- $doesNotHaveAllProhibitedProfiles := true }}
     {{- range $profile := $template.mustNotHaveEveryProfile }}
       {{- $doesNotHaveAllProhibitedProfiles = and $doesNotHaveAllProhibitedProfiles (has $profile $.Values.elCicdProfiles) }}
@@ -74,7 +107,7 @@
       {{- $skippedList = append $skippedList (list $template.templateName ($template.appNames | default $template.appName)) }}
     {{- end }}
   {{- end }}
-  
+
   {{- $_ := set $.Values "renderingTemplates" $renderList }}
   {{- $_ := set $.Values "skippedTemplates" $skippedList }}
 {{- end }}

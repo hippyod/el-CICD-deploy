@@ -1,30 +1,30 @@
 {{/*
 Deployment and Service combination
 */}}
-{{- define "elCicdK8s.deploymentService" }}
-  {{- include "elCicdK8s.deployment" . }}
+{{- define "elCicdKubernetes.deploymentService" }}
+  {{- include "elCicdKubernetes.deployment" . }}
 ---
-  {{- include "elCicdK8s.service" . }}
+  {{- include "elCicdKubernetes.service" . }}
 {{- end }}
 
 {{/*
 Deployment, Service, and Ingress combination
 */}}
-{{- define "elCicdK8s.deploymentServiceIngress" }}
-  {{- include "elCicdK8s.deployment" . }}
+{{- define "elCicdKubernetes.deploymentServiceIngress" }}
+  {{- include "elCicdKubernetes.deployment" . }}
 ---
-  {{- include "elCicdK8s.service" . }}
+  {{- include "elCicdKubernetes.service" . }}
 ---
-  {{- include "elCicdK8s.ingress" . }}
+  {{- include "elCicdKubernetes.ingress" . }}
 {{- end }}
 
 {{/*
 Job Template
 */}}
-{{- define "elCicdK8s.jobTemplate" }}
+{{- define "elCicdKubernetes.jobTemplate" }}
 {{- $ := index . 0 }}
 {{- $jobValues := index . 1 }}
-{{- include "elCicdK8s.apiMetadata" . }}
+{{- include "elCicdCommon.apiMetadata" . }}
 spec:
   {{- $whiteList := list "activeDeadlineSeconds"
                          "backoffLimit"
@@ -35,16 +35,16 @@ spec:
                          "ttlSecondsAfterFinished" }}
   {{- $_ := set $jobValues "restartPolicy" ($jobValues.restartPolicy | default "Never") }}
   {{- include "elCicdCommon.outputToYaml" (list $ $jobValues $whiteList) }}
-  template: {{ include "elCicdK8s.podTemplate" (list $ $jobValues false) | nindent 4 }}
+  template: {{ include "elCicdKubernetes.podTemplate" (list $ $jobValues false) | nindent 4 }}
 {{- end }}
 
 {{/*
 Pod Template
 */}}
-{{- define "elCicdK8s.podTemplate" }}
+{{- define "elCicdKubernetes.podTemplate" }}
 {{- $ := index . 0 }}
 {{- $podValues := index . 1 }}
-{{- include "elCicdK8s.apiMetadata" . }}
+{{- include "elCicdCommon.apiMetadata" . }}
 spec:
   {{- $whiteList := list  "activeDeadlineSeconds"
                           "affinity"
@@ -79,10 +79,10 @@ spec:
                           "volumes" }}
   containers:
     {{- $containers := prepend ($podValues.sidecars | default list) $podValues }}
-    {{- include "elCicdK8s.containers" (list $ $podValues $containers) | trim | nindent 2 }}
+    {{- include "elCicdKubernetes.containers" (list $ $podValues $containers) | trim | nindent 2 }}
   {{- if $podValues.ephemeralContainers }}
   ephemeralContainers:
-    {{- include "elCicdK8s.containers" (list $ $podValues.ephemeralContainers false) | trim | nindent 2 }}
+    {{- include "elCicdKubernetes.containers" (list $ $podValues.ephemeralContainers false) | trim | nindent 2 }}
   {{- end }}
   {{- $_ := set $podValues "imagePullSecrets" ($podValues.imagePullSecrets | default $.Values.elCicdDefaults.imagePullSecrets) }}
   {{- $_ := set $podValues "imagePullSecret" ($podValues.imagePullSecret | default $.Values.elCicdDefaults.imagePullSecret) }}
@@ -99,7 +99,7 @@ spec:
   {{- end }}
   {{- if $podValues.initContainers }}
   initContainers:
-    {{- include "elCicdK8s.containers" (list $ $podValues.initContainers false) | trim | nindent 2 }}
+    {{- include "elCicdKubernetes.containers" (list $ $podValues.initContainers false) | trim | nindent 2 }}
   {{- end }}
   {{- if $podValues.securityContext }}
   securityContext: {{ $podValues.securityContext | toYaml | nindent 4 }}
@@ -117,7 +117,7 @@ spec:
 {{/*
 Container definition
 */}}
-{{- define "elCicdK8s.containers" }}
+{{- define "elCicdKubernetes.containers" }}
 {{- $ := index . 0 }}
 {{- $podValues := index . 1 }}
 {{- $containers := index . 2 }}
@@ -140,7 +140,7 @@ Container definition
 {{- range $containerVals := $containers }}
 - name: {{ $containerVals.name | default $containerVals.appName }}
   {{- if $containerVals.envFromSelectors }}
-    {{- include "elCicdK8s.envFrom" }}
+    {{- include "elCicdKubernetes.envFrom" }}
   {{- end }}
   image: {{ $containerVals.image | default $.Values.elCicdDefaults.image }}
   imagePullPolicy: {{ $containerVals.imagePullPolicy | default $.Values.elCicdDefaults.imagePullPolicy }}
@@ -199,7 +199,7 @@ Container definition
       - ALL
   {{- end }}
   {{- if $containerVals.projectedVolumeLabels }}
-    {{- include "elCicdK8s.createProjectedVolumesAndMountsByLabels" (list $ $podValues $containerVals)}}
+    {{- include "elCicdKubernetes.createProjectedVolumesAndMountsByLabels" (list $ $podValues $containerVals)}}
   {{- end }}
   {{- include "elCicdCommon.outputToYaml" (list $ $containerVals $whiteList) }}
 {{- end }}
