@@ -40,7 +40,7 @@
   {{- range $profile := $.Values.elCicdProfiles }}
     {{- $profileDefaultsMap := (get $.Values (printf "elCicdDefaults-%s" $profile)) }}
     {{- if $profileDefaultsMap }}
-      {{- $_ set $.Values "elCicdProfiles"  (mergeOverwrite $.Values.elCicdDefaults }}
+      {{- $_ set $.Values "elCicdProfiles"  (mergeOverwrite $.Values.elCicdDefaults) }}
     {{- end }}
   {{- end }}
 {{- end }}
