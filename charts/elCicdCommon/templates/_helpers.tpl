@@ -45,13 +45,6 @@ app.kubernetes.io/version: {{ $.Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ $.Release.Service }}
 app.kubernetes.io/instance: {{ $.Release.Name }}
-{{- if ($.Values.elCidDefaults).commonLabels }}
-  {{- if $metadataValues.labels }}
-    {{ $_ := set $metadataValues "labels" (mergeOverwrite $metadataValues.labels $.Values.elCidDefaults.commonLabels) }}
-  {{- else }}
-    {{- $_ := set $metadataValues "labels" $.Values.elCidDefaults.commonLabels }}
-  {{- end }}
-{{- end }}
 {{- if $metadataValues.labels }}
   {{- $metadataValues.labels | toYaml }}
 {{- end }}
@@ -68,9 +61,6 @@ matchExpressions:
   {{- $template.matchExpressions | toYaml }}
 {{- end }}
 matchLabels:
-{{- if ($.Values.elCidDefaults).commonLabels }}
-  {{- $.Values.elCidDefaults.commonLabels | toYaml }}
-{{- end }}
 {{- if $template.matchlabels }}
   {{- $template.matchlabels | toYaml | indent 2 }}
 {{- end }}
