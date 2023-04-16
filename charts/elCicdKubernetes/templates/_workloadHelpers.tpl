@@ -57,6 +57,7 @@ spec:
                          "ttlSecondsAfterFinished" }}
   {{- include "elCicdCommon.outputToYaml" (list $ $jobValues $whiteList) }}
   template:
+    restartPolicy: {{ $jobValues.restartPolicy | default "Never" }}
     {{- include "elCicdKubernetes.podTemplate" (list $ $jobValues false) | nindent 4 }}
 {{- end }}
 
