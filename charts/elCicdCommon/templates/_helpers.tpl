@@ -44,10 +44,21 @@ helm.sh/chart: {{ include "elCicdCommon.chart" $ }}
 app.kubernetes.io/version: {{ $.Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ $.Release.Service }}
-app.kubernetes.io/instance: {{ $.Release.Name }}
+app.kubernetes.io/instance: {{ $.Release.Name }
+{{- include "elCicdCommon.elcicdLabel" -}}
 {{- if $metadataValues.labels }}
   {{- $metadataValues.labels | toYaml }}
 {{- end }}
+{{- end }}
+
+{{/*
+el-CICD label
+*/}}
+{{- define "elCicdCommon.elcicdLabel" -}}
+{{- $ := index . 0 }}
+{{- $template := index . 1 }}
+{{- $appName := regexReplaceAll "[^\\w-.]" $template.appName "-" }}
+el-cicd.io/elcicd-name: {{ $defaultLabel }}
 {{- end }}
 
 {{/*

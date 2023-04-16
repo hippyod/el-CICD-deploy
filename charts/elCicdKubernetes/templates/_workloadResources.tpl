@@ -31,10 +31,10 @@ Deployment
 spec:
   {{- $whiteList := list "minReadySeconds"	
                          "progressDeadlineSeconds"
-                         "replicas"
-                         "selector" }}
+                         "replicas" }}
   {{- include "elCicdCommon.outputToYaml" (list $ $deployValues $whiteList) }}
   revisionHistoryLimit: {{ ($deployValues.revisionHistoryLimit | default $.Values.elCicdDefaults.deploymentRevisionHistoryLimit) | int }}
+  {{- include "elCicdKubernetes.podSelector" . | indent 2 }}
   {{- if $deployValues.strategyType }}
   strategy:
     {{- if (eq $deployValues.strategyType "RollingUpdate") }}
@@ -113,9 +113,9 @@ spec:
                          "replicas" 
                          "revisionHistoryLimit" 
                          "updateStrategy" 
-                         "volumeClaimTemplates"
-                         "selector" }}
+                         "volumeClaimTemplates" }}
   {{- include "elCicdCommon.outputToYaml" (list $ $stsValues $whiteList) }}
+  {{- include "elCicdKubernetes.podSelector" . | indent 2 }}
   template:
   {{- include "elCicdKubernetes.podTemplate" (list $ $stsValues) | indent 4 }}
 {{- end }}

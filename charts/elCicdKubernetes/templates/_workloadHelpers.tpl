@@ -19,6 +19,26 @@ Deployment, Service, and Ingress combination
 {{- end }}
 
 {{/*
+el-CICD Selector
+*/}}
+{{- define "elCicdKubernetes.podSelector" }}
+{{- $ := index . 0 }}
+{{- $template := index . 1 }}
+selector:
+  matchExpressions:
+  - key: el-cicd.io/elcicd-name
+    operator: Exists
+  {{- if ($template.selector).matchExpressions }}
+    {{- $template.selector.matchExpressions | toYaml | indent 2 }}
+  {{- end }}
+  matchLabels:
+  {{- include "elCicdCommon.elcicdLabel" -}}
+  {{- if $template.selector).matchLabels }}
+    {{- $template.selector.matchLabels | toYaml | indent 4 }}
+  {{- end }}
+{{- end }}
+
+{{/*
 Job Template
 */}}
 {{- define "elCicdKubernetes.jobTemplate" }}
@@ -32,8 +52,11 @@ spec:
                          "completions"
                          "manualSelector"
                          "parallelism"
+                         "podFailurePolicy"
+                         "suspend"
                          "ttlSecondsAfterFinished" }}
   {{- $_ := set $jobValues "restartPolicy" ($jobValues.restartPolicy | default "Never") }}
+  {{- include "elCicdKubernetes.podSelector" . | indent 2 }}
   {{- include "elCicdCommon.outputToYaml" (list $ $jobValues $whiteList) }}
   template: {{ include "elCicdKubernetes.podTemplate" (list $ $jobValues false) | nindent 4 }}
 {{- end }}

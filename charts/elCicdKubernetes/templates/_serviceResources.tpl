@@ -19,7 +19,7 @@ spec:
   {{- else }}
   rules:
   {{- if (not $ingressValues.host) }}
-    {{ $defaultIngressHostDomain := $.Values.elCicdDefaults.ingressHostDomain }}
+    {{- $defaultIngressHostDomain := $.Values.elCicdDefaults.ingressHostDomain }}
     {{- if (regexMatch "^[\\w]" $defaultIngressHostDomain) }}
       {{- $defaultIngressHostDomain = (printf ".%s" $defaultIngressHostDomain) }}
     {{- end }}
@@ -62,9 +62,11 @@ Service
 {{- $_ := set $svcValues "apiVersion" "v1" }}
 {{- include "elCicdCommon.apiObjectHeader" . }}
 spec:
-  {{- if $svcValues.selector }}
-  selector: {{ $svcValues.selector | toYaml | nindent 2 }}
-  {{- end }}
+  selector:
+    {{- include "elCicdKuberenetes.defaultSelectorLabel" . | indent 4 }}
+    {{- range $key, $value := $svcValues.selector }}
+    {{ $key }}: {{ $value }}
+    {{- end }}
   ports:
   {{- if and (or ($svcValues.service).ports $svcValues.ports) $svcValues.port }}
     {{- fail "A Service cannot define both port and ports values!" }}
