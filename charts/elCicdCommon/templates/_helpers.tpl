@@ -57,8 +57,8 @@ el-CICD label
 {{- define "elCicdCommon.elcicdLabel" -}}
 {{- $ := index . 0 }}
 {{- $template := index . 1 }}
-{{- $appName := regexReplaceAll "[^\\w-.]" $template.appName "-" }}
-el-cicd.io/elcicd-name: {{ $defaultLabel }}
+{{- $elcicdName := regexReplaceAll "[^\\w-.]" $template.appName "-" }}
+el-cicd.io/elcicd-name: {{ $elcicdName }}
 {{- end }}
 
 {{/*
