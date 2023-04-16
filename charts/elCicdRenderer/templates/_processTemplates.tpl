@@ -18,7 +18,7 @@
   
     {{- if $template.objNames }}
       {{- include "elCicdRenderer.processTemplateGenerator" (list $ $template "objNames") }}
-      {{- include "elCicdRenderer.processTplAppNames" (list $ $template) }}
+      {{- include "elCicdRenderer.processTplObjNames" (list $ $template) }}
     {{- else }}
       {{- $_ := set $template "objName" ($template.objName | default $.Values.elCicdDefaults.objName) }}
       {{- $_ := required "elCicdRenderer must define template.objName or elCicdDefaults.objName!" $template.objName }}
@@ -64,7 +64,7 @@
   {{- end }}
 {{- end }}
 
-{{- define "elCicdRenderer.processTplAppNames" }}
+{{- define "elCicdRenderer.processTplObjNames" }}
   {{- $ := index . 0 }}
   {{- $template := index . 1 }}
 

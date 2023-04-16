@@ -13,16 +13,16 @@
   {{- end }}
 
   {{- $objName := $profileDefs.objName }}
-  {{- $baseAppName := ($profileDefs.elCicdDefs).BASE_OBJ_NAME }}
-  {{- range $workingAppName := (tuple $baseAppName $objName) }}
-    {{- $objNameDefsKey := printf "elCicdDefs-%s" $workingAppName }}
+  {{- $baseObjName := ($profileDefs.elCicdDefs).BASE_OBJ_NAME }}
+  {{- range $workingObjName := (tuple $baseObjName $objName) }}
+    {{- $objNameDefsKey := printf "elCicdDefs-%s" $workingObjName }}
     {{- $objNameElcicdDefs := tuple (deepCopy (get $.Values $objNameDefsKey)) (get $profileDefs $objNameDefsKey ) }}
     {{- range $objNameDefs := $objNameElcicdDefs }}
       {{- include "elCicdRenderer.mergeMapInto" (list $ $objNameDefs $elCicdDefs) }}
     {{- end }}
 
     {{- range $profile := $.Values.elCicdProfiles }}
-      {{- $profileDefs := get $profileDefs (printf "elCicdDefs-%s-%s" $workingAppName $profile) }}
+      {{- $profileDefs := get $profileDefs (printf "elCicdDefs-%s-%s" $workingObjName $profile) }}
       {{- include "elCicdRenderer.mergeMapInto" (list $ $profileDefs $elCicdDefs) }}
     {{- end }}
   {{- end }}
