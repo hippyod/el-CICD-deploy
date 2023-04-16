@@ -90,7 +90,18 @@ Job
 {{- $_ := set $jobValues "apiVersion" "batch/v1" }}
 {{- include "elCicdCommon.apiObjectHeader" . }}
 spec:
-  {{- include "elCicdKubernetes.podTemplate" . | indent 2 }}
+  {{- $whiteList := list "activeDeadlineSeconds"
+                         "backoffLimit"
+                         "completionMode"
+                         "completions"
+                         "manualSelector"
+                         "parallelism"
+                         "podFailurePolicy"
+                         "suspend"
+                         "ttlSecondsAfterFinished" }}
+  {{- include "elCicdCommon.outputToYaml" (list $ $jobValues $whiteList) }}
+  template:
+    {{- include "elCicdKubernetes.podTemplate" (list $ $jobValues false) | indent 4 }}
 {{- end }}
 
 {{/*
@@ -117,5 +128,5 @@ spec:
   {{- include "elCicdCommon.outputToYaml" (list $ $stsValues $whiteList) }}
   {{- include "elCicdKubernetes.podSelector" . | indent 2 }}
   template:
-    {{- include "elCicdKubernetes.podTemplate" (list $ $stsValues) | indent 4 }}
+  {{- include "elCicdKubernetes.podTemplate" (list $ $stsValues) | indent 4 }}
 {{- end }}
