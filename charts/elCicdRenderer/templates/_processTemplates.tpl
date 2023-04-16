@@ -21,7 +21,7 @@
       {{- include "elCicdRenderer.processTplObjNames" (list $ $template) }}
     {{- else }}
       {{- $_ := set $template "objName" ($template.objName | default $.Values.elCicdDefaults.objName) }}
-      {{- $_ := required "elCicdRenderer must define template.objName or elCicdDefaults.objName!" $template.objName }}
+      {{- $_ := required (printf "template with templateName '%s' must define objName or elCicdDefaults.objName!" $template.templateName) $template.objName }}
     {{- end }}
 
     {{- if $template.namespaces }}
