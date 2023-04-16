@@ -47,7 +47,7 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
 app.kubernetes.io/instance: {{ $.Release.Name }}
 {{- include "elCicdCommon.elcicdLabels" . -}}
 {{- if $metadataValues.labels }}
-  {{- $metadataValues.labels | toYaml }}
+{{ $metadataValues.labels | toYaml }}
 {{- end }}
 {{- end }}
 
