@@ -26,7 +26,7 @@ el-CICD Selector
 {{- $template := index . 1 }}
 selector:
   matchExpressions:
-  - key: el-cicd.io/elcicd-name
+  - key: el-cicd.io/selector
     operator: Exists
   {{- if ($template.selector).matchExpressions }}
     {{- $template.selector.matchExpressions | toYaml | indent 2 }}
