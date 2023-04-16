@@ -58,7 +58,8 @@ spec:
   {{- $_ := set $jobValues "restartPolicy" ($jobValues.restartPolicy | default "Never") }}
   {{- include "elCicdKubernetes.podSelector" . | indent 2 }}
   {{- include "elCicdCommon.outputToYaml" (list $ $jobValues $whiteList) }}
-  template: {{ include "elCicdKubernetes.podTemplate" (list $ $jobValues false) | nindent 4 }}
+  template:
+  {{- include "elCicdKubernetes.podTemplate" (list $ $jobValues false) | nindent 4 }}
 {{- end }}
 
 {{/*

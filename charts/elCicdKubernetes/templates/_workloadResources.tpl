@@ -90,7 +90,7 @@ Job
 {{- $_ := set $jobValues "apiVersion" "batch/v1" }}
 {{- include "elCicdCommon.apiObjectHeader" . }}
 spec:
-{{- include "elCicdKubernetes.jobTemplate" . }}
+  {{- include "elCicdKubernetes.podTemplate" . | indent 2 }}
 {{- end }}
 
 {{/*
@@ -117,5 +117,5 @@ spec:
   {{- include "elCicdCommon.outputToYaml" (list $ $stsValues $whiteList) }}
   {{- include "elCicdKubernetes.podSelector" . | indent 2 }}
   template:
-  {{- include "elCicdKubernetes.podTemplate" (list $ $stsValues) | indent 4 }}
+    {{- include "elCicdKubernetes.podTemplate" (list $ $stsValues) | indent 4 }}
 {{- end }}
