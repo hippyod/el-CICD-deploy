@@ -63,7 +63,7 @@ Service
 {{- include "elCicdCommon.apiObjectHeader" . }}
 spec:
   selector:
-    {{- include "elCicdKuberenetes.defaultSelectorLabel" . | indent 4 }}
+    {{- include "elCicdCommon.elcicdLabels" . | indent 4 }}
     {{- range $key, $value := $svcValues.selector }}
     {{ $key }}: {{ $value }}
     {{- end }}

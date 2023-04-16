@@ -32,7 +32,7 @@ selector:
     {{- $template.selector.matchExpressions | toYaml | indent 2 }}
   {{- end }}
   matchLabels:
-  {{- include "elCicdCommon.elcicdLabels" . -}}
+  {{- include "elCicdCommon.elcicdLabels" . | indent 4 -}}
   {{- if ($template.selector).matchLabels }}
     {{- $template.selector.matchLabels | toYaml | indent 4 }}
   {{- end }}
