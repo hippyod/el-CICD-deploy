@@ -45,7 +45,7 @@ app.kubernetes.io/version: {{ $.Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ $.Release.Service }}
 app.kubernetes.io/instance: {{ $.Release.Name }
-{{- include "elCicdCommon.elcicdLabel" -}}
+{{- include "elCicdCommon.elcicdLabels" -}}
 {{- if $metadataValues.labels }}
   {{- $metadataValues.labels | toYaml }}
 {{- end }}
@@ -54,11 +54,10 @@ app.kubernetes.io/instance: {{ $.Release.Name }
 {{/*
 el-CICD label
 */}}
-{{- define "elCicdCommon.elcicdLabel" -}}
+{{- define "elCicdCommon.elcicdLabels" -}}
 {{- $ := index . 0 }}
 {{- $template := index . 1 }}
-{{- $elcicdName := regexReplaceAll "[^\\w-.]" $template.appName "-" }}
-el-cicd.io/elcicd-name: {{ $elcicdName }}
+el-cicd.io/elcicd-name: {{ $template.elcicdName | default (regexReplaceAll "[^\\w-.]" $template.appName "-") }}
 {{- end }}
 
 {{/*
