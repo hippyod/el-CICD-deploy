@@ -77,7 +77,7 @@ spec:
   scaleTargetRef:
     apiVersion: {{ ($hpaValues.scaleTargetRef).apiVersion | default "apps/v1"  }}
     kind: {{ ($hpaValues.scaleTargetRef).kind | default "Deployment" }}
-    name: {{ ($hpaValues.scaleTargetRef).name | default $hpaValues.appName }}
+    name: {{ ($hpaValues.scaleTargetRef).name | default $hpaValues.objName }}
 {{- end }}
 
 {{/*

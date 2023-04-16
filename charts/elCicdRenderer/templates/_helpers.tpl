@@ -104,7 +104,7 @@
     {{- if and $hasMatchingProfile $hasNoProhibitedProfiles $hasAllRequiredProfiles $doesNotHaveAllProhibitedProfiles  }}
       {{- $renderList = append $renderList $template }}
     {{- else }}
-      {{- $skippedList = append $skippedList (list $template.templateName ($template.appNames | default $template.appName)) }}
+      {{- $skippedList = append $skippedList (list $template.templateName ($template.objNames | default $template.objName)) }}
     {{- end }}
   {{- end }}
 

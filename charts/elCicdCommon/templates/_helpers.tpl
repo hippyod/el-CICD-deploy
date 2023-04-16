@@ -27,7 +27,7 @@ metadata:
   {{- $_ := set $metadataValues "labels" (mergeOverwrite ($metadataValues.labels | default dict) $.Values.elCicdDefaults.labels) }}
   labels:
     {{- include "elCicdCommon.labels" . | indent 4 }}
-  name: {{ required (printf "Unnamed apiObject Name in template: %s!" $metadataValues.templateName) $metadataValues.appName }}
+  name: {{ required (printf "Unnamed apiObject Name in template: %s!" $metadataValues.templateName) $metadataValues.objName }}
   {{- if $metadataValues.namespace }}
   namespace: {{ $metadataValues.namespace }}
   {{- end }}
@@ -57,7 +57,7 @@ el-CICD label
 {{- define "elCicdCommon.elcicdLabels" -}}
 {{- $ := index . 0 }}
 {{- $template := index . 1 }}
-el-cicd.io/elcicd-name: {{ $template.elcicdName | default (regexReplaceAll "[^\\w-.]" $template.appName "-") }}
+el-cicd.io/selector: {{ $template.elcicdSelector | default (regexReplaceAll "[^\\w-.]" $template.objName "-") }}
 {{- end }}
 
 {{/*

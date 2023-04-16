@@ -170,7 +170,7 @@ Container definition
                        "volumeMounts"
                        "workingDir" }}
 {{- range $containerVals := $containers }}
-- name: {{ $containerVals.name | default $containerVals.appName }}
+- name: {{ $containerVals.name | default $containerVals.objName }}
   {{- if $containerVals.envFromSelectors }}
     {{- include "elCicdKubernetes.envFrom" }}
   {{- end }}

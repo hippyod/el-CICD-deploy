@@ -6,22 +6,22 @@
   {{- include "elCicdRenderer.filterTemplates" $ }}
 
   {{- $allTemplates := list }}
-  {{- $_ := set $.Values "appNameTemplates" list }}
+  {{- $_ := set $.Values "objNameTemplates" list }}
   {{- $_ := set $.Values "namespaceTemplates" list }}
   {{- range $template := $.Values.renderingTemplates  }}
-    {{- if $template.appName }}
-      {{- if eq $template.appName "${APP_NAME}" }}
-        {{- $failMsgTpl := "templateName %s appName: ${APP_NAME}: APP_NAME IS RESERVED; use different variable name or elCicdDefaults.appName" }}
+    {{- if $template.objName }}
+      {{- if eq $template.objName "${OBJ_NAME}" }}
+        {{- $failMsgTpl := "templateName %s objName: ${OBJ_NAME}: OBJ_NAME IS RESERVED; use different variable name or elCicdDefaults.objName" }}
         {{- fail (printf $failMsgTpl $template.templateName) }}
       {{- end }}
     {{- end }}
   
-    {{- if $template.appNames }}
-      {{- include "elCicdRenderer.processTemplateGenerator" (list $ $template "appNames") }}
+    {{- if $template.objNames }}
+      {{- include "elCicdRenderer.processTemplateGenerator" (list $ $template "objNames") }}
       {{- include "elCicdRenderer.processTplAppNames" (list $ $template) }}
     {{- else }}
-      {{- $_ := set $template "appName" ($template.appName | default $.Values.elCicdDefaults.appName) }}
-      {{- $_ := required "elCicdRenderer must define template.appName or elCicdDefaults.appName!" $template.appName }}
+      {{- $_ := set $template "objName" ($template.objName | default $.Values.elCicdDefaults.objName) }}
+      {{- $_ := required "elCicdRenderer must define template.objName or elCicdDefaults.objName!" $template.objName }}
     {{- end }}
 
     {{- if $template.namespaces }}
@@ -29,12 +29,12 @@
       {{- include "elCicdRenderer.processTplNamespaces" (list $ $template) }}
     {{- end }}
 
-    {{- if not (or $template.appNames $template.namespaces) }}
+    {{- if not (or $template.objNames $template.namespaces) }}
       {{- $allTemplates = append $allTemplates $template }}
     {{- end }}
   {{- end }}
 
-  {{- $_ := set $.Values "allTemplates" (concat $allTemplates $.Values.appNameTemplates $.Values.namespaceTemplates) }}
+  {{- $_ := set $.Values "allTemplates" (concat $allTemplates $.Values.objNameTemplates $.Values.namespaceTemplates) }}
 {{- end }}
 
 {{- define "elCicdRenderer.processTemplateGenerator" }}
@@ -68,21 +68,21 @@
   {{- $ := index . 0 }}
   {{- $template := index . 1 }}
 
-  {{- $appNameTemplates := list }}
-  {{- range $index, $appName := $template.appNames }}
+  {{- $objNameTemplates := list }}
+  {{- range $index, $objName := $template.objNames }}
     {{- $newTemplate := deepCopy $template }}
-    {{- $_ := set $newTemplate "appName" ($newTemplate.appName | default "") }}
-    {{- if or (contains "${}" $newTemplate.appName) (contains "${#}" $newTemplate.appName) }}
+    {{- $_ := set $newTemplate "objName" ($newTemplate.objName | default "") }}
+    {{- if or (contains "${}" $newTemplate.objName) (contains "${#}" $newTemplate.objName) }}
       {{- $_ := set $newTemplate "elCicdDefs" ($newTemplate.elCicdDefs | default dict) }}
-      {{- $_ := set $newTemplate.elCicdDefs "BASE_APP_NAME" $appName }}
-      {{- $appName = replace "${}" $appName $newTemplate.appName }}
-      {{- $appName = replace "${#}" (add $index 1 | toString) $appName }}
+      {{- $_ := set $newTemplate.elCicdDefs "BASE_OBJ_NAME" $objName }}
+      {{- $objName = replace "${}" $objName $newTemplate.objName }}
+      {{- $objName = replace "${#}" (add $index 1 | toString) $objName }}
     {{- end }}
-    {{- $_ := set $newTemplate "appName" $appName }}
-    {{- $appNameTemplates = append $appNameTemplates $newTemplate }}
+    {{- $_ := set $newTemplate "objName" $objName }}
+    {{- $objNameTemplates = append $objNameTemplates $newTemplate }}
   {{- end }}
 
-  {{- $_ := set $.Values "appNameTemplates" (concat $.Values.appNameTemplates $appNameTemplates) }}
+  {{- $_ := set $.Values "objNameTemplates" (concat $.Values.objNameTemplates $objNameTemplates) }}
 {{- end }}
 
 {{- define "elCicdRenderer.processTplNamespaces" }}
@@ -118,8 +118,8 @@
     {{- include "elCicdRenderer.preProcessFilesAndConfig" (list $ $tplElCicdDefs) }}
 
     {{- $_ := set $.Values.elCicdDefs "EL_CICD_DEPLOYMENT_TIME" $.Values.EL_CICD_DEPLOYMENT_TIME }}
-    {{- $_ := set $tplElCicdDefs "APP_NAME" $template.appName }}
-    {{- $_ := set $tplElCicdDefs "BASE_APP_NAME" ($tplElCicdDefs.BASE_APP_NAME | default $tplElCicdDefs.APP_NAME) }}
+    {{- $_ := set $tplElCicdDefs "OBJ_NAME" $template.objName }}
+    {{- $_ := set $tplElCicdDefs "BASE_OBJ_NAME" ($tplElCicdDefs.BASE_OBJ_NAME | default $tplElCicdDefs.OBJ_NAME) }}
     {{- $_ := set $tplElCicdDefs "NAME_SPACE" $template.namespace }}
     {{- $_ := set $tplElCicdDefs "BASE_NAME_SPACE" ($tplElCicdDefs.BASE_NAME_SPACE | default $tplElCicdDefs.NAME_SPACE) }}
 
@@ -164,7 +164,7 @@
 
   {{- $value := get $map $key }}
   {{- if gt $depth (int $.Values.MAX_RECURSION) }}
-    {{- fail (printf "ERROR: Potential circular reference?\nelCicdDefs Found [%s]: %s\n%s: %s " $elCicdDefs.APP_NAME $processDefList $key $value) }}
+    {{- fail (printf "ERROR: Potential circular reference?\nelCicdDefs Found [%s]: %s\n%s: %s " $elCicdDefs.OBJ_NAME $processDefList $key $value) }}
   {{- end }}
   {{- $depth := add $depth 1 }}
 

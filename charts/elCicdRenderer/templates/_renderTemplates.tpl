@@ -29,7 +29,7 @@
     {{- end }}
 ---
     {{- include $templateName (list $ $template) }}
-# Rendered -> {{ $template.templateName }} {{ $template.appName }}
+# Rendered -> {{ $template.templateName }} {{ $template.objName }}
   {{- end }}
 
   {{- range $yamlMapKey, $rawYamlValue := $.Values }}

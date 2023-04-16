@@ -23,7 +23,7 @@ spec:
     {{- if (regexMatch "^[\\w]" $defaultIngressHostDomain) }}
       {{- $defaultIngressHostDomain = (printf ".%s" $defaultIngressHostDomain) }}
     {{- end }}
-    {{- $_ := set $ingressValues "host" (printf "%s%s" $ingressValues.appName $defaultIngressHostDomain) }}
+    {{- $_ := set $ingressValues "host" (printf "%s%s" $ingressValues.objName $defaultIngressHostDomain) }}
   {{- end }}
   - host: {{ $ingressValues.host }}
     http:
@@ -32,7 +32,7 @@ spec:
         pathType: {{ $ingressValues.pathType | default $.Values.elCicdDefaults.ingressRulePathType }}
         backend:
           service:
-            name: {{ $ingressValues.appName }}
+            name: {{ $ingressValues.objName }}
             port:
               number: {{ $ingressValues.port | default $.Values.elCicdDefaults.port }}
   {{- end }}
@@ -74,7 +74,7 @@ spec:
   {{- if or $svcValues.ports ($svcValues.service).ports }}
     {{- (($svcValues.service).ports | default $svcValues.ports) | toYaml | nindent 2 }}
   {{- else }}
-  - name: {{ $svcValues.appName }}-port
+  - name: {{ $svcValues.objName }}-port
     port: {{ $svcValues.port | default $.Values.elCicdDefaults.port }}
     {{- if $svcValues.targetPort }}
     targetPort: {{ $svcValues.targetPort }}

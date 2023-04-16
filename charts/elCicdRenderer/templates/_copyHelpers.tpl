@@ -5,7 +5,7 @@
   {{- $resource := (lookup ($template.apiVersion | default "v1") 
                             $template.kind 
                             $template.fromNamespace
-                            ($template.srcMetadataName | default $template.appName)) }}
+                            ($template.srcMetadataName | default $template.objName)) }}
                             
   {{- if $resource }}
     {{- $newResource := dict }}
@@ -56,8 +56,8 @@
 
     {{- $newResource | toYaml }}
   {{- else if and (not $.Values.templateCommandRunning) (not $template.optional) }}
-    {{- fail (printf "Cannot find %s %s in namespace %s" $template.kind $template.appName $template.fromNamespace) }}
+    {{- fail (printf "Cannot find %s %s in namespace %s" $template.kind $template.objName $template.fromNamespace) }}
   {{- else }}
-# WARNING: {{ printf "Cannot find %s %s in namespace %s" $template.kind $template.appName $template.fromNamespace }}
+# WARNING: {{ printf "Cannot find %s %s in namespace %s" $template.kind $template.objName $template.fromNamespace }}
   {{- end }}
 {{- end }}
