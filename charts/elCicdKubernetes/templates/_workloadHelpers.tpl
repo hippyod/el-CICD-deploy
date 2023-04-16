@@ -45,6 +45,15 @@ Job Template
 {{- $ := index . 0 }}
 {{- $jobValues := index . 1 }}
 {{- include "elCicdCommon.apiMetadata" . }}
+{{- include "elCicdKubernetes.jobSpec" . }}
+{{- end }}
+
+{{/*
+Job Spec
+*/}}
+{{- define "elCicdKubernetes.jobSpec" }}
+{{- $ := index . 0 }}
+{{- $jobValues := index . 1 }}
 spec:
   {{- $whiteList := list "activeDeadlineSeconds"
                          "backoffLimit"
@@ -57,8 +66,8 @@ spec:
                          "ttlSecondsAfterFinished" }}
   {{- include "elCicdCommon.outputToYaml" (list $ $jobValues $whiteList) }}
   template:
-    restartPolicy: {{ $jobValues.restartPolicy | default "Never" }}
-    {{- include "elCicdKubernetes.podTemplate" (list $ $jobValues false) | nindent 4 }}
+    {{- $_ := set $jobValues "restartPolicy" ($jobValues.restartPolicy | default "Never") }}
+    {{- include "elCicdKubernetes.podTemplate" (list $ $jobValues false) | indent 4 }}
 {{- end }}
 
 {{/*

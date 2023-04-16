@@ -89,20 +89,7 @@ Job
 {{- $_ := set $jobValues "kind" "Job" }}
 {{- $_ := set $jobValues "apiVersion" "batch/v1" }}
 {{- include "elCicdCommon.apiObjectHeader" . }}
-spec:
-  {{- $whiteList := list "activeDeadlineSeconds"
-                         "backoffLimit"
-                         "completionMode"
-                         "completions"
-                         "manualSelector"
-                         "parallelism"
-                         "podFailurePolicy"
-                         "suspend"
-                         "ttlSecondsAfterFinished" }}
-  {{- include "elCicdCommon.outputToYaml" (list $ $jobValues $whiteList) }}
-  template:
-    restartPolicy: {{ $jobValues.restartPolicy | default "Never" }}
-    {{- include "elCicdKubernetes.podTemplate" (list $ $jobValues false) | indent 4 }}
+{{- include "elCicdKubernetes.jobSpec" . }}
 {{- end }}
 
 {{/*
