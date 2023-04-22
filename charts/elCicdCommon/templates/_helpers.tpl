@@ -67,6 +67,14 @@ Create chart name and version as used by the chart label.
 {{- printf "%s-%s" $.Chart.Name $.Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
+{{- define "elCicdCommon.outputValues" }}
+  {{- $ := . }}
+---
+# __VALUES_START__
+{{ $.Values | toYaml }}
+# __VALUES_END__
+{{- end }}
+
 {{/*
 This is a catch-all that renders all extraneous resource values that don't have helper structures.
 Checks the template values for each resource's whitelist, and if it exists renders it properly.
