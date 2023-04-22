@@ -17,7 +17,7 @@
 
   {{- include "elCicdRenderer.processTemplates" (list $ $.Values.allTemplates $.Values.elCicdDefs) }}
   
-  {{- if .Values.collateValues }}
+  {{- if $.Values.collateValues }}
     {{- include "elCicdCommon.outputValues" . }}
   {{- else }}
     {{- $skippedList := list }}
