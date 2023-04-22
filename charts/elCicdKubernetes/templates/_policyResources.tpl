@@ -16,7 +16,7 @@ spec:
   {{- end }}
   {{- if $quotaValues.scopes }}
   scopes:
-  {{- $quotaValues.scopes | toYaml | nindent 6 }}
+  {{- $quotaValues.scopes | toYaml | nindent 4 }}
   {{- end }}
 {{- end }}
 

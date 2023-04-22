@@ -48,15 +48,15 @@ Image Registry Secret
 {{- $_ := set $secretValues "apiVersion" "v1" }}
 {{- include "elCicdCommon.apiObjectHeader" . }}
 data:
-  {{- if $secretValues.usernamePassword }}
-    {{- $_ := set $secretValues "usernamePassword" (regexSplit ":" (trim $secretValues.usernamePassword) -1) }}
-    {{- $_ := set $secretValues "username" (index $secretValues.usernamePassword 0) }}
-    {{- $_ := set $secretValues "password" (index $secretValues.usernamePassword 1) }}
-  {{- end }}
-
   {{- $dockerconfigjson := "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"auth\":\"%s\"}}}" }}
   {{- $base64Auths := (printf "%s:%s" $secretValues.username $secretValues.password | b64enc) }}
-  .dockerconfigjson: {{ printf $dockerconfigjson $secretValues.server $secretValues.username $secretValues.password $base64Auths | b64enc }}
+  .dockerconfigjson: {{ printf $dockerconfigjson $secretValues.server $secretValues.auth.username $secretValues.auth.password $base64Auths | b64enc }}
+{{- if $secretValues.data }}
+{{ $secretValues.data | toYaml | indent 2}}
+{{- end }}
+{{- if $secretValues.stringData }}
+stringData: {{ $secretValues.stringData | toYaml | nindent 2}}
+{{- end }}
 {{- if $secretValues.immutable }}
 immutable: {{ $secretValues.immutable }}
 {{- end }}
