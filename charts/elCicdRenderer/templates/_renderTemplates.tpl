@@ -30,17 +30,17 @@
           {{- $templateName = printf "%s.%s" $.Values.elCicdDefaults.templatesChart $template.templateName }}
         {{- end }}
       {{- end }}
-  ---
+---
       {{- include $templateName (list $ $template) }}
-  # Rendered -> {{ $template.templateName }} {{ $template.objName }}
+# Rendered -> {{ $template.templateName }} {{ $template.objName }}
     {{- end }}
 
     {{- range $yamlMapKey, $rawYamlValue := $.Values }}
       {{- if and (hasPrefix "elCicdRawYaml" $yamlMapKey) (kindIs "map" $rawYamlValue) }}
         {{- range $yamlKey, $rawYaml := $rawYamlValue }}
-  ---
+---
   {{ $rawYaml }}
-  # Rendered From {{ $yamlMapKey }} -> {{ $yamlKey }}
+# Rendered From {{ $yamlMapKey }} -> {{ $yamlKey }}
         {{- end }}
       {{- end }}
     {{- end }}
@@ -48,8 +48,8 @@
     {{- if $.Values.renderValuesForKust }}
       {{- include "elCicdCommon.outputValues" . }}
     {{- end }}
-  ---
-  # Profiles: {{ $.Values.elCicdProfiles }}
+---
+# Profiles: {{ $.Values.elCicdProfiles }}
     {{- range $skippedTemplate := $.Values.skippedTemplates }}
       {{- include "elCicdRenderer.skippedTemplateLog" $skippedTemplate }}
     {{- end }}
