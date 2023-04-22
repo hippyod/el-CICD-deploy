@@ -16,38 +16,42 @@
   {{- include "elCicdRenderer.generateAllTemplates" . }}
 
   {{- include "elCicdRenderer.processTemplates" (list $ $.Values.allTemplates $.Values.elCicdDefs) }}
-
-  {{- $skippedList := list }}
-  {{- range $template := $.Values.allTemplates  }}
-    {{- $templateName := $template.templateName }}
-    {{- if not (contains "." $templateName) }}
-      {{- if eq $templateName "copyResource" }}
-        {{- $templateName = "elCicdRenderer.copyResource" }}
-      {{- else }}
-        {{- $templateName = printf "%s.%s" $.Values.elCicdDefaults.templatesChart $template.templateName }}
-      {{- end }}
-    {{- end }}
----
-    {{- include $templateName (list $ $template) }}
-# Rendered -> {{ $template.templateName }} {{ $template.objName }}
-  {{- end }}
-
-  {{- range $yamlMapKey, $rawYamlValue := $.Values }}
-    {{- if and (hasPrefix "elCicdRawYaml" $yamlMapKey) (kindIs "map" $rawYamlValue) }}
-      {{- range $yamlKey, $rawYaml := $rawYamlValue }}
----
-{{ $rawYaml }}
-# Rendered From {{ $yamlMapKey }} -> {{ $yamlKey }}
-      {{- end }}
-    {{- end }}
-  {{- end }}
-
-  {{- if $.Values.renderValuesForKust }}
+  
+  {{- if .Values.collateValues }}
     {{- include "elCicdCommon.outputValues" . }}
-  {{- end }}
----
-# Profiles: {{ $.Values.elCicdProfiles }}
-  {{- range $skippedTemplate := $.Values.skippedTemplates }}
-    {{- include "elCicdRenderer.skippedTemplateLog" $skippedTemplate }}
+  {{- else }}
+    {{- $skippedList := list }}
+    {{- range $template := $.Values.allTemplates  }}
+      {{- $templateName := $template.templateName }}
+      {{- if not (contains "." $templateName) }}
+        {{- if eq $templateName "copyResource" }}
+          {{- $templateName = "elCicdRenderer.copyResource" }}
+        {{- else }}
+          {{- $templateName = printf "%s.%s" $.Values.elCicdDefaults.templatesChart $template.templateName }}
+        {{- end }}
+      {{- end }}
+  ---
+      {{- include $templateName (list $ $template) }}
+  # Rendered -> {{ $template.templateName }} {{ $template.objName }}
+    {{- end }}
+
+    {{- range $yamlMapKey, $rawYamlValue := $.Values }}
+      {{- if and (hasPrefix "elCicdRawYaml" $yamlMapKey) (kindIs "map" $rawYamlValue) }}
+        {{- range $yamlKey, $rawYaml := $rawYamlValue }}
+  ---
+  {{ $rawYaml }}
+  # Rendered From {{ $yamlMapKey }} -> {{ $yamlKey }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+
+    {{- if $.Values.renderValuesForKust }}
+      {{- include "elCicdCommon.outputValues" . }}
+    {{- end }}
+  ---
+  # Profiles: {{ $.Values.elCicdProfiles }}
+    {{- range $skippedTemplate := $.Values.skippedTemplates }}
+      {{- include "elCicdRenderer.skippedTemplateLog" $skippedTemplate }}
+    {{- end }}
   {{- end }}
 {{- end }}
