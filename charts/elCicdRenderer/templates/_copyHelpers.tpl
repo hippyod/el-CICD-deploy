@@ -15,27 +15,22 @@
     {{- $_ := set $newResource.metadata  "name" $resource.metadata.name }}
     {{- $_ := set $newResource.metadata  "namespace" $template.toNamespace }}
     
-    {{- if $template.copyLabels }}
+    {{- if and (not $template.ignoreLabels) $resource.metadata.labels }}
       {{- $_ := set $newResource.metadata  "labels" (deepCopy $resource.metadata.labels) }}
-    {{- else }}
-      {{- $_ := set $newResource.metadata  "labels" dict }}
-    {{- end }}
-    
-    {{- if $template.copyAnnotations }}
-      {{- $_ := set $newResource.metadata "annotations" dict }}
-      {{- range $annKey, $annValue := $resource.metadata.annotations }}
-        {{- if not (contains "meta.helm.sh" $annKey) }}
-          {{- $_ := set $newResource.metadata.annotations $annKey $annValue }}
-        {{- end }}
-      {{- end }}
-    {{- end }}
+    {{ -end }}
     
     {{- if $template.labels }}
-      {{- $_ := mergeOverwrite $newResource.metadata.labels  $template.labels }}
+      {{- $labels := ($newResource.metadata.labels | default dict)
+      {{- $_ := set $newResource.metadata "labels" (mergeOverwrite $labels  $template.labels) }}
+    {{- end }}
+    
+    {{- if and (not $template.ignoreAnnotations) $resource.metadata.annotations }}
+      {{- $_ := set $newResource.metadata  "annotations" (deepCopy $resource.metadata.annotations) }}
     {{- end }}
     
     {{- if $template.annotations }}
-      {{- $_ := mergeOverwrite $newResource.metadata.annotations  $template.annotations }}
+      {{- $annotations := ($newResource.metadata.annotations | default dict)
+      {{- $_ := set $newResource.metadata "annotations" (mergeOverwrite $annotations  $template.annotations) }}
     {{- end }}
     
     {{- if $resource.spec }}
