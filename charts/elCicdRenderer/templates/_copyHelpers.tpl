@@ -20,7 +20,7 @@
     {{ -end }}
     
     {{- if $template.labels }}
-      {{- $labels := ($newResource.metadata.labels | default dict)
+      {{- $labels := ($newResource.metadata.labels | default dict) }}
       {{- $_ := set $newResource.metadata "labels" (mergeOverwrite $labels  $template.labels) }}
     {{- end }}
     
@@ -29,7 +29,7 @@
     {{- end }}
     
     {{- if $template.annotations }}
-      {{- $annotations := ($newResource.metadata.annotations | default dict)
+      {{- $annotations := ($newResource.metadata.annotations | default dict) }}
       {{- $_ := set $newResource.metadata "annotations" (mergeOverwrite $annotations  $template.annotations) }}
     {{- end }}
     
