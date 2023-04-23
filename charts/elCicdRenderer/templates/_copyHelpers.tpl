@@ -17,7 +17,7 @@
     
     {{- if and (not $template.ignoreLabels) $resource.metadata.labels }}
       {{- $_ := set $newResource.metadata  "labels" (deepCopy $resource.metadata.labels) }}
-    {{ -end }}
+    {{- end }}
     
     {{- if $template.labels }}
       {{- $labels := ($newResource.metadata.labels | default dict) }}
