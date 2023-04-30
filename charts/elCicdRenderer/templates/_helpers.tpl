@@ -22,6 +22,8 @@
       {{- $_ := set $.Values.elCicdDefaults "templatesChart" ($.Values.elCicdDefaults.templatesChart | default "elCicdKubernetes") }}
     {{- end }}
   {{- end }}
+  
+  {{- $_ := set $.Values "SLICE_STRING_MARKER" "SLICE_STRING_MARKER" }}
 
   {{- $_ := set $.Values "MAX_RECURSION" (int 5) }}
   {{- $_ := set $.Values "FILE_PREFIX" "${FILE|" }}

@@ -268,22 +268,9 @@
     {{- if and (kindIs "map" $element) }}
       {{- include "elCicdRenderer.processMap" (list $ $element $elCicdDefs) }}
     {{- else if (kindIs "string" $element) }}
-      {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $element -1 }}
-      {{- range $elCicdRef := $matches }}
-        {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
-        {{- $paramVal := get $elCicdDefs $elCicdDef }}
-        {{- if (kindIs "string" $paramVal) }}
-          {{- if not (hasPrefix "$" $elCicdRef ) }}
-            {{- $elCicdRef = substr 1 (len $elCicdRef) $elCicdRef }}
-          {{- end }}
-          {{- $element = replace $elCicdRef (toString $paramVal) $element }}
-        {{- else }}
-          {{- if (kindIs "map" $paramVal) }}
-            {{- include "elCicdRenderer.processMap" (list $ $paramVal $elCicdDefs) }}
-          {{- end }}
-          {{- $element = $paramVal }}
-        {{- end }}
-      {{- end }}
+      {{- $resultMap := dict $.Values.SLICE_STRING_MARKER $element }}
+      {{- include "elCicdRenderer.sliceString" (list $ $resultMap $elCicdDefs) }}
+      {{- $element = get $resultMap $.Values.SLICE_STRING_MARKER }}
     {{- end }}
 
     {{- if $element }}
@@ -292,4 +279,33 @@
   {{- end }}
 
   {{- $_ := set $map $key $newList }}
+{{- end }}
+
+{{- define "elCicdRenderer.sliceString" }}
+  {{- $ := index . 0 }}
+  {{- $resultMap := index . 1 }}
+  {{- $elCicdDefs := index . 2 }}
+
+  {{- $element := get $resultMap $.Values.SLICE_STRING_MARKER }}
+  {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $element -1 }}
+  {{- range $elCicdRef := $matches }}
+    {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
+    {{- $paramVal := get $elCicdDefs $elCicdDef }}
+    {{- if (kindIs "string" $paramVal) }}
+      {{- if not (hasPrefix "$" $elCicdRef ) }}
+        {{- $elCicdRef = substr 1 (len $elCicdRef) $elCicdRef }}
+      {{- end }}
+      {{- $element = replace $elCicdRef (toString $paramVal) $element }}
+    {{- else }}
+      {{- if (kindIs "map" $paramVal) }}
+        {{- include "elCicdRenderer.processMap" (list $ $paramVal $elCicdDefs) }}
+      {{- end }}
+      {{- $element = $paramVal }}
+    {{- end }}
+  {{- end }}
+  
+  {{- if $matches }}
+      {{- $_ := set $resultMap $.Values.SLICE_STRING_MARKER $element }}
+      {{- include "elCicdRenderer.sliceString" (list $ $resultMap $elCicdDefs) }}
+  {{- end }}
 {{- end }}
