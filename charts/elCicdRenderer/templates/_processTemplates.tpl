@@ -269,7 +269,7 @@
       {{- include "elCicdRenderer.processMap" (list $ $element $elCicdDefs) }}
     {{- else if (kindIs "string" $element) }}
       {{- $resultMap := dict $.Values.SLICE_STRING_MARKER $element }}
-      {{- include "elCicdRenderer.sliceString" (list $ $resultMap $elCicdDefs) }}
+      {{- include "elCicdRenderer.processSliceString" (list $ $resultMap $elCicdDefs) }}
       {{- $element = get $resultMap $.Values.SLICE_STRING_MARKER }}
     {{- end }}
 
@@ -281,7 +281,7 @@
   {{- $_ := set $map $key $newList }}
 {{- end }}
 
-{{- define "elCicdRenderer.sliceString" }}
+{{- define "elCicdRenderer.processSliceString" }}
   {{- $ := index . 0 }}
   {{- $resultMap := index . 1 }}
   {{- $elCicdDefs := index . 2 }}
@@ -306,6 +306,6 @@
   
   {{- if $matches }}
       {{- $_ := set $resultMap $.Values.SLICE_STRING_MARKER $element }}
-      {{- include "elCicdRenderer.sliceString" (list $ $resultMap $elCicdDefs) }}
+      {{- include "elCicdRenderer.processSliceString" (list $ $resultMap $elCicdDefs) }}
   {{- end }}
 {{- end }}
