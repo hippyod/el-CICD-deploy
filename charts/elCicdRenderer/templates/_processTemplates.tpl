@@ -305,7 +305,7 @@
   {{- end }}
   
   {{- if $matches }}
-      {{- $_ := set $resultMap $.Values.SLICE_STRING_MARKER $element }}
-      {{- include "elCicdRenderer.processSliceString" (list $ $resultMap $elCicdDefs) }}
+    {{- $_ := set $resultMap $.Values.SLICE_STRING_MARKER $element }}
+    {{- include "elCicdRenderer.processSliceString" (list $ $resultMap $elCicdDefs) }}
   {{- end }}
 {{- end }}
