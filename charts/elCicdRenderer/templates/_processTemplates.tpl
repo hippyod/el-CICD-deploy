@@ -264,11 +264,12 @@
 
   {{- $list := get $map $key }}
   {{- $newList := list }}
+  {{- $resultMap := dict }}
   {{- range $element := $list }}
     {{- if and (kindIs "map" $element) }}
       {{- include "elCicdRenderer.processMap" (list $ $element $elCicdDefs) }}
     {{- else if (kindIs "string" $element) }}
-      {{- $resultMap := dict $.Values.SLICE_STRING_MARKER $element }}
+      {{- $_ := set $resultMap $.Values.SLICE_STRING_MARKER $element }}
       {{- include "elCicdRenderer.processSliceString" (list $ $resultMap $elCicdDefs) }}
       {{- $element = get $resultMap $.Values.SLICE_STRING_MARKER }}
     {{- end }}
