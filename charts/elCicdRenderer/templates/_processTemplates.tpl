@@ -302,7 +302,7 @@
   {{- end }}
   
   {{- if $matches }}
-    {{- include "elCicdRenderer.processSliceString" (list $ $element $elCicdDefs) }}
+    {{- $element = include "elCicdRenderer.processSliceString" (list $ $element $elCicdDefs) }}
   {{- end }}
   
   {{- $element }}
