@@ -288,7 +288,7 @@
   {{- $elCicdDefs := index . 2 }}
 
   {{- $element := get $resultMap $.Values.SLICE_STRING_MARKER }}
-  {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $element -1 }}
+  {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX ($element | toString) -1 }}
   {{- range $elCicdRef := $matches }}
     {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
     {{- $paramVal := get $elCicdDefs $elCicdDef }}
