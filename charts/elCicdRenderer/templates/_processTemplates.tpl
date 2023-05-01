@@ -269,9 +269,9 @@
     {{- if and (kindIs "map" $element) }}
       {{- include "elCicdRenderer.processMap" (list $ $element $elCicdDefs) }}
     {{- else if (kindIs "string" $element) }}
-      {{- $_ := set $resultMap "SLICE_STRING_MARKER" $element }}
+      {{- $_ := set $resultMap $.Values.SLICE_STRING_MARKER ($element | toString) }}
       {{- include "elCicdRenderer.processSliceString" (list $ $resultMap $elCicdDefs) }}
-      {{- $element = get $resultMap "SLICE_STRING_MARKER" }}
+      {{- $element = get $resultMap $.Values.SLICE_STRING_MARKER }}
     {{- end }}
 
     {{- if $element }}
@@ -287,7 +287,7 @@
   {{- $resultMap := index . 1 }}
   {{- $elCicdDefs := index . 2 }}
 
-  {{- $element := get $resultMap "SLICE_STRING_MARKER" }}
+  {{- $element := get $resultMap $.Values.SLICE_STRING_MARKER }}
   {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $element -1 }}
   {{- range $elCicdRef := $matches }}
     {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
@@ -306,7 +306,7 @@
   {{- end }}
   
   {{- if $matches }}
-    {{- $_ := set $resultMap "SLICE_STRING_MARKER" $element }}
+    {{- $_ := set $resultMap $.Values.SLICE_STRING_MARKER $element }}
     {{- include "elCicdRenderer.processSliceString" (list $ $resultMap $elCicdDefs) }}
   {{- end }}
 {{- end }}
