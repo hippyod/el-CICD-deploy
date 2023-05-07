@@ -73,7 +73,7 @@
   {{- $objNameTemplates := list }}
   {{- range $index, $objName := $template.objNames }}
     {{- $newTemplate := deepCopy $template }}
-    {{- $_ := set $newTemplate "objName" ($newTemplate.objName | default "") }}
+    {{- $_ := set $newTemplate "objName" ($newTemplate.objName | default $objName) }}
     
     {{- $_ := set $newTemplate "elCicdDefs" ($newTemplate.elCicdDefs | default dict) }}
     {{- $_ := set $newTemplate.elCicdDefs "BASE_OBJ_NAME" $objName }}
@@ -101,7 +101,7 @@
   {{- $namespaceTemplates := list }}
   {{- range $index, $namespace := $template.namespaces }}
     {{- $newTemplate := deepCopy $template }}
-    {{- $_ := set $newTemplate "namespace" ($newTemplate.namespace | default "") }}
+    {{- $_ := set $newTemplate "namespace" ($newTemplate.namespace | default $namespace) }}
     
     {{- $_ := set $newTemplate "elCicdDefs" ($newTemplate.elCicdDefs | default dict) }}
     {{- $_ := set $newTemplate.elCicdDefs "BASE_NAME_SPACE" $namespace }}
