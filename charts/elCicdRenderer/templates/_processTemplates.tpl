@@ -18,7 +18,7 @@
   
     {{- if $template.objNames }}
       {{- include "elCicdRenderer.processTemplateGenerator" (list $ $template "objNames") }}
-      {{- include "elCicdRenderer.processTplObjNames" (list $ $template) }}
+      {{- include "elCicdRenderer.processTplObjNames" (list $ $template $.Values.elCicdDefs) }}
     {{- else }}
       {{- $_ := set $template "objName" ($template.objName | default $.Values.elCicdDefaults.objName) }}
       {{- $_ := required (printf "template with templateName '%s' must define objName or elCicdDefaults.objName!" $template.templateName) $template.objName }}
@@ -67,17 +67,24 @@
 {{- define "elCicdRenderer.processTplObjNames" }}
   {{- $ := index . 0 }}
   {{- $template := index . 1 }}
+  {{- $elCicdDefs := index . 2 }}
 
+  {{- $resultMap := dict }}
   {{- $objNameTemplates := list }}
   {{- range $index, $objName := $template.objNames }}
     {{- $newTemplate := deepCopy $template }}
     {{- $_ := set $newTemplate "objName" ($newTemplate.objName | default "") }}
-    {{- if or (contains "${}" $newTemplate.objName) (contains "${#}" $newTemplate.objName) }}
-      {{- $_ := set $newTemplate "elCicdDefs" ($newTemplate.elCicdDefs | default dict) }}
-      {{- $_ := set $newTemplate.elCicdDefs "BASE_OBJ_NAME" $objName }}
-      {{- $objName = replace "${}" $objName $newTemplate.objName }}
-      {{- $objName = replace "${#}" (add $index 1 | toString) $objName }}
-    {{- end }}
+    
+    {{- $_ := set $newTemplate "elCicdDefs" ($newTemplate.elCicdDefs | default dict) }}
+    {{- $_ := set $newTemplate.elCicdDefs "BASE_OBJ_NAME" $objName }}
+    
+    {{- $objName = replace "${}" $objName $newTemplate.objName }}
+    {{- $objName = replace "${#}" (add $index 1 | toString) $objName }}
+    
+    {{- $_ := set $resultMap $.Values.PROCESS_STRING_VALUE ($objName | toString) }}
+    {{- include "elCicdRenderer.processString" (list $ $resultMap $elCicdDefs) }}
+    {{- $objName = get $resultMap $.Values.PROCESS_STRING_VALUE }}
+    
     {{- $_ := set $newTemplate "objName" $objName }}
     {{- $objNameTemplates = append $objNameTemplates $newTemplate }}
   {{- end }}
@@ -93,12 +100,17 @@
   {{- range $index, $namespace := $template.namespaces }}
     {{- $newTemplate := deepCopy $template }}
     {{- $_ := set $newTemplate "namespace" ($newTemplate.namespace | default "") }}
-    {{- if or (contains "${}" $newTemplate.namespace) (contains "${#}" $newTemplate.namespace) }}
-      {{- $_ := set $newTemplate "elCicdDefs" ($newTemplate.elCicdDefs | default dict) }}
-      {{- $_ := set $newTemplate.elCicdDefs "BASE_NAME_SPACE" $namespace }}
-      {{- $namespace = replace "${}" $namespace $newTemplate.namespace }}
-      {{- $namespace = replace "${#}" (add $index 1 | toString) $namespace }}
-    {{- end }}
+    
+    {{- $_ := set $newTemplate "elCicdDefs" ($newTemplate.elCicdDefs | default dict) }}
+    {{- $_ := set $newTemplate.elCicdDefs "BASE_NAME_SPACE" $namespace }}
+    
+    {{- $namespace = replace "${}" $namespace $newTemplate.namespace }}
+    {{- $namespace = replace "${#}" (add $index 1 | toString) $namespace }}
+    
+    {{- $_ := set $resultMap $.Values.PROCESS_STRING_VALUE ($namespace | toString) }}
+    {{- include "elCicdRenderer.processString" (list $ $resultMap $elCicdDefs) }}
+    {{- $namespace = get $resultMap $.Values.PROCESS_STRING_VALUE }}
+    
     {{- $_ := set $newTemplate "namespace" $namespace }}
     {{- $namespaceTemplates = append $namespaceTemplates $newTemplate }}
   {{- end }}
@@ -269,9 +281,9 @@
     {{- if and (kindIs "map" $element) }}
       {{- include "elCicdRenderer.processMap" (list $ $element $elCicdDefs) }}
     {{- else if (kindIs "string" $element) }}
-      {{- $_ := set $resultMap $.Values.SLICE_STRING_MARKER ($element | toString) }}
-      {{- include "elCicdRenderer.processSliceString" (list $ $resultMap $elCicdDefs) }}
-      {{- $element = get $resultMap $.Values.SLICE_STRING_MARKER }}
+      {{- $_ := set $resultMap $.Values.PROCESS_STRING_VALUE ($element | toString) }}
+      {{- include "elCicdRenderer.processString" (list $ $resultMap $elCicdDefs) }}
+      {{- $element = get $resultMap $.Values.PROCESS_STRING_VALUE }}
     {{- end }}
 
     {{- if $element }}
@@ -282,12 +294,12 @@
   {{- $_ := set $map $key $newList }}
 {{- end }}
 
-{{- define "elCicdRenderer.processSliceString" }}
+{{- define "elCicdRenderer.processString" }}
   {{- $ := index . 0 }}
   {{- $resultMap := index . 1 }}
   {{- $elCicdDefs := index . 2 }}
 
-  {{- $element := get $resultMap $.Values.SLICE_STRING_MARKER }}
+  {{- $element := get $resultMap $.Values.PROCESS_STRING_VALUE }}
   {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $element -1 }}
   {{- range $elCicdRef := $matches }}
     {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
@@ -306,9 +318,9 @@
   {{- end }}
   
   {{- if $matches }}
-    {{- $_ := set $resultMap $.Values.SLICE_STRING_MARKER $element }}
+    {{- $_ := set $resultMap $.Values.PROCESS_STRING_VALUE $element }}
     {{- if (kindIs "string" $element) }}
-      {{- include "elCicdRenderer.processSliceString" (list $ $resultMap $elCicdDefs) }}
+      {{- include "elCicdRenderer.processString" (list $ $resultMap $elCicdDefs) }}
     {{- end }}
   {{- end }}
 {{- end }}
