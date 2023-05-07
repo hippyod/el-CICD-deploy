@@ -96,6 +96,7 @@
   {{- $ := index . 0 }}
   {{- $template := index . 1 }}
 
+  {{- $resultMap := dict }}
   {{- $namespaceTemplates := list }}
   {{- range $index, $namespace := $template.namespaces }}
     {{- $newTemplate := deepCopy $template }}
