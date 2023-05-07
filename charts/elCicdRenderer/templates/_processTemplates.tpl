@@ -26,7 +26,7 @@
 
     {{- if $template.namespaces }}
       {{- include "elCicdRenderer.processTemplateGenerator" (list $ $template "namespaces") }}
-      {{- include "elCicdRenderer.processTplNamespaces" (list $ $template) }}
+      {{- include "elCicdRenderer.processTplNamespaces" (list $ $template $.Values.elCicdDefs) }}
     {{- end }}
 
     {{- if not (or $template.objNames $template.namespaces) }}
@@ -95,6 +95,7 @@
 {{- define "elCicdRenderer.processTplNamespaces" }}
   {{- $ := index . 0 }}
   {{- $template := index . 1 }}
+  {{- $elCicdDefs := index . 2 }}
 
   {{- $resultMap := dict }}
   {{- $namespaceTemplates := list }}
