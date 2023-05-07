@@ -85,7 +85,7 @@
     {{- include "elCicdRenderer.processString" (list $ $resultMap $elCicdDefs) }}
     {{- $objName = get $resultMap $.Values.PROCESS_STRING_VALUE }}
     
-    {{- $_ := set $newTemplate "objName" $objName }}
+    {{- $_ := set $newTemplate "objName" ($objName | toString) }}
     {{- $objNameTemplates = append $objNameTemplates $newTemplate }}
   {{- end }}
 
