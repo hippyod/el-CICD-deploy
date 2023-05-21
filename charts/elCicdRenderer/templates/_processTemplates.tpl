@@ -222,7 +222,8 @@
         {{- $indentRegex := printf "%s%s" ".*" (replace "$" "[$]" $elCicdRef) }}
         {{- $indentation := regexFindAll $indentRegex $value 1 | first | replace $elCicdRef "" }}
         {{- if $indentation }}
-          {{- $paramVal = replace "\n" (cat "\n" $indentation) $paramVal }}
+          {{- $indentation = printf "%s%s" "\n" (repeat (len $indentation) " ") }}
+          {{- $paramVal = replace "\n" $indentation $paramVal }}
         {{- end }}
       {{- end }}
       {{- $value = replace $elCicdRef (toString $paramVal) $value }}
