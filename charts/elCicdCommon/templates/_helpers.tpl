@@ -58,6 +58,7 @@ el-CICD label
 {{- $ := index . 0 }}
 {{- $template := index . 1 }}
 el-cicd.io/selector: {{ $template.elcicdSelector | default (regexReplaceAll "[^\\w-.]" $template.objName "-") }}
+el-cicd.io/managed: true
 {{- end }}
 
 {{/*

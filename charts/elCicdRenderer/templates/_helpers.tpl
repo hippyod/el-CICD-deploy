@@ -116,13 +116,14 @@
 
 {{- define "elCicdRenderer.createNamespaces" }}
   {{- $ := . }}
+  {{- $nsValues := dict }}
+  {{- $_ := set $nsValues "kind" "Namespace" }}
+  {{- $_ := set $nsValues "apiVersion" "v1" }}
 
   {{- range $elCicdNamespace := $.Values.elCicdNamespaces }}
 ---
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: {{ $elCicdNamespace }}
+    {{- $_ := set $nsValues "objName" $elCicdNamespace }}
+    {{- include "elCicdCommon.apiObjectHeader" (list $ $nsValues) }}
   {{- end }}
 {{- end }}
 

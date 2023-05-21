@@ -218,6 +218,13 @@
       {{- if not (hasPrefix "$" $elCicdRef ) }}
         {{- $elCicdRef = substr 1 (len $elCicdRef) $elCicdRef }}
       {{- end }}
+      {{- if contains "\n" $paramVal }}
+        {{- $indentRegex := printf "%s%s" ".*" (replace "$" "[$]" $elCicdRef) }}
+        {{- $indentation := regexFindAll $indentRegex $value 1 | first | replace $elCicdRef "" }}
+        {{- if $indentation }}
+          {{- $paramVal = replace "\n" (cat "\n" $indentation) $paramVal }}
+        {{- end }}
+      {{- end }}
       {{- $value = replace $elCicdRef (toString $paramVal) $value }}
     {{- else }}
       {{- if (kindIs "map" $paramVal) }}
@@ -309,6 +316,13 @@
     {{- if (kindIs "string" $paramVal) }}
       {{- if not (hasPrefix "$" $elCicdRef ) }}
         {{- $elCicdRef = substr 1 (len $elCicdRef) $elCicdRef }}
+      {{- end }}
+      {{- if contains "\n" $paramVal }}
+        {{- $indentRegex := printf "%s%s" ".*" (replace "$" "[$]" $elCicdRef) }}
+        {{- $indentation := regexFindAll $indentRegex $element 1 | first | replace $elCicdRef "" }}
+        {{- if $indentation }}
+          {{- $paramVal = replace "\n" (cat "\n" $indentation) $paramVal }}
+        {{- end }}
       {{- end }}
       {{- $element = replace $elCicdRef (toString $paramVal) $element }}
     {{- else }}

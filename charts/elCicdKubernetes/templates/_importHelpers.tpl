@@ -80,7 +80,6 @@
                              "projected" $projectedMap }}
 
   {{- $_ := set $podValues "volumes" (append ($podValues.volumes | default list) $projectVolume) }}
-        # foo {{ len $podValues.volumes }}
 {{- end }}
 
 {{- define "elCicdKubernetes.getResourcesByLabel" }}
