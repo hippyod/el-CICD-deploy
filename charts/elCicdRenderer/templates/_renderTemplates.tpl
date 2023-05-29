@@ -35,9 +35,13 @@
 # Rendered -> {{ $template.templateName }} {{ $template.objName }}
     {{- end }}
 
+    {{- $resultMap := dict }}
     {{- range $yamlMapKey, $rawYamlValue := $.Values }}
       {{- if and (hasPrefix "elCicdRawYaml" $yamlMapKey) (kindIs "map" $rawYamlValue) }}
         {{- range $yamlKey, $rawYaml := $rawYamlValue }}
+          {{- $_ := set $resultMap $.Values.PROCESS_STRING_VALUE ($rawYaml | toString) }}
+          {{- include "elCicdRenderer.processString" (list $ $resultMap $elCicdDefs) }}
+          {{- $rawYaml = get $resultMap $.Values.PROCESS_STRING_VALUE }}
 ---
   {{ $rawYaml }}
 # Rendered From {{ $yamlMapKey }} -> {{ $yamlKey }}
