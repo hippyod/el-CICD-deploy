@@ -16,7 +16,7 @@
   {{- $baseObjName := ($profileDefs.elCicdDefs).BASE_OBJ_NAME }}
   {{- range $workingObjName := (tuple $baseObjName $objName) }}
     {{- $objNameDefsKey := printf "elCicdDefs-%s" $workingObjName }}
-    {{- $objNameElcicdDefs := tuple (deepCopy (get $.Values $objNameDefsKey)) (get $profileDefs $objNameDefsKey ) }}
+    {{- $objNameElcicdDefs := tuple (deepCopy ((get $.Values $objNameDefsKey) | default dict) (get $profileDefs $objNameDefsKey ) }}
     {{- range $objNameDefs := $objNameElcicdDefs }}
       {{- include "elCicdRenderer.mergeMapInto" (list $ $objNameDefs $elCicdDefs) }}
     {{- end }}
