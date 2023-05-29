@@ -40,7 +40,7 @@
       {{- if and (hasPrefix "elCicdRawYaml" $yamlMapKey) (kindIs "map" $rawYamlValue) }}
         {{- range $yamlKey, $rawYaml := $rawYamlValue }}
           {{- $_ := set $resultMap $.Values.PROCESS_STRING_VALUE ($rawYaml | toString) }}
-          {{- include "elCicdRenderer.processString" (list $ $resultMap $elCicdDefs) }}
+          {{- include "elCicdRenderer.processString" (list $ $resultMap $.Values.elCicdDefs) }}
           {{- $rawYaml = get $resultMap $.Values.PROCESS_STRING_VALUE }}
 ---
   {{ $rawYaml }}
