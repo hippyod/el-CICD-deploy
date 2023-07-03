@@ -2,25 +2,23 @@
 
 {{- define "elCicdRenderer.mergeProfileDefs" }}
   {{- $ := index . 0 }}
-  {{- $profileDefs := index . 1 }}
-  {{- $elCicdDefs := index . 2 }}
-
-  {{- include "elCicdRenderer.mergeMapInto" (list $ $profileDefs.elCicdDefs $elCicdDefs) }}
-
+  {{- $destElCicdDefs := index . 1 }}
+  {{- $baseObjName := index .2 }}
+  
   {{- range $profile := $.Values.elCicdProfiles }}
-    {{- $profileDefs := get $profileDefs (printf "elCicdDefs-%s" $profile) }}
-    {{- include "elCicdRenderer.mergeMapInto" (list $ $profileDefs $elCicdDefs) }}
-  {{- end }}
-
-  {{- $objName := $profileDefs.objName }}
-  {{- $baseObjName := ($profileDefs.elCicdDefs).BASE_OBJ_NAME }}
-  {{- range $workingObjName := (tuple $baseObjName $objName) }}
-    {{- $objNameDefsKey := printf "elCicdDefs-%s" $workingObjName }}
-    {{- $objNameElcicdDefs := tuple (deepCopy (get $.Values $objNameDefsKey | default dict)) (get $profileDefs $objNameDefsKey ) }}
-    {{- range $objNameDefs := $objNameElcicdDefs }}
-      {{- include "elCicdRenderer.mergeMapInto" (list $ $objNameDefs $elCicdDefs) }}
+    {{- $profileDefs := get $.Values (printf "elCicdDefs-%s" $profile) }}
+    {{- include "elCicdRenderer.mergeMapInto" (list $ $profileDefs $destElCicdDefs) }}
+    
+    {{- if $baseObjName }}
+      {{- $baseObjNameDefs := get $.Values (printf "elCicdDefs-%s" $baseObjName) }}
+      {{- include "elCicdRenderer.mergeMapInto" (list $ $baseObjNameDefs $destElCicdDefs) }}
+    
+      {{- $baseObjNameDefs := get $.Values (printf "elCicdDefs-%s-%s" $baseObjName $profile) }}
+      {{- include "elCicdRenderer.mergeMapInto" (list $ $baseObjNameDefs $destElCicdDefs) }}
     {{- end }}
   {{- end }}
+    
+  {{- include "elCicdRenderer.processMap" (list $ $.Values.elCicdDefaults $destElCicdDefs) }}
 {{- end }}
 
 {{- define "elCicdRenderer.mergeMapInto" }}

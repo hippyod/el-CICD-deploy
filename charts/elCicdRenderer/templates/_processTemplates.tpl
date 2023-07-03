@@ -74,9 +74,8 @@
   {{- range $index, $objName := $template.objNames }}
     {{- $newTemplate := deepCopy $template }}
     {{- $_ := set $newTemplate "objName" ($newTemplate.objName | default $objName) }}
-    
+    {{- $_ := set $newTemplate "baseObjName" $objName }}    
     {{- $_ := set $newTemplate "elCicdDefs" ($newTemplate.elCicdDefs | default dict) }}
-    {{- $_ := set $newTemplate.elCicdDefs "BASE_OBJ_NAME" $objName }}
     
     {{- $objName = replace "${}" $objName $newTemplate.objName }}
     {{- $objName = replace "${#}" (add $index 1 | toString) $objName }}
@@ -102,9 +101,8 @@
   {{- range $index, $namespace := $template.namespaces }}
     {{- $newTemplate := deepCopy $template }}
     {{- $_ := set $newTemplate "namespace" ($newTemplate.namespace | default $namespace) }}
-    
-    {{- $_ := set $newTemplate "elCicdDefs" ($newTemplate.elCicdDefs | default dict) }}
-    {{- $_ := set $newTemplate.elCicdDefs "BASE_NAME_SPACE" $namespace }}
+    {{- $_ := set $newTemplate "baseNamespace" $newTemplate.namespace }}
+    {{- $_ := set $template "elCicdDefs" ($newTemplate.elCicdDefs | default dict) }}
     
     {{- $namespace = replace "${}" $namespace $newTemplate.namespace }}
     {{- $namespace = replace "${#}" (add $index 1 | toString) $namespace }}
@@ -126,16 +124,17 @@
   {{- $elCicdDefs := index . 2 }}
 
   {{- range $template := $templates }}
+    {{- $_ := set $template "elCicdDefs" ($newTemplate.elCicdDefs | default dict) }}
+
     {{- $tplElCicdDefs := deepCopy $elCicdDefs }}
-    {{- include "elCicdRenderer.mergeMapInto" (list $ $template.elCicdDefs $tplElCicdDefs) }}
-    {{- include "elCicdRenderer.mergeProfileDefs" (list $ $template $tplElCicdDefs) }}
+    {{- include "elCicdRenderer.mergeProfileDefs" (list $ $tplElCicdDefs $template.baseObjName) }}
     {{- include "elCicdRenderer.preProcessFilesAndConfig" (list $ $tplElCicdDefs) }}
 
-    {{- $_ := set $.Values.elCicdDefs "EL_CICD_DEPLOYMENT_TIME" $.Values.EL_CICD_DEPLOYMENT_TIME }}
+    {{- $_ := set $tplElCicdDefs "EL_CICD_DEPLOYMENT_TIME" $.Values.EL_CICD_DEPLOYMENT_TIME }}
     {{- $_ := set $tplElCicdDefs "OBJ_NAME" $template.objName }}
-    {{- $_ := set $tplElCicdDefs "BASE_OBJ_NAME" ($tplElCicdDefs.BASE_OBJ_NAME | default $tplElCicdDefs.OBJ_NAME) }}
+    {{- $_ := set $tplElCicdDefs "BASE_OBJ_NAME" ($template.baseObjName | default $template.objName) }}
     {{- $_ := set $tplElCicdDefs "NAME_SPACE" $template.namespace }}
-    {{- $_ := set $tplElCicdDefs "BASE_NAME_SPACE" ($tplElCicdDefs.BASE_NAME_SPACE | default $tplElCicdDefs.NAME_SPACE) }}
+    {{- $_ := set $tplElCicdDefs "BASE_NAME_SPACE" ($template.baseNamespace | default $template.namespace) }}
 
     {{- include "elCicdRenderer.processMap" (list $ $template $tplElCicdDefs) }}
   {{- end }}

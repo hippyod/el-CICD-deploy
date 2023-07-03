@@ -3,6 +3,9 @@
 {{- define "elCicdRenderer.initElCicdRenderer" }}
   {{- $ := . }}
 
+  {{- $_ := set $.Values "elCicdDefs" ($.Values.elCicdDefs | default dict) }}
+  {{- $_ := set $.Values "skippedTemplates" list }}
+  
   {{- if $.Values.elCicdProfiles }}
     {{- if not (kindIs "slice" $.Values.elCicdProfiles) }}
       {{- fail (printf "Profiles must be specified as an array: %s" $.Values.elCicdProfiles) }}
@@ -12,9 +15,6 @@
   {{- include "elCicdRenderer.gatherElCicdTemplates" $ }}
 
   {{- include "elCicdRenderer.gatherElCicdDefaults" $ }}
-
-  {{- $_ := set $.Values "elCicdDefs" ($.Values.elCicdDefs | default dict) }}
-  {{- $_ := set $.Values "skippedTemplates" list }}
 
   {{- range $dep := $.Chart.Dependencies }}
     {{- if (eq $dep.Name "elCicdKubernetes") }}
