@@ -9,19 +9,25 @@
   {{- range $profile := $.Values.elCicdProfiles }}
     {{- $profileDefs := get $.Values (printf "elCicdDefs-%s" $profile) }}
     {{- include "elCicdRenderer.mergeMapInto" (list $ $profileDefs $destElCicdDefs) }}
+  {{- end }}
 
-    {{- if ne $baseObjName $objName }}
-      {{- $baseObjNameDefs := get $.Values (printf "elCicdDefs-%s" $baseObjName) }}
-      {{- include "elCicdRenderer.mergeMapInto" (list $ $baseObjNameDefs $destElCicdDefs) }}
+  {{- if ne $baseObjName $objName }}
+    {{- $baseObjNameDefs := get $.Values (printf "elCicdDefs-%s" $baseObjName) }}
+    {{- include "elCicdRenderer.mergeMapInto" (list $ $baseObjNameDefs $destElCicdDefs) }}
+  {{- end }}
+
+  {{- if $objName }}
+    {{- $objNameDefs := get $.Values (printf "elCicdDefs-%s" $objName) }}
+    {{- include "elCicdRenderer.mergeMapInto" (list $ $objNameDefs $destElCicdDefs) }}
+  {{- end }}
     
+  {{- range $profile := $.Values.elCicdProfiles }}
+    {{- if ne $baseObjName $objName }}
       {{- $baseObjNameDefs := get $.Values (printf "elCicdDefs-%s-%s" $baseObjName $profile) }}
       {{- include "elCicdRenderer.mergeMapInto" (list $ $baseObjNameDefs $destElCicdDefs) }}
     {{- end }}
 
     {{- if $objName }}
-      {{- $objNameDefs := get $.Values (printf "elCicdDefs-%s" $objName) }}
-      {{- include "elCicdRenderer.mergeMapInto" (list $ $objNameDefs $destElCicdDefs) }}
-    
       {{- $objNameDefs := get $.Values (printf "elCicdDefs-%s-%s" $objName $profile) }}
       {{- include "elCicdRenderer.mergeMapInto" (list $ $objNameDefs $destElCicdDefs) }}
     {{- end }}
