@@ -9,7 +9,7 @@
 
   {{- include "elCicdRenderer.createNamespaces" . }}
 
-  {{- include "elCicdRenderer.mergeProfileDefs" (list $ $.Values.elCicdDefs "") }}
+  {{- include "elCicdRenderer.mergeProfileDefs" (list $ $.Values.elCicdDefs "" "") }}
 
   {{- include "elCicdRenderer.generateAllTemplates" . }}
 

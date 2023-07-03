@@ -127,7 +127,7 @@
     {{- $_ := set $template "elCicdDefs" ($template.elCicdDefs | default dict) }}
 
     {{- $tplElCicdDefs := deepCopy $elCicdDefs }}
-    {{- include "elCicdRenderer.mergeProfileDefs" (list $ $tplElCicdDefs $template.baseObjName) }}
+    {{- include "elCicdRenderer.mergeProfileDefs" (list $ $tplElCicdDefs $template.baseObjName $template.objName) }}
     {{- include "elCicdRenderer.preProcessFilesAndConfig" (list $ $tplElCicdDefs) }}
 
     {{- $_ := set $tplElCicdDefs "EL_CICD_DEPLOYMENT_TIME" $.Values.EL_CICD_DEPLOYMENT_TIME }}
