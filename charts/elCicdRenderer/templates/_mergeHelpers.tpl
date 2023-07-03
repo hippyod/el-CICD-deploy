@@ -20,11 +20,6 @@
     {{- range $objNameDefs := $objNameElcicdDefs }}
       {{- include "elCicdRenderer.mergeMapInto" (list $ $objNameDefs $elCicdDefs) }}
     {{- end }}
-
-    {{- range $profile := $.Values.elCicdProfiles }}
-      {{- $profileDefs := get $profileDefs (printf "elCicdDefs-%s-%s" $workingObjName $profile) }}
-      {{- include "elCicdRenderer.mergeMapInto" (list $ $profileDefs $elCicdDefs) }}
-    {{- end }}
   {{- end }}
 {{- end }}
 
