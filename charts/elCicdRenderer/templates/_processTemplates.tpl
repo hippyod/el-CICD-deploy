@@ -124,7 +124,7 @@
   {{- $elCicdDefs := index . 2 }}
 
   {{- range $template := $templates }}
-    {{- $_ := set $template "elCicdDefs" ($newTemplate.elCicdDefs | default dict) }}
+    {{- $_ := set $template "elCicdDefs" ($template.elCicdDefs | default dict) }}
 
     {{- $tplElCicdDefs := deepCopy $elCicdDefs }}
     {{- include "elCicdRenderer.mergeProfileDefs" (list $ $tplElCicdDefs $template.baseObjName) }}
