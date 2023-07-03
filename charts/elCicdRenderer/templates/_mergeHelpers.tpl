@@ -35,11 +35,7 @@
 
   {{- if $srcMap }}
     {{- range $key, $value := $srcMap }}
-      {{- if $value }}
-        {{- $_ := set $destMap $key $value }}
-      {{- else }}
-        {{- $_ := unset $destMap $key }}
-      {{- end }}
+      {{- $_ := set $destMap $key ($value | default "") }}
     {{- end }}
   {{- end }}
 {{- end }}
