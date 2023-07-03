@@ -3,7 +3,7 @@
 {{- define "elCicdRenderer.mergeProfileDefs" }}
   {{- $ := index . 0 }}
   {{- $destElCicdDefs := index . 1 }}
-  {{- $baseObjName := index .2 }}
+  {{- $baseObjName := index . 2 }}
   
   {{- range $profile := $.Values.elCicdProfiles }}
     {{- $profileDefs := get $.Values (printf "elCicdDefs-%s" $profile) }}
