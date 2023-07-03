@@ -226,7 +226,6 @@
           {{- $paramVal = replace "\n" $indentation $paramVal }}
         {{- end }}
       {{- end }}
-      {{- $paramVal = $paramVal | default "" }}
       {{- $value = replace $elCicdRef (toString $paramVal) $value }}
     {{- else }}
       {{- if (kindIs "map" $paramVal) }}
