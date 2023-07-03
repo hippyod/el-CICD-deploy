@@ -38,7 +38,7 @@
       {{- if $value }}
         {{- $_ := set $destMap $key $value }}
       {{- else }}
-        {{- $_ := set $destMap $key }}
+        {{- $_ := unset $destMap $key }}
       {{- end }}
     {{- end }}
   {{- end }}
