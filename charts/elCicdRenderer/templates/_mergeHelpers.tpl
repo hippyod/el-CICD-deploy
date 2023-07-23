@@ -8,40 +8,45 @@
   
   {{- range $profile := $.Values.elCicdProfiles }}
     {{- $profileDefs := deepCopy (get $.Values (printf "elCicdDefs-%s" $profile)) }}
-    {{- if $profileDefs }}
-      {{- $destElCicdDefs = mergeOverwrite $destElCicdDefs $profileDefs }}
-    {{- end }}
+    {{- include "elCicdRenderer.mergeMapInto" (list $ $profileDefs $destElCicdDefs) }}
   {{- end }}
 
   {{- if ne $baseObjName $objName }}
     {{- $baseObjNameDefs := deepCopy (get $.Values (printf "elCicdDefs-%s" $baseObjName)) }}
-    {{- if $baseObjNameDefs }}
-      {{- $destElCicdDefs = mergeOverwrite $destElCicdDefs $baseObjNameDefs }}
-    {{- end }}
+    {{- include "elCicdRenderer.mergeMapInto" (list $ $baseObjNameDefs $destElCicdDefs) }}
   {{- end }}
 
   {{- if $objName }}
     {{- $objNameDefs := deepCopy (get $.Values (printf "elCicdDefs-%s" $objName)) }}
-    {{- if $objNameDefs }}
-      {{- $destElCicdDefs = mergeOverwrite $destElCicdDefs $objNameDefs }}
-    {{- end }}
+    {{- include "elCicdRenderer.mergeMapInto" (list $ $objNameDefs $destElCicdDefs) }}
   {{- end }}
     
   {{- range $profile := $.Values.elCicdProfiles }}
     {{- if ne $baseObjName $objName }}
       {{- $baseObjNameDefs := deepCopy (get $.Values (printf "elCicdDefs-%s-%s" $baseObjName $profile)) }}
-      {{- if $baseObjNameDefs }}
-        {{- $destElCicdDefs = mergeOverwrite $destElCicdDefs $baseObjNameDefs }}
-      {{- end }}
+      {{- include "elCicdRenderer.mergeMapInto" (list $ $baseObjNameDefs $destElCicdDefs) }}
     {{- end }}
 
     {{- if $objName }}
       {{- $objNameDefs := deepCopy (get $.Values (printf "elCicdDefs-%s-%s" $objName $profile)) }}
-      {{- if $objNameDefs }}
-        {{- $destElCicdDefs = mergeOverwrite $destElCicdDefs $objNameDefs }}
-      {{- end }}
+      {{- include "elCicdRenderer.mergeMapInto" (list $ $objNameDefs $destElCicdDefs) }}
     {{- end }}
-  {{- end }}
+  {{- end }}:q
     
   {{- include "elCicdRenderer.processMap" (list $ $.Values.elCicdDefaults $destElCicdDefs) }}
+{{- end }}
+
+{{- define "elCicdRenderer.mergeMapInto" }}
+  {{- $ := index . 0 }}
+  {{- $srcMap := index . 1 }}
+  {{- $destMap := index . 2 }}
+
+  {{- if $srcMap }}
+    {{- range $key, $value := $srcMap }}
+      {{- if (kindIs "map" $value) }}
+        {{- $value = deepCopy $value }}
+      {{- end }}
+      {{- $_ := set $destMap $key ($value | default "") }}
+    {{- end }}
+  {{- end }}
 {{- end }}
