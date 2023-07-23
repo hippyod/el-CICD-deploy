@@ -31,7 +31,7 @@
       {{- $objNameDefs := deepCopy (get $.Values (printf "elCicdDefs-%s-%s" $objName $profile)) }}
       {{- include "elCicdRenderer.mergeMapInto" (list $ $objNameDefs $destElCicdDefs) }}
     {{- end }}
-  {{- end }}:q
+  {{- end }}
     
   {{- include "elCicdRenderer.processMap" (list $ $.Values.elCicdDefaults $destElCicdDefs) }}
 {{- end }}
