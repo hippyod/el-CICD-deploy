@@ -7,43 +7,41 @@
   {{- $objName := index . 3 }}
   
   {{- range $profile := $.Values.elCicdProfiles }}
-    {{- $profileDefs := get $.Values (printf "elCicdDefs-%s" $profile) }}
-    {{- include "elCicdRenderer.mergeMapInto" (list $ $profileDefs $destElCicdDefs) }}
+    {{- $profileDefs := deepCopy (get $.Values (printf "elCicdDefs-%s" $profile)) }}
+    {{- if $profileDefs }}
+      {{- $destElCicdDefs = mergeOverwrite $destElCicdDefs $profileDefs }}
+    {{- end }}
   {{- end }}
 
   {{- if ne $baseObjName $objName }}
-    {{- $baseObjNameDefs := get $.Values (printf "elCicdDefs-%s" $baseObjName) }}
-    {{- include "elCicdRenderer.mergeMapInto" (list $ $baseObjNameDefs $destElCicdDefs) }}
+    {{- $baseObjNameDefs := deepCopy (get $.Values (printf "elCicdDefs-%s" $baseObjName)) }}
+    {{- if $baseObjNameDefs }}
+      {{- $destElCicdDefs = mergeOverwrite $destElCicdDefs $baseObjNameDefs }}
+    {{- end }}
   {{- end }}
 
   {{- if $objName }}
-    {{- $objNameDefs := get $.Values (printf "elCicdDefs-%s" $objName) }}
-    {{- include "elCicdRenderer.mergeMapInto" (list $ $objNameDefs $destElCicdDefs) }}
+    {{- $objNameDefs := deepCopy (get $.Values (printf "elCicdDefs-%s" $objName)) }}
+    {{- if $objNameDefs }}
+      {{- $destElCicdDefs = mergeOverwrite $destElCicdDefs $objNameDefs }}
+    {{- end }}
   {{- end }}
     
   {{- range $profile := $.Values.elCicdProfiles }}
     {{- if ne $baseObjName $objName }}
-      {{- $baseObjNameDefs := get $.Values (printf "elCicdDefs-%s-%s" $baseObjName $profile) }}
-      {{- include "elCicdRenderer.mergeMapInto" (list $ $baseObjNameDefs $destElCicdDefs) }}
+      {{- $baseObjNameDefs := deepCopy (get $.Values (printf "elCicdDefs-%s-%s" $baseObjName $profile)) }}
+      {{- if $baseObjNameDefs }}
+        {{- $destElCicdDefs = mergeOverwrite $destElCicdDefs $baseObjNameDefs }}
+      {{- end }}
     {{- end }}
 
     {{- if $objName }}
-      {{- $objNameDefs := get $.Values (printf "elCicdDefs-%s-%s" $objName $profile) }}
-      {{- include "elCicdRenderer.mergeMapInto" (list $ $objNameDefs $destElCicdDefs) }}
+      {{- $objNameDefs := deepCopy (get $.Values (printf "elCicdDefs-%s-%s" $objName $profile)) }}
+      {{- if $objNameDefs }}
+        {{- $destElCicdDefs = mergeOverwrite $destElCicdDefs $objNameDefs }}
+      {{- end }}
     {{- end }}
   {{- end }}
     
   {{- include "elCicdRenderer.processMap" (list $ $.Values.elCicdDefaults $destElCicdDefs) }}
-{{- end }}
-
-{{- define "elCicdRenderer.mergeMapInto" }}
-  {{- $ := index . 0 }}
-  {{- $srcMap := index . 1 }}
-  {{- $destMap := index . 2 }}
-
-  {{- if $srcMap }}
-    {{- range $key, $value := $srcMap }}
-      {{- $_ := set $destMap $key ($value | default "") }}
-    {{- end }}
-  {{- end }}
 {{- end }}

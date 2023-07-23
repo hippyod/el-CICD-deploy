@@ -15,10 +15,10 @@
         {{- fail (printf $failMsgTpl $template.templateName) }}
       {{- end }}
     {{- end }}
-  
+
     {{- if $template.objNames }}
       {{- include "elCicdRenderer.processTemplateGenerator" (list $ $template "objNames") }}
-      {{- include "elCicdRenderer.processTplObjNames" (list $ $template $.Values.elCicdDefs) }}
+      {{- include "elCicdRenderer.processTplObjNames" (list $ $template) }}
     {{- else }}
       {{- $_ := set $template "objName" ($template.objName | default $.Values.elCicdDefaults.objName) }}
       {{- $_ := required (printf "template with templateName '%s' must define objName or elCicdDefaults.objName!" $template.templateName) $template.objName }}
@@ -67,23 +67,21 @@
 {{- define "elCicdRenderer.processTplObjNames" }}
   {{- $ := index . 0 }}
   {{- $template := index . 1 }}
-  {{- $elCicdDefs := index . 2 }}
 
   {{- $resultMap := dict }}
   {{- $objNameTemplates := list }}
   {{- range $index, $objName := $template.objNames }}
     {{- $newTemplate := deepCopy $template }}
     {{- $_ := set $newTemplate "objName" ($newTemplate.objName | default $objName) }}
-    {{- $_ := set $newTemplate "baseObjName" $objName }}    
-    {{- $_ := set $newTemplate "elCicdDefs" ($newTemplate.elCicdDefs | default dict) }}
-    
+    {{- $_ := set $newTemplate "baseObjName" $objName }}
+
     {{- $objName = replace "${}" $objName $newTemplate.objName }}
     {{- $objName = replace "${#}" (add $index 1 | toString) $objName }}
-    
+
     {{- $_ := set $resultMap $.Values.PROCESS_STRING_VALUE ($objName | toString) }}
-    {{- include "elCicdRenderer.processString" (list $ $resultMap $elCicdDefs) }}
+    {{- include "elCicdRenderer.processString" (list $ $resultMap  $.Values.elCicdDefs) }}
     {{- $objName = get $resultMap $.Values.PROCESS_STRING_VALUE }}
-    
+
     {{- $_ := set $newTemplate "objName" ($objName | toString) }}
     {{- $objNameTemplates = append $objNameTemplates $newTemplate }}
   {{- end }}
@@ -103,14 +101,14 @@
     {{- $_ := set $newTemplate "namespace" ($newTemplate.namespace | default $namespace) }}
     {{- $_ := set $newTemplate "baseNamespace" $newTemplate.namespace }}
     {{- $_ := set $template "elCicdDefs" ($newTemplate.elCicdDefs | default dict) }}
-    
+
     {{- $namespace = replace "${}" $namespace $newTemplate.namespace }}
     {{- $namespace = replace "${#}" (add $index 1 | toString) $namespace }}
-    
+
     {{- $_ := set $resultMap $.Values.PROCESS_STRING_VALUE ($namespace | toString) }}
     {{- include "elCicdRenderer.processString" (list $ $resultMap $elCicdDefs) }}
     {{- $namespace = get $resultMap $.Values.PROCESS_STRING_VALUE }}
-    
+
     {{- $_ := set $newTemplate "namespace" $namespace }}
     {{- $namespaceTemplates = append $namespaceTemplates $newTemplate }}
   {{- end }}
@@ -121,12 +119,9 @@
 {{- define "elCicdRenderer.processTemplates" }}
   {{- $ := index . 0 }}
   {{- $templates := index . 1 }}
-  {{- $elCicdDefs := index . 2 }}
 
   {{- range $template := $templates }}
-    {{- $_ := set $template "elCicdDefs" ($template.elCicdDefs | default dict) }}
-
-    {{- $tplElCicdDefs := deepCopy $elCicdDefs }}
+    {{- $tplElCicdDefs := deepCopy $.Values.elCicdDefs }}
     {{- include "elCicdRenderer.mergeProfileDefs" (list $ $tplElCicdDefs $template.baseObjName $template.objName) }}
     {{- include "elCicdRenderer.preProcessFilesAndConfig" (list $ $tplElCicdDefs) }}
 
@@ -332,7 +327,7 @@
       {{- $element = $paramVal }}
     {{- end }}
   {{- end }}
-  
+
   {{- if $matches }}
     {{- $_ := set $resultMap $.Values.PROCESS_STRING_VALUE $element }}
     {{- if (kindIs "string" $element) }}

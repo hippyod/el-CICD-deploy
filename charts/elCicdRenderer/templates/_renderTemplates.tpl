@@ -13,7 +13,7 @@
 
   {{- include "elCicdRenderer.generateAllTemplates" . }}
 
-  {{- include "elCicdRenderer.processTemplates" (list $ $.Values.allTemplates $.Values.elCicdDefs) }}
+  {{- include "elCicdRenderer.processTemplates" (list $ $.Values.allTemplates) }}
   
   {{- if $.Values.collateValues }}
     {{- include "elCicdCommon.outputValues" . }}
