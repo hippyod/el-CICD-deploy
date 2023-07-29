@@ -121,8 +121,11 @@
   {{- $templates := index . 1 }}
 
   {{- range $template := $templates }}
-    {{- $tplElCicdDefs := deepCopy $.Values.elCicdDefs }}
-    {{- include "elCicdRenderer.mergeProfileDefs" (list $ $tplElCicdDefs $template.baseObjName $template.objName) }}
+    {{- $tplElCicdDefs := dict }}
+    {{- include "elCicdRenderer.deepCopyMap" (list $.Values.elCicdDefs $tplElCicdDefs) }}
+    {{- include "elCicdRenderer.deepCopyMap" (list $template.elCicdDefs $tplElCicdDefs) }}
+    {{- include "elCicdRenderer.mergeProfileDefs" (list $ $.Values $tplElCicdDefs $template.baseObjName $template.objName) }}
+    {{- include "elCicdRenderer.mergeProfileDefs" (list $ $template $tplElCicdDefs $template.baseObjName $template.objName) }}
     {{- include "elCicdRenderer.preProcessFilesAndConfig" (list $ $tplElCicdDefs) }}
 
     {{- $_ := set $tplElCicdDefs "EL_CICD_DEPLOYMENT_TIME" $.Values.EL_CICD_DEPLOYMENT_TIME }}
@@ -172,7 +175,9 @@
 
   {{- $value := get $map $key }}
   {{- if gt $depth (int $.Values.MAX_RECURSION) }}
-    {{- fail (printf "ERROR: Potential circular reference?\nelCicdDefs Found [%s]: %s\n%s: %s " $elCicdDefs.OBJ_NAME $processDefList $key $value) }}
+    {{- $formatMsg := "\nPotential circular reference? Exceeded %s recursions!" }}
+    {{- $formatMsg = (cat $formatMsg "\nelCicdDefs.OBJ_NAME: %s\nkey: %s\n---\n== Value ==\n%s\n---\n== processDefList ==\n%s\n---\n== elCicdDefs ==\n%s\n---") }}
+    {{- fail (printf $formatMsg (toString $.Values.MAX_RECURSION) $elCicdDefs.OBJ_NAME $key $value $processDefList $elCicdDefs) }}
   {{- end }}
   {{- $depth := add $depth 1 }}
 
