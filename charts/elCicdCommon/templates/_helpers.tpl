@@ -59,9 +59,9 @@ el-CICD label
 {{- $template := index . 1 }}
 {{- $selector := $template.elcicdSelector | default (regexReplaceAll "[^\\w-.]" $template.objName "-") }}
 {{- if (gt (len $selector) 63 ) }}
-  {{- $selector := $selector | trunc 48 | trimSuffix "-"}}
+  {{- $selector = $selector | trunc 48 | trimSuffix "-"}}
   {{- $selectorSuffix := derivePassword 1 "long" $selector $selector "elcicd.org"  }}
-  {{- $selectorSuffix := (regexReplaceAll "[^\\w-.]"  $selectorSuffix  "_" )}}
+  {{- $selectorSuffix = (regexReplaceAll "[^\\w]$"  $selectorSuffix  "" )}}
   {{- $selector = printf "%s-%s" $selector $selectorSuffix }}
 {{- end }}
 el-cicd.io/selector: {{ $selector }}
