@@ -57,7 +57,14 @@ el-CICD label
 {{- define "elCicdCommon.elcicdLabels" -}}
 {{- $ := index . 0 }}
 {{- $template := index . 1 }}
-el-cicd.io/selector: {{ $template.elcicdSelector | default (regexReplaceAll "[^\\w-.]" $template.objName "-") }}
+{{- $template.elcicdSelector := $template.elcicdSelector | default (regexReplaceAll "[^\\w-.]" $template.objName "-") }}
+{{- if $selector gt 63 }}
+  {{- $selector := $selector | trunc 48 | trimSuffix "-"}}
+  {{- $selectorSuffix := derivePassword 1 "long" $selector $selector "elcicd.org"  }}
+  {{- $selectorSuffix := (regexReplaceAll "[^\\w-.]"  $selectorSuffix  "_" )}}
+  {{- $selector = printf "%s-%s" $selector $selectorSuffix }}
+{{- end }}
+el-cicd.io/selector: {{ $selector }}
 {{- end }}
 
 {{/*
