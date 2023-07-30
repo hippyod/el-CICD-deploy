@@ -61,7 +61,7 @@ el-CICD label
 {{- if (gt (len $selector) 63 ) }}
   {{- $selector = $selector | trunc 48 | trimSuffix "-"}}
   {{- $selectorSuffix := derivePassword 1 "long" $selector $selector "elcicd.org"  }}
-  {{- $selectorSuffix = (regexReplaceAll "[^\\w]$"  $selectorSuffix  "" )}}
+  {{- $selectorSuffix = (regexReplaceAll "[^\\w-.]"  $selectorSuffix  "_" )}}
   {{- $selector = printf "%s-%s" $selector $selectorSuffix }}
 {{- end }}
 el-cicd.io/selector: {{ $selector }}
