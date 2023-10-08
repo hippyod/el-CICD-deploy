@@ -9,10 +9,11 @@
   {{- $_ := set $.Values "elCicdDefs" ($.Values.elCicdDefs | default dict) }}
   {{- $_ := set $.Values "skippedTemplates" list }}
   
-  {{- if $.Values.elCicdProfiles }}
+  {{- if or $.Values.elCicdProfiles $.Values.global.elCicdProfiles }}
     {{- if not (kindIs "slice" $.Values.elCicdProfiles) }}
       {{- fail (printf "Profiles must be specified as an array: %s" $.Values.elCicdProfiles) }}
     {{- end }}
+    {{- $_ := set $.Values.elCicdProfiles ($.Values.elCicdProfiles) | default $.Values.global.elCicdProfiles) }}
   {{- end }}
 
   {{- include "elCicdRenderer.gatherElCicdTemplates" $ }}
