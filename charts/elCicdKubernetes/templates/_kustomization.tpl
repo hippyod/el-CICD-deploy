@@ -33,6 +33,6 @@ Kustomization
     {{- if not (get $kustomizations $kustomization) }}
       {{- fail "%s is NOT a valid kustomization built-in" $kustomization }}
     {{- end }}
-{{ $kustomization }}: {{ get $kustValues $kustomization }}
+{{ $kustomization }}: {{ get $kustValues $kustomization | toYaml }}
   {{- end }}
 {{- end }}
