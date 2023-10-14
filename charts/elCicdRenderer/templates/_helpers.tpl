@@ -2,6 +2,8 @@
 
 {{- define "elCicdRenderer.initElCicdRenderer" }}
   {{- $ := . }}
+  
+  {{- $_ := set $.Values "global" ($.Values.global | default dict) }}
 
   {{- $_ := set $.Values "elCicdDefaults" ($.Values.elCicdDefaults | default dict) }}
   {{- $_ := set $.Values.elCicdDefaults "objName" ($.Values.elCicdDefaults.objName | default .Chart.Name) }}
@@ -13,7 +15,7 @@
     {{- if not (kindIs "slice" $.Values.elCicdProfiles) }}
       {{- fail (printf "Profiles must be specified as an array: %s" $.Values.elCicdProfiles) }}
     {{- end }}
-    {{- $_ := set $.Values.elCicdProfiles ($.Values.elCicdProfiles | default $.Values.global.elCicdProfiles) }}
+    {{- $_ := set $.Values.elCicdProfiles ($.Values.elCicdProfiles | default $.Values.global.elCicdProfiles | default list) }}
   {{- end }}
 
   {{- include "elCicdRenderer.gatherElCicdTemplates" $ }}
