@@ -15,7 +15,7 @@
     {{- if not (kindIs "slice" $.Values.elCicdProfiles) }}
       {{- fail (printf "Profiles must be specified as an array: %s" $.Values.elCicdProfiles) }}
     {{- end }}
-    {{- $_ := set $.Values.elCicdProfiles ($.Values.elCicdProfiles | default $.Values.global.elCicdProfiles | default list) }}
+    {{- $_ := set $.Values "elCicdProfiles" ($.Values.global.elCicdProfiles | default $.Values.elCicdProfiles | default list) }}
   {{- end }}
 
   {{- include "elCicdRenderer.gatherElCicdTemplates" $ }}
