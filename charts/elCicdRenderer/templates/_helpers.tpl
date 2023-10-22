@@ -37,7 +37,8 @@
   {{- $_ := set $.Values "ELCICD_ESCAPED_REGEX" "[\\\\][\\$][\\{]" }}
   {{- $_ := set $.Values "ELCICD_UNESCAPED_REGEX" "${" }}
   {{- $_ := set $.Values "ELCICD_PARAM_REGEX" "(?:^|[^\\\\])[\\$][\\{]([\\w]+?(?:[-][\\w]+?)*)[\\}]" }}
-  {{- $_ := set $.Values.elCicdDefs "RELEASE_NAMESPACE" $.Release.Namespace }}
+  {{- $_ := set $.Values.elCicdDefs "HELM_RELEASE_NAME" $.Release.Name }}
+  {{- $_ := set $.Values.elCicdDefs "HELM_RELEASE_NAMESPACE" $.Release.Namespace }}
 {{- end }}
 
 {{- define "elCicdRenderer.gatherElCicdDefaults" }}
