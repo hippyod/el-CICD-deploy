@@ -32,11 +32,9 @@
   {{- $_ := set $.Values "PROCESS_STRING_VALUE" "PROCESS_STRING_VALUE" }}
 
   {{- $_ := set $.Values "MAX_RECURSION" (int 15) }}
-  {{- $_ := set $.Values "FILE_PREFIX" "${FILE|" }}
-  {{- $_ := set $.Values "CONFIG_PREFIX" "${CONFIG|" }}
-  {{- $_ := set $.Values "ELCICD_ESCAPED_REGEX" "[\\\\][\\$][\\{]" }}
-  {{- $_ := set $.Values "ELCICD_UNESCAPED_REGEX" "${" }}
-  {{- $_ := set $.Values "ELCICD_PARAM_REGEX" "(?:^|[^\\\\])[\\$][\\{]([\\w]+?(?:[-][\\w]+?)*)[\\}]" }}
+  {{- $_ := set $.Values "FILE_PREFIX" "$<FILE|" }}
+  {{- $_ := set $.Values "CONFIG_PREFIX" "$<CONFIG|" }}
+  {{- $_ := set $.Values "ELCICD_PARAM_REGEX" "(?:^\\$<([\\w]+?(?:[-][\\w]+?)*)>" }}
   {{- $_ := set $.Values.elCicdDefs "HELM_RELEASE_NAME" $.Release.Name }}
   {{- $_ := set $.Values.elCicdDefs "HELM_RELEASE_NAMESPACE" $.Release.Namespace }}
 {{- end }}
