@@ -1,5 +1,5 @@
 apiVersion: v2
-name: elCicdValues
+name: elCicdMergedValuesUtil
 description: Utility chart for creating a single Values.yaml file from multiple Chart Values files
 
 type: application
