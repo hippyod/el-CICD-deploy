@@ -75,8 +75,8 @@
     {{- $_ := set $newTemplate "objName" ($newTemplate.objName | default $objName) }}
     {{- $_ := set $newTemplate "baseObjName" $objName }}
 
-    {{- $objName = replace "${}" $objName $newTemplate.objName }}
-    {{- $objName = replace "${#}" (add $index 1 | toString) $objName }}
+    {{- $objName = replace "$<>" $objName $newTemplate.objName }}
+    {{- $objName = replace "$<#>" (add $index 1 | toString) $objName }}
 
     {{- $_ := set $resultMap $.Values.PROCESS_STRING_VALUE ($objName | toString) }}
     {{- include "elCicdRenderer.processString" (list $ $resultMap  $.Values.elCicdDefs) }}
@@ -102,8 +102,8 @@
     {{- $_ := set $newTemplate "baseNamespace" $newTemplate.namespace }}
     {{- $_ := set $template "elCicdDefs" ($newTemplate.elCicdDefs | default dict) }}
 
-    {{- $namespace = replace "${}" $namespace $newTemplate.namespace }}
-    {{- $namespace = replace "${#}" (add $index 1 | toString) $namespace }}
+    {{- $namespace = replace "$<>" $namespace $newTemplate.namespace }}
+    {{- $namespace = replace "$<#>" (add $index 1 | toString) $namespace }}
 
     {{- $_ := set $resultMap $.Values.PROCESS_STRING_VALUE ($namespace | toString) }}
     {{- include "elCicdRenderer.processString" (list $ $resultMap $elCicdDefs) }}
