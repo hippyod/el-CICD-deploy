@@ -22,7 +22,7 @@ jobs:
         git config --global user.email "elcicd@donotreply.org"
         git config --global user.name "elcicd"
         
-        CHART_DIRS='elCicdCommon elCicdRenderer elCicdKubernetes elCicdArgoCd elCicdChart elCicdMergedValuesUtil'
+        CHART_DIRS='elCicdCommon elCicdRenderer elCicdKubernetes elCicdArgoCd elCicdChart'
         for CHART_DIR in ${CHART_DIRS}
         do
           helm package --dependency-update ./charts/${CHART_DIR} -d ./charts
