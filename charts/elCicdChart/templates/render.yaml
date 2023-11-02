@@ -1,4 +1,5 @@
 {{- if eq .Values.renderValuesYaml true }}
+  {{- $_ := unset .Values "renderValuesYaml" }}
   {{- .Values | toYaml }}
 {{- else }}
   {{- include "elCicdRenderer.render" . }}
