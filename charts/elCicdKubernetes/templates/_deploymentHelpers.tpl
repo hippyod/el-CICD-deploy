@@ -13,7 +13,7 @@ Kustomization
   {{- end }}
 {{- end }}
 
-{{- define "elCicdKubernetes.chart.yaml" }}
+{{- define "elCicdKubernetes.chart-yaml" }}
   {{- $ := index . 0 }}
   {{- $chartValues := index . 1 }}
 apiVersion: {{ $chartValues.apiVersion | default "v2" }}
