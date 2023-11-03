@@ -91,16 +91,18 @@ Checks the template values for each resource's whitelist, and if it exists rende
   {{- $ := index . 0 }}
   {{- $templateVals := index . 1 }}
   {{- $whiteList := index . 2 }}
+  {{- $checkIndent := append . 2 }}
+  {{- $indent := index $checkIndent 3 | int }} 
   
   {{- include "elCicdCommon.setTemplateDefaultValue" . }}
   
   {{- range $key, $value := $templateVals }}
     {{- if or (has $key $whiteList) (empty $whiteList)}}
       {{- if or (kindIs "slice" $value) (kindIs "map" $value) }}
-  {{ $key }}:
+  {{- $key | nindent $indent}}:
     {{- $value | toYaml | nindent 4 }}
       {{- else }}
-  {{ $key }}: {{ $value }}
+  {{- $key | nindent $indent }}: {{ $value }}
       {{- end }}
     {{- end }}
   {{- end }}
