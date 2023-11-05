@@ -1,1 +1,6 @@
-{{- include "elCicdRenderer.render" . }}
+{{- if eq .Values.renderValuesYaml true }}
+  {{- $_ := unset .Values "createPackagedValuesYaml" }}
+  {{- .Values | toYaml }}
+{{- else }}
+  {{- include "elCicdRenderer.render" . }}
+{{- end }}
