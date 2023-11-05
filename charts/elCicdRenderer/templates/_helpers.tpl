@@ -11,6 +11,8 @@
   {{- $_ := set $.Values "elCicdDefs" ($.Values.elCicdDefs | default dict) }}
   {{- $_ := set $.Values "skippedTemplates" list }}
   
+  {{- $_ := set $.Values.elCicdDefaults "templatesChart" ($.Values.elCicdDefaults.templatesChart | default "elCicdKubernetes") }}
+  
   {{- if or $.Values.elCicdProfiles $.Values.global.elCicdProfiles }}
     {{- $_ := set $.Values "elCicdProfiles" ($.Values.global.elCicdProfiles | default $.Values.elCicdProfiles | default list) }}
     {{- if not (kindIs "slice" $.Values.elCicdProfiles) }}
@@ -25,7 +27,6 @@
   {{- range $dep := $.Chart.Dependencies }}
     {{- if (eq $dep.Name "elCicdKubernetes") }}
       {{- include "elCicdKubernetes.init" $ }}
-      {{- $_ := set $.Values.elCicdDefaults "templatesChart" ($.Values.elCicdDefaults.templatesChart | default "elCicdKubernetes") }}
     {{- end }}
   {{- end }}
   
