@@ -16,7 +16,7 @@
   {{- include "elCicdRenderer.processTemplates" (list $ $.Values.allTemplates) }}
   
   {{- if $.Values.collateValues }}
-    {{- include "elCicdCommon.outputValues" . }}
+    {{ $.Values | toYaml }}
   {{- else }}
     {{- $skippedList := list }}
     {{- range $template := $.Values.allTemplates  }}
@@ -45,10 +45,6 @@
 # Rendered From {{ $yamlMapKey }} -> {{ $yamlKey }}
         {{- end }}
       {{- end }}
-    {{- end }}
-
-    {{- if $.Values.renderValuesForKust }}
-      {{- include "elCicdCommon.outputValues" . }}
     {{- end }}
 ---
 # Profiles: {{ $.Values.elCicdProfiles }}
