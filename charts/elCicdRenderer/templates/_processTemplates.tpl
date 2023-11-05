@@ -20,7 +20,7 @@
       {{- include "elCicdRenderer.processTemplateGenerator" (list $ $template "objNames") }}
       {{- include "elCicdRenderer.processTplObjNames" (list $ $template) }}
     {{- else }}
-      {{- $_ := set $template "objName" ($template.objName | default $.Values.elCicdDefaults.objName | default $.Release.Name) }}
+      {{- $_ := set $template "objName" ($template.objName | default $.Values.elCicdDefaults.objName) }}
     {{- end }}
 
     {{- if $template.namespaces }}

@@ -6,7 +6,7 @@
   {{- $_ := set $.Values "global" ($.Values.global | default dict) }}
 
   {{- $_ := set $.Values "elCicdDefaults" ($.Values.elCicdDefaults | default dict) }}
-  {{- $_ := set $.Values.elCicdDefaults "objName" ($.Values.elCicdDefaults.objName | default .Chart.Name) }}
+  {{- $_ := set $.Values.elCicdDefaults "objName" ($.Values.elCicdDefaults.objName | default $.Release.Name) }}
   
   {{- $_ := set $.Values "elCicdDefs" ($.Values.elCicdDefs | default dict) }}
   {{- $_ := set $.Values "skippedTemplates" list }}
