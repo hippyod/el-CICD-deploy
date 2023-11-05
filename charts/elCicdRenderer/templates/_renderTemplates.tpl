@@ -15,7 +15,7 @@
 
   {{- include "elCicdRenderer.processTemplates" (list $ $.Values.allTemplates) }}
   
-  {{- if (or $.Values.collateValues $.Values.global.collateValues) }}
+  {{- if (or $.Values.valuesYamlToStdOut $.Values.global.valuesYamlToStdOut) }}
     {{ $.Values | toYaml }}
   {{- else }}
     {{- $skippedList := list }}
