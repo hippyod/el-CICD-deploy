@@ -193,7 +193,7 @@
     {{- else if (kindIs "string" $value) }}
       {{- include "elCicdRenderer.processMapValue" (list $ $map $key $elCicdDefs $processDefList $depth) }}
 
-      {{- $value := get $map $key }}
+      {{- $value = get $map $key }}
     {{- end }}
   {{- end }}
   
