@@ -196,7 +196,10 @@
       {{- $value := get $map $key }}
     {{- end }}
   {{- end }}
-  {{- $_ := set $map $key (regexReplaceAll $.Values.ELCICD_ESCAPED_REGEX $value $.Values.ELCICD_UNESCAPED_REGEX) }}
+  
+  {{- if (kindIs "string" $value) }}
+    {{- $_ := set $map $key (regexReplaceAll $.Values.ELCICD_ESCAPED_REGEX $value $.Values.ELCICD_UNESCAPED_REGEX) }}
+  {{- end }}
 {{- end }}
 
 {{- define "elCicdRenderer.replaceParamRefs" }}
@@ -271,8 +274,15 @@
     {{- $_ := unset $map $oldKey }}
   {{- end }}
   {{- if and $matches (ne $oldKey $key) $key }}
+    {{- $oldKey = $key }}
     {{- $_ := set $map $key $value }}
     {{- include "elCicdRenderer.processMapKey" (list $ $map $key $elCicdDefs $processDefList) }}
+  {{- end }}
+  
+  {{- $key := regexReplaceAll $.Values.ELCICD_ESCAPED_REGEX $key $.Values.ELCICD_UNESCAPED_REGEX }}
+  {{- if ne $oldKey $key }}
+    {{- $_ := unset $map $oldKey }}
+    {{- $_ := set $map $key $value }}
   {{- end }}
 {{- end }}
 
