@@ -194,9 +194,9 @@
       {{- include "elCicdRenderer.processMapValue" (list $ $map $key $elCicdDefs $processDefList $depth) }}
 
       {{- $value := get $map $key }}
-      {{- $_ := set $map $key (regexReplaceAll $.Values.ELCICD_ESCAPED_REGEX $value $.Values.ELCICD_UNESCAPED_REGEX) }}
     {{- end }}
   {{- end }}
+  {{- $_ := set $map $key (regexReplaceAll $.Values.ELCICD_ESCAPED_REGEX $value $.Values.ELCICD_UNESCAPED_REGEX) }}
 {{- end }}
 
 {{- define "elCicdRenderer.replaceParamRefs" }}

@@ -4,7 +4,7 @@ Kustomization
 {{- define "elCicdKubernetes.values-yaml" }}
   {{- $ := index . 0 }}
   {{- $yamlValues := index . 1 }}
-  {{- range $field, $fieldValue := ($yamlValues.values-yaml | default dict) }}
+  {{- range $field, $fieldValue := ($yamlValues.valuesYaml | default dict) }}
 {{ $field }}: {{ $fieldValue | toYaml | nindent 2 }}
   {{- end }}
 {{- end }}
