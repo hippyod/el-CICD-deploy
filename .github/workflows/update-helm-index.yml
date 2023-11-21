@@ -12,6 +12,8 @@ on:
 jobs:
   package-charts:
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
     steps:
     - name: Helm Installation
       uses: azure/setup-helm@v3
@@ -30,7 +32,7 @@ jobs:
           echo ${{secrets.GITHUB_TOKEN}} | podman login --username USERNAME --password-stdin ghcr.io
           
           CHART_VERSION=$(grep 'version:' ./elCicdCommon/Chart.yaml | awk '{print $2}' | tr -d '"')
-          helm push ${CHART_DIR}-${CHART_VERSION}.tgz ghcr.io/elcicd
+          helm push ${CHART_DIR}-${CHART_VERSION}.tgz oci://ghcr.io/elcicd
         done
 
         helm repo index .
