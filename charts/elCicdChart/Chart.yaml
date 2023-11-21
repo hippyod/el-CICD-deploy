@@ -11,10 +11,10 @@ version: "0.1.0"
 dependencies:
 - name: el-cicd-renderer
   version: 0.1.0
-  repository: file://../el-cicd-renderer
+  repository: file://../elCicdRenderer
 - name: el-cicd-kubernetes
   version: 0.1.0
-  repository: file://../el-cicd-kubernetes
+  repository: file://../elCicdKubernetes
 - name: el-cicd-common
   version: 0.1.0
-  repository: file://../el-cicd-common
+  repository: file://../elCicdCommon
