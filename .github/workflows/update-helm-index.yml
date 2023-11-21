@@ -28,7 +28,7 @@ jobs:
           echo ${{secrets.GITHUB_TOKEN}} | podman login --username USERNAME --password-stdin ghcr.io
           
           CHART_VERSION=$(grep 'version:' ./charts/${CHART_DIR}/Chart.yaml | tail -n1 | awk '{ print $2}')
-          helm push ./charts/$CHART_DIR}-${CHART_VERSION}.tgz oci://ghcr.io/elcicd
+          helm push ./charts/${CHART_DIR}-${CHART_VERSION}.tgz oci://ghcr.io/elcicd
         done
 
         helm repo index ./charts
