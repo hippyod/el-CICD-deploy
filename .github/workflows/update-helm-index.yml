@@ -18,17 +18,17 @@ jobs:
     - name: Git Checkout
       uses: actions/checkout@v2
     - name: Update Helm Index
-      run: |
-        git config --global user.email "elcicd@donotreply.org"
-        git config --global user.name "elcicd"
-        
+      run: |        
         CHART_DIRS='elCicdCommon elCicdRenderer elCicdKubernetes elCicdArgoCd elCicdChart'
         for CHART_DIR in ${CHART_DIRS}
         do
           helm package --dependency-update ./charts/${CHART_DIR} -d ./charts
           rm -rf ./charts/${CHART_DIR}/charts
           rm -f ./charts/${CHART_DIR}/Chart.lock
-          helm registry login -u ${GITHUB_TOKEN} ghcr.io 
+          echo ${GITHUB_TOKEN} | podman login -u USERNAME --pasword-stdin ghcr.io
+          
+          CHART_VERSION=$(grep 'version:' ./charts/${CHART_DIR}/Chart.yaml | tail -n1 | awk '{ print $2}')
+          helm push ./charts/$CHART_DIR}-${CHART_VERSION}.tgz oci://ghcr.io/elcicd
         done
 
         helm repo index ./charts
