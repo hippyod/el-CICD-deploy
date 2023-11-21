@@ -13,6 +13,7 @@ jobs:
   package-charts:
     runs-on: ubuntu-latest
     permissions:
+      contents: write
       packages: write
     steps:
     - name: Helm Installation
