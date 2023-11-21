@@ -32,8 +32,9 @@ jobs:
           rm -f ./${CHART_DIR}/Chart.lock
           echo ${{secrets.GITHUB_TOKEN}} | podman login --username USERNAME --password-stdin ghcr.io
           
-          CHART_VERSION=$(grep 'version:' ./elCicdCommon/Chart.yaml | awk '{print $2}' | tr -d '"')
-          helm push ${CHART_DIR}-${CHART_VERSION}.tgz oci://ghcr.io/elcicd
+          CHART_VERSION=$(grep 'version:' ./${CHART_DIR}/Chart.yaml | awk '{print $2}' | tr -d '"')
+          CHART_NAME=$(grep 'name:' ./${CHART_DIR}/Chart.yaml | awk '{print $2}')
+          helm push ${CHART_NAME}-${CHART_VERSION}.tgz oci://ghcr.io/elcicd
         done
 
         helm repo index .
