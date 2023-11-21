@@ -18,20 +18,22 @@ jobs:
     - name: Git Checkout
       uses: actions/checkout@v2
     - name: Update Helm Index
-      run: |        
+      run: |
+        set -x
+        cd charts
         CHART_DIRS='elCicdCommon elCicdRenderer elCicdKubernetes elCicdArgoCd elCicdChart'
         for CHART_DIR in ${CHART_DIRS}
         do
-          helm package --dependency-update ./charts/${CHART_DIR} -d ./charts
-          rm -rf ./charts/${CHART_DIR}/charts
-          rm -f ./charts/${CHART_DIR}/Chart.lock
+          helm package --dependency-update ./${CHART_DIR} -d .
+          rm -rf ./${CHART_DIR}/charts
+          rm -f ./${CHART_DIR}/Chart.lock
           echo ${{secrets.GITHUB_TOKEN}} | podman login --username USERNAME --password-stdin ghcr.io
           
-          CHART_VERSION=$(grep 'version:' ./charts/elCicdCommon/Chart.yaml | awk '{print $2}' | tr -d '"')
-          helm push ./charts/${CHART_DIR}-${CHART_VERSION}.tgz oci://ghcr.io/elcicd/${CHART_DIR}
+          CHART_VERSION=$(grep 'version:' ./elCicdCommon/Chart.yaml | awk '{print $2}' | tr -d '"')
+          helm push ${CHART_DIR}-${CHART_VERSION}.tgz oci://ghcr.io/elcicd
         done
 
-        helm repo index ./charts
+        helm repo index .
         git add .
         git commit -m "Update Helm Index Workflow: updating packages and index of all elCicd Helm charts"
         git push
