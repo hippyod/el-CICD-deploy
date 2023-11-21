@@ -20,8 +20,11 @@ jobs:
     - name: Git Checkout
       uses: actions/checkout@v2
     - name: Update Helm Index
-      run: |
+      run: |        
         set -ex
+        git config --global user.email "elcicd@donotreply.org"
+        git config --global user.name "elcicd"
+
         cd charts
         rm -f *.tgz
         CHART_DIRS='elCicdCommon elCicdRenderer elCicdKubernetes elCicdArgoCd elCicdChart'
