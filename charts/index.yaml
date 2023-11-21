@@ -1,97 +1,97 @@
 apiVersion: v1
 entries:
-  elCicdArgoCd:
+  el-cicd-argocd:
   - apiVersion: v2
-    created: "2023-11-12T20:04:44.907229279Z"
+    created: "2023-11-21T23:43:51.681390426Z"
     description: A library chart with the ArgoCD resources defined for Application,
       ApplicationSets, and AppProject deployments. Built to be used in conjunction
       with the elCicdRenderer for rendering as a general Helm-based deployment solution
       across multiple environments.
-    digest: 0eec99da4bf56141d870fdc48c6aaa31d470f4505f5204eb579a49e75968ed11
+    digest: 9fbdcf5e4aecad758eb821384eef68e9de814567804c8ce73cdbb19378a4bea6
     keywords:
     - generic
     - parameterized
     - profiles
-    name: elCicdArgoCd
+    name: el-cicd-argocd
     sources:
     - https://github.com/elcicd/el-CICD-deploy/tree/main/charts
     type: library
     urls:
-    - elCicdArgoCd-0.1.0.tgz
+    - el-cicd-argocd-0.1.0.tgz
     version: 0.1.0
-  elCicdChart:
+  el-cicd-chart:
   - apiVersion: v2
-    created: "2023-11-12T20:04:44.909295504Z"
+    created: "2023-11-21T23:43:51.682181869Z"
     dependencies:
-    - name: elCicdRenderer
+    - name: el-cicd-renderer
       repository: file://../elCicdRenderer
       version: 0.1.0
-    - name: elCicdKubernetes
+    - name: el-cicd-kubernetes
       repository: file://../elCicdKubernetes
       version: 0.1.0
-    - name: elCicdCommon
+    - name: el-cicd-common
       repository: file://../elCicdCommon
       version: 0.1.0
     description: 'A generic helm chart used to deploy any size group of components
-      onto a kubernetes cluster. Library charts included: elCicdRenderer, elCicdKubernetes,
-      elCicdCommon.'
-    digest: 5f9b7b28bb9b83d647d4903e3c2e31b6b0f8c1a930112b758bca7e8cc1920b8d
-    name: elCicdChart
+      onto a kubernetes cluster. Library charts included: el-cicd-renderer, el-cicd-kubernetes,
+      el-cicd-common.'
+    digest: c4f3095f79958eb3873eef391a521df2f3813f1493bbb755aec358182556daac
+    name: el-cicd-chart
     type: application
     urls:
-    - elCicdChart-0.1.0.tgz
+    - el-cicd-chart-0.1.0.tgz
     version: 0.1.0
-  elCicdCommon:
+  el-cicd-common:
   - apiVersion: v2
-    created: "2023-11-12T20:04:44.909480607Z"
+    created: "2023-11-21T23:43:51.682339732Z"
     description: A library chart with basic, common functionality shared by all elCicd
       charts.
-    digest: 7c268f251754629d5bb3842b643a543b90f0d197782679264b5a90af7ec776ae
+    digest: e6bf4657a1582a816c9949f7bc9999a587a94ea945c06e911e91fa4aeebd2e47
     keywords:
     - generic
     - parameterized
     - profiles
-    name: elCicdCommon
+    name: el-cicd-common
     sources:
     - https://github.com/elcicd/el-CICD-deploy/tree/main/charts
     type: library
     urls:
-    - elCicdCommon-0.1.0.tgz
+    - el-cicd-common-0.1.0.tgz
     version: 0.1.0
-  elCicdKubernetes:
+  el-cicd-kubernetes:
   - apiVersion: v2
-    created: "2023-11-12T20:04:44.909913112Z"
+    created: "2023-11-21T23:43:51.68264447Z"
     description: A library chart with the a complete set of Kubernetes resources that
       might be needed for application deployments. Built to be used in conjunction
       with the elCicdRenderer for rendering as a general Helm-based deployment solution
       across multiple environments.
-    digest: 72e6fae0864092dcfc6b5f85b63530325aebfcff7964da5a7ccf757e8552b278
+    digest: c190aa7808a20bfd61b326e9fbe405f3e780946f53b1952154160b19d1a18ef5
     keywords:
     - generic
     - parameterized
     - profiles
-    name: elCicdKubernetes
+    name: el-cicd-kubernetes
     sources:
     - https://github.com/elcicd/el-CICD-deploy/tree/main/charts
     type: library
     urls:
-    - elCicdKubernetes-0.1.0.tgz
+    - el-cicd-kubernetes-0.1.0.tgz
     version: 0.1.0
-  elCicdRenderer:
+  el-cicd-renderer:
   - apiVersion: v2
-    created: "2023-11-12T20:04:44.910257116Z"
+    created: "2023-11-21T23:43:51.682926985Z"
     description: A chart meant to be added as a dependency for rendering parameterized
       values.yml files with profiles.
-    digest: d36086067b1b4b6ed55e9ddc0becd0ade6cb3230c9c392c56c90153f09240ceb
+    digest: b1da1b9c4961cc82ae544124e14686fd008650b8c5f938a16c9766afeb3cab21
     keywords:
     - parameterized
     - profiles
     - parameters
-    name: elCicdRenderer
+    name: el-cicd-renderer
     sources:
     - https://github.com/elcicd/el-CICD-deploy/tree/main/charts
     type: library
     urls:
-    - elCicdRenderer-0.1.0.tgz
+    - el-cicd-renderer-0.1.0.tgz
     version: 0.1.0
-generated: "2023-11-12T20:04:44.906739773Z"
+generated: "2023-11-21T23:43:51.681111737Z"
