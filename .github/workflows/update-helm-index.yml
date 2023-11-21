@@ -28,6 +28,7 @@ jobs:
           helm package --dependency-update ./charts/${CHART_DIR} -d ./charts
           rm -rf ./charts/${CHART_DIR}/charts
           rm -f ./charts/${CHART_DIR}/Chart.lock
+          helm registry login -u ${GITHUB_TOKEN} ghcr.io 
         done
 
         helm repo index ./charts
