@@ -30,7 +30,7 @@ jobs:
           helm package --dependency-update ./${CHART_DIR} -d .
           rm -rf ./${CHART_DIR}/charts
           rm -f ./${CHART_DIR}/Chart.lock
-          echo ${{secrets.GITHUB_TOKEN}} | helm login -u USERNAME --password-stdin ghcr.io
+          echo ${{secrets.GITHUB_TOKEN}} | helm registry login -u USERNAME --password-stdin ghcr.io
           
           CHART_VERSION=$(grep 'version:' ./${CHART_DIR}/Chart.yaml | awk '{print $2}' | tr -d '"')
           CHART_NAME=$(grep 'name:' ./${CHART_DIR}/Chart.yaml | awk '{print $2}')
