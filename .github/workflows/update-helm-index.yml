@@ -21,8 +21,9 @@ jobs:
       uses: actions/checkout@v2
     - name: Update Helm Index
       run: |
-        set -x
+        set -ex
         cd charts
+        rm -f *.tgz
         CHART_DIRS='elCicdCommon elCicdRenderer elCicdKubernetes elCicdArgoCd elCicdChart'
         for CHART_DIR in ${CHART_DIRS}
         do
@@ -32,7 +33,7 @@ jobs:
           echo ${{secrets.GITHUB_TOKEN}} | podman login --username USERNAME --password-stdin ghcr.io
           
           CHART_VERSION=$(grep 'version:' ./elCicdCommon/Chart.yaml | awk '{print $2}' | tr -d '"')
-          helm push ${CHART_DIR}-${CHART_VERSION}.tgz oci://ghcr.io/elcicd/el-cicd-deploy
+          helm push ${CHART_DIR}-${CHART_VERSION}.tgz oci://ghcr.io/elcicd
         done
 
         helm repo index .

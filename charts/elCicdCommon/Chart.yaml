@@ -1,5 +1,5 @@
 apiVersion: v2
-name: elCicdCommon
+name: el-cicd-common
 description: |-
   A library chart with basic, common functionality shared by all elCicd charts.
 keywords:
