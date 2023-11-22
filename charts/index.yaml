@@ -1,13 +1,107 @@
 apiVersion: v1
 entries:
-  elcicd-argocd:
+  el-cicd-argocd:
   - apiVersion: v2
-    created: "2023-11-22T02:00:54.206142467Z"
+    created: "2023-11-22T02:16:16.538641572Z"
     description: A library chart with the ArgoCD resources defined for Application,
       ApplicationSets, and AppProject deployments. Built to be used in conjunction
       with the elcicd-renderer for rendering as a general Helm-based deployment solution
       across multiple environments.
     digest: 1faa5fcf1d09d4504e997c43ea2bf21d0bc7712d14d80c78d1755b3d8994eca6
+    keywords:
+    - generic
+    - parameterized
+    - profiles
+    name: el-cicd-argocd
+    sources:
+    - https://github.com/elcicd/el-CICD-deploy/tree/main/charts
+    type: library
+    urls:
+    - el-cicd-argocd-0.1.0.tgz
+    version: 0.1.0
+  el-cicd-chart:
+  - apiVersion: v2
+    created: "2023-11-22T02:16:16.539463209Z"
+    dependencies:
+    - name: el-cicd-renderer
+      repository: file://../elcicd-renderer
+      version: 0.1.0
+    - name: el-cicd-kubernetes
+      repository: file://../elcicd-kubernetes
+      version: 0.1.0
+    - name: el-cicd-common
+      repository: file://../elcicd-common
+      version: 0.1.0
+    description: 'A generic helm chart used to deploy any size group of components
+      onto a kubernetes cluster. Library charts included: el-cicd-renderer, el-cicd-kubernetes,
+      el-cicd-common.'
+    digest: b8a1747fe08dd69bc2d25365a68d6761bbacb6dd91c4b702126ff8ecccd24695
+    name: el-cicd-chart
+    type: application
+    urls:
+    - el-cicd-chart-0.1.0.tgz
+    version: 0.1.0
+  el-cicd-common:
+  - apiVersion: v2
+    created: "2023-11-22T02:16:16.539634968Z"
+    description: A library chart with basic, common functionality shared by all elCicd
+      charts.
+    digest: 66883e9d769a1ad3d1a6ae17ce1e42758871d6cc2259cd6a20c27ac4bf6616ee
+    keywords:
+    - generic
+    - parameterized
+    - profiles
+    name: el-cicd-common
+    sources:
+    - https://github.com/elcicd/el-CICD-deploy/tree/main/charts
+    type: library
+    urls:
+    - el-cicd-common-0.1.0.tgz
+    version: 0.1.0
+  el-cicd-kubernetes:
+  - apiVersion: v2
+    created: "2023-11-22T02:16:16.539956516Z"
+    description: A library chart with the a complete set of Kubernetes resources that
+      might be needed for application deployments. Built to be used in conjunction
+      with the elcicd-renderer for rendering as a general Helm-based deployment solution
+      across multiple environments.
+    digest: a4e61c1c0b725cd3f82d06fe4d7f60023eb4d65999f1b84d4b606b9e2c21e450
+    keywords:
+    - generic
+    - parameterized
+    - profiles
+    name: el-cicd-kubernetes
+    sources:
+    - https://github.com/elcicd/el-CICD-deploy/tree/main/charts
+    type: library
+    urls:
+    - el-cicd-kubernetes-0.1.0.tgz
+    version: 0.1.0
+  el-cicd-renderer:
+  - apiVersion: v2
+    created: "2023-11-22T02:16:16.540208404Z"
+    description: A chart meant to be added as a dependency for rendering parameterized
+      values.yml files with profiles.
+    digest: c2b3ed4e4224340c517b2694ad73a3d50a50b6126b78995bcd5826f50fc8954d
+    keywords:
+    - parameterized
+    - profiles
+    - parameters
+    name: el-cicd-renderer
+    sources:
+    - https://github.com/elcicd/el-CICD-deploy/tree/main/charts
+    type: library
+    urls:
+    - el-cicd-renderer-0.1.0.tgz
+    version: 0.1.0
+  elcicd-argocd:
+  - apiVersion: v2
+    created: "2023-11-22T02:16:16.540333406Z"
+    description: A library chart with the ArgoCD resources defined for Application,
+      ApplicationSets, and AppProject deployments. Built to be used in conjunction
+      with the elcicd-renderer for rendering as a general Helm-based deployment solution
+      across multiple environments.
+    digest: b940aac39a409ec4869f9ba99fe5286f0138174b80696310681871c7ac94b47d
     keywords:
     - generic
     - parameterized
@@ -21,7 +115,7 @@ entries:
     version: 0.1.0
   elcicd-chart:
   - apiVersion: v2
-    created: "2023-11-22T02:00:54.206983643Z"
+    created: "2023-11-22T02:16:16.541038155Z"
     dependencies:
     - name: elcicd-renderer
       repository: file://../elcicd-renderer
@@ -34,8 +128,8 @@ entries:
       version: 0.1.0
     description: 'A generic helm chart used to deploy any size group of components
       onto a kubernetes cluster. Library charts included: elcicd-renderer, el-cicd-kubernetes,
-      elcicd-common.'
-    digest: b8a1747fe08dd69bc2d25365a68d6761bbacb6dd91c4b702126ff8ecccd24695
+      el-cicd-common.'
+    digest: d532abbff024de64e4937a57ffd994b01cedbb09c6a88432ce54a08ccc757da7
     name: elcicd-chart
     type: application
     urls:
@@ -43,10 +137,10 @@ entries:
     version: 0.1.0
   elcicd-common:
   - apiVersion: v2
-    created: "2023-11-22T02:00:54.207146477Z"
+    created: "2023-11-22T02:16:16.541168498Z"
     description: A library chart with basic, common functionality shared by all elCicd
       charts.
-    digest: 66883e9d769a1ad3d1a6ae17ce1e42758871d6cc2259cd6a20c27ac4bf6616ee
+    digest: a4c6d34ef23d6ba7a56b1895c63e97682a4abe27d380838c40370c41c8cb4d63
     keywords:
     - generic
     - parameterized
@@ -60,12 +154,12 @@ entries:
     version: 0.1.0
   elcicd-kubernetes:
   - apiVersion: v2
-    created: "2023-11-22T02:00:54.207449Z"
+    created: "2023-11-22T02:16:16.541647618Z"
     description: A library chart with the a complete set of Kubernetes resources that
       might be needed for application deployments. Built to be used in conjunction
       with the elcicd-renderer for rendering as a general Helm-based deployment solution
       across multiple environments.
-    digest: a4e61c1c0b725cd3f82d06fe4d7f60023eb4d65999f1b84d4b606b9e2c21e450
+    digest: 17389de54b59257b6ddd5ab980a1d1d6cfa2010da9369738c55950008ec75706
     keywords:
     - generic
     - parameterized
@@ -79,10 +173,10 @@ entries:
     version: 0.1.0
   elcicd-renderer:
   - apiVersion: v2
-    created: "2023-11-22T02:00:54.207687264Z"
+    created: "2023-11-22T02:16:16.541881613Z"
     description: A chart meant to be added as a dependency for rendering parameterized
       values.yml files with profiles.
-    digest: c2b3ed4e4224340c517b2694ad73a3d50a50b6126b78995bcd5826f50fc8954d
+    digest: e43ccc368e7063dd08eed34e3db283c86b982bd6243a5165f1e3a9cc4b23493b
     keywords:
     - parameterized
     - profiles
@@ -94,4 +188,4 @@ entries:
     urls:
     - elcicd-renderer-0.1.0.tgz
     version: 0.1.0
-generated: "2023-11-22T02:00:54.205857096Z"
+generated: "2023-11-22T02:16:16.538364668Z"
