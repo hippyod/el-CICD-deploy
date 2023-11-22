@@ -1,4 +1,12 @@
-name: Update Helm Index
+# GitHub Action that will automatically:
+# - package all charts in a repo
+# - push packaged charts to ghcr.io (GitHub container registry)
+# - rebuild the index for https dependency references (i.e. https://raw.githubusercontent.com/.../charts)
+#
+# Action will only run on push and pull_request events
+# Assumes all charts are stored in a <repo>/charts directory
+
+name: "All Helm Charts ['helm registry push', 'helm repo index']"
 
 on:
   push:
@@ -6,7 +14,7 @@ on:
     - main
     paths:
     - 'charts/**'
-  
+
   workflow_dispatch:
 
 jobs:
@@ -21,27 +29,29 @@ jobs:
     - name: Git Checkout
       uses: actions/checkout@v2
     - name: Update Helm Index
-      run: |        
+      run: |
         set -ex
-        git config --global user.email "elcicd@donotreply.org"
-        git config --global user.name "elcicd"
-
         cd charts
-        rm -f *.tgz
         CHART_DIRS='elCicdCommon elCicdRenderer elCicdKubernetes elCicdArgoCd elCicdChart'
         for CHART_DIR in ${CHART_DIRS}
         do
           helm package --dependency-update ./${CHART_DIR} -d .
           rm -rf ./${CHART_DIR}/charts
           rm -f ./${CHART_DIR}/Chart.lock
-          echo ${{secrets.GITHUB_TOKEN}} | helm registry login -u USERNAME --password-stdin ghcr.io
-          
+
+          echo ${{secrets.GITHUB_TOKEN}} | helm registry login -u NOT_NEEDED --password-stdin ghcr.io
+
           CHART_VERSION=$(grep '^version:' ./${CHART_DIR}/Chart.yaml | awk '{print $2}' | tr -d '"')
           CHART_NAME=$(grep '^name:' ./${CHART_DIR}/Chart.yaml | awk '{print $2}')
+
           helm push ${CHART_NAME}-${CHART_VERSION}.tgz oci://ghcr.io/elcicd
         done
 
         helm repo index .
         git add .
+
+        git config --global user.email "elcicd@donotreply.org"
+        git config --global user.name "elcicd"
+
         git commit -m "Update Helm Index Workflow: updating packages and index of all elCicd Helm charts"
         git push
