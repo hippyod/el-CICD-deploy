@@ -6,7 +6,7 @@
 # Action will only run on push and pull_request events
 # Assumes all charts are stored in a <repo>/charts directory
 
-name: "All Helm Charts ['helm registry push', 'helm repo index']"
+name: "Update Helm Chart Repository"
 
 on:
   push:
