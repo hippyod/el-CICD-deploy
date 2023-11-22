@@ -1,20 +1,20 @@
 apiVersion: v2
-name: el-cicd-chart
+name: elcicd-chart
 description: |-
   A generic helm chart used to deploy any size group of components onto a kubernetes cluster.
-  Library charts included: el-cicd-renderer, el-cicd-kubernetes, el-cicd-common.
+  Library charts included: elcicd-renderer, el-cicd-kubernetes, el-cicd-common.
 
 type: application
 
 version: "0.1.0"
 
 dependencies:
-- name: el-cicd-renderer
+- name: elcicd-renderer
   version: 0.1.0
   repository: file://../elcicd-renderer
-- name: el-cicd-kubernetes
+- name: elcicd-kubernetes
   version: 0.1.0
   repository: file://../elcicd-kubernetes
-- name: el-cicd-common
+- name: elcicd-common
   version: 0.1.0
   repository: file://../elcicd-common
