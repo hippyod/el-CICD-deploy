@@ -1,4 +1,4 @@
-{{- define "elcicd-argoCd.appProject" }}
+{{- define "elcicd-argocd.appProject" }}
   {{- $ := index . 0 }}
   {{- $appProjValues := index . 1 }}
   {{- $_ := set $appProjValues "kind" "AppProject" }}
@@ -21,7 +21,7 @@
     {{- include "elcicd-common.outputToYaml" (list $ $appProjValues $whiteList) }}
 {{- end }}
 
-{{- define "elcicd-argoCd.applicationSet" }}
+{{- define "elcicd-argocd.applicationSet" }}
   {{- $ := index . 0 }}
   {{- $appSetValues := index . 1 }}
   {{- $_ := set $appSetValues "kind" "ApplicationSet" }}
@@ -35,7 +35,7 @@
     {{- include "elcicd-common.outputToYaml" (list $ $appSetValues $whiteList) }}
 {{- end }}
 
-{{- define "elcicd-argoCd.application" }}
+{{- define "elcicd-argocd.application" }}
   {{- $ := index . 0 }}
   {{- $appValues := index . 1 }}
   {{- $_ := set $appValues "kind" "Application" }}
