@@ -5,7 +5,7 @@ entries:
     created: "2023-11-22T00:37:12.470644919Z"
     description: A library chart with the ArgoCD resources defined for Application,
       ApplicationSets, and AppProject deployments. Built to be used in conjunction
-      with the elCicdRenderer for rendering as a general Helm-based deployment solution
+      with the elcicd-renderer for rendering as a general Helm-based deployment solution
       across multiple environments.
     digest: b963783d46a53ec9224c9ac354493a8c0ea4991d49492c7c9b177a84008d9b1c
     keywords:
@@ -24,13 +24,13 @@ entries:
     created: "2023-11-22T00:37:12.471440167Z"
     dependencies:
     - name: el-cicd-renderer
-      repository: file://../elCicdRenderer
+      repository: file://../elcicd-renderer
       version: 0.1.0
     - name: el-cicd-kubernetes
-      repository: file://../elCicdKubernetes
+      repository: file://../elcicd-kubernetes
       version: 0.1.0
     - name: el-cicd-common
-      repository: file://../elCicdCommon
+      repository: file://../elcicd-common
       version: 0.1.0
     description: 'A generic helm chart used to deploy any size group of components
       onto a kubernetes cluster. Library charts included: el-cicd-renderer, el-cicd-kubernetes,
@@ -63,7 +63,7 @@ entries:
     created: "2023-11-22T00:37:12.471902021Z"
     description: A library chart with the a complete set of Kubernetes resources that
       might be needed for application deployments. Built to be used in conjunction
-      with the elCicdRenderer for rendering as a general Helm-based deployment solution
+      with the elcicd-renderer for rendering as a general Helm-based deployment solution
       across multiple environments.
     digest: 4ab0e5dc119a7745d797cd036892767d97ee1af32118fbe3ba20359b34f4d1cf
     keywords:

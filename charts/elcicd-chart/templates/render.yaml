@@ -1,0 +1,6 @@
+{{- if eq .Values.outputMergedValuesYaml true }}
+  {{- $_ := unset .Values "outputMergedValuesYaml" }}
+  {{- .Values | toYaml }}
+{{- else }}
+  {{- include "elcicd-renderer.render" . }}
+{{- end }}

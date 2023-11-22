@@ -1,0 +1,16 @@
+apiVersion: v2
+name: el-cicd-argocd
+description: |-
+  A library chart with the ArgoCD resources defined for Application, ApplicationSets, and AppProject deployments.
+  Built to be used in conjunction with the elcicd-renderer for rendering as a general Helm-based deployment solution
+  across multiple environments.
+keywords:
+- generic
+- parameterized
+- profiles
+
+sources: [https://github.com/elcicd/el-CICD-deploy/tree/main/charts]
+
+type: library
+
+version: "0.1.0"
