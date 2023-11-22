@@ -14,11 +14,19 @@ on:
     - main
     paths:
     - 'charts/**'
+  pull_request_target:
+    branches:
+    - main
+    paths:
+    - 'charts/**'
+    types:
+      - closed
 
   workflow_dispatch:
 
 jobs:
   package-charts:
+    if: ${{ github.event_name == 'push' || github.event.pull_request.merged == true }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
