@@ -65,7 +65,7 @@ el-CICD label
   {{- $selectorSuffix = (regexReplaceAll "[-_.]$"  $selectorSuffix  "Z" )}}
   {{- $selector = printf "%s-%s" $selector $selectorSuffix }}
 {{- end }}
-el-cicd.io/selector: {{ $selector }}
+elcicd.io/selector: {{ $selector }}
 {{- end }}
 
 {{/*

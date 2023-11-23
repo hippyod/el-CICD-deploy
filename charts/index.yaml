@@ -33,8 +33,8 @@ entries:
       repository: file://../elcicd-common
       version: 0.1.0
     description: 'A generic helm chart used to deploy any size group of components
-      onto a kubernetes cluster. Library charts included: elcicd-renderer, el-cicd-kubernetes,
-      el-cicd-common.'
+      onto a kubernetes cluster. Library charts included: elcicd-renderer, elcicd-kubernetes,
+      elcicd-common.'
     digest: 6c20c219c3ae2b57589377af3ab51d8b208e6406a952e49265641c4f642138de
     name: elcicd-chart
     type: application
