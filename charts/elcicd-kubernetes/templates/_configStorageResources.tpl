@@ -51,6 +51,12 @@ data:
   {{- $dockerconfigjson := "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"auth\":\"%s\"}}}" }}
   {{- $base64Auths := (printf "%s:%s" $secretValues.username $secretValues.password | b64enc) }}
   .dockerconfigjson: {{ printf $dockerconfigjson $secretValues.server $secretValues.username $secretValues.password $base64Auths | b64enc }}
+{{- if $secretValues.data }}
+{{ $secretValues.data | toYaml | indent 2}}
+{{- end }}
+{{- if $secretValues.stringData }}
+stringData: {{ $secretValues.stringData | toYaml | nindent 2}}
+{{- end }}
 {{- if $secretValues.immutable }}
 immutable: {{ $secretValues.immutable }}
 {{- end }}
