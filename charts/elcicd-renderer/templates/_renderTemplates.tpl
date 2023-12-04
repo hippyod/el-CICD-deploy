@@ -4,6 +4,8 @@
   {{- $ := . }}
   
   {{- $_ := set $.Values "EL_CICD_DEPLOYMENT_TIME" (now | date "Mon Jan 2 15:04:05 MST 2006") }}
+  
+  {{- $_ := set $.Values "EL_CICD_DEPLOYMENT_TIME_NUM" (now | date "2006_01_02_15_04_05") }}
 
   {{- include "elcicd-renderer.initElCicdRenderer" . }}
 
