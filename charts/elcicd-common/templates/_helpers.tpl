@@ -17,14 +17,14 @@ kind: {{ $template.kind }}
 {{- $ := index . 0 }}
 {{- $metadataValues := index . 1 }}
 metadata:
-  {{- $_ := set $metadataValues "annotations" (mergeOverwrite ($metadataValues.annotations | default dict) $.Values.elCicdDefaults.annotations) }}
+  {{- $_ := set $metadataValues "annotations" (mergeOverwrite ($metadataValues.annotations | default dict) ($.Values.elCicdDefaults.annotations | default dict) }}
   {{- if $metadataValues.annotations }}
   annotations:
     {{- range $key, $value := $metadataValues.annotations }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
   {{- end }}
-  {{- $_ := set $metadataValues "labels" (mergeOverwrite ($metadataValues.labels | default dict) $.Values.elCicdDefaults.labels) }}
+  {{- $_ := set $metadataValues "labels" (mergeOverwrite ($metadataValues.labels | default dict) ($.Values.elCicdDefaults.labels | default dict) }}
   labels:
     {{- include "elcicd-common.labels" . | indent 4 }}
   name: {{ required (printf "Unnamed apiObject Name in template: %s!" $metadataValues.templateName) $metadataValues.objName }}
