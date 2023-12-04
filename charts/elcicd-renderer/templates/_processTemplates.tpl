@@ -128,6 +128,7 @@
     {{- include "elcicd-renderer.preProcessFilesAndConfig" (list $ $tplElCicdDefs) }}
 
     {{- $_ := set $tplElCicdDefs "EL_CICD_DEPLOYMENT_TIME" $.Values.EL_CICD_DEPLOYMENT_TIME }}
+    {{- $_ := set $tplElCicdDefs "EL_CICD_DEPLOYMENT_TIME_NUM" $.Values.EL_CICD_DEPLOYMENT_TIME_NUM }}
     {{- $_ := set $tplElCicdDefs "OBJ_NAME" $template.objName }}
     {{- $_ := set $tplElCicdDefs "BASE_OBJ_NAME" ($template.baseObjName | default $template.objName) }}
     {{- $_ := set $tplElCicdDefs "NAME_SPACE" $template.namespace }}
