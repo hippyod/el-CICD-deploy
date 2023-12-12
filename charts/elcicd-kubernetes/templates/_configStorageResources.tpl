@@ -27,6 +27,9 @@ Secret
 {{- $_ := set $secretValues "kind" "Secret" }}
 {{- $_ := set $secretValues "apiVersion" "v1" }}
 {{- include "elcicd-common.apiObjectHeader" . }}
+{{- if $secretValues.type }}
+type: {{ $secretValues.type }}
+{{- end }}
 {{- if $secretValues.data }}
 data: {{ $secretValues.data | toYaml | nindent 2}}
 {{- end }}
@@ -44,23 +47,12 @@ Image Registry Secret
 {{- define "elcicd-kubernetes.docker-registry-secret" }}
 {{- $ := index . 0 }}
 {{- $secretValues := index . 1 }}
-{{- $_ := set $secretValues "kind" "Secret" }}
-{{- $_ := set $secretValues "apiVersion" "v1" }}
-{{- include "elcicd-common.apiObjectHeader" . }}
-data:
-  {{- $dockerconfigjson := "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"auth\":\"%s\"}}}" }}
-  {{- $base64Auths := (printf "%s:%s" $secretValues.username $secretValues.password | b64enc) }}
-  .dockerconfigjson: {{ printf $dockerconfigjson $secretValues.server $secretValues.username $secretValues.password $base64Auths | b64enc }}
-{{- if $secretValues.data }}
-{{ $secretValues.data | toYaml | indent 2}}
-{{- end }}
-{{- if $secretValues.stringData }}
-stringData: {{ $secretValues.stringData | toYaml | nindent 2}}
-{{- end }}
-{{- if $secretValues.immutable }}
-immutable: {{ $secretValues.immutable }}
-{{- end }}
-type: kubernetes.io/dockerconfigjson
+{{- $dockerconfigjson := "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"auth\":\"%s\"}}}" }}
+{{- $dockerconfigjson = (printf $dockerconfigjson $secretValues.server $secretValues.username $secretValues.password $base64Auths | b64enc) }}
+{{- $_ := set  $secretValues ".dockerconfigjson" $dockerconfigjson }}
+{{- $_ := set  $secretValues "base64Auths" (printf "%s:%s" $secretValues.username $secretValues.password | b64enc) }}
+{{- $_ := set  $secretValues "type"  "kubernetes.io/dockerconfigjson" }}
+{{- include "elcicd-kubernetes.secret" (list $ $secretValues) }}
 {{- end }}
 
 {{/*
