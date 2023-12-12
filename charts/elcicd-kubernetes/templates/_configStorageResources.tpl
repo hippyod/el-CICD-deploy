@@ -63,7 +63,7 @@ Image Registry Secret
 {{- $ := index . 0 }}
 {{- $secretValues := index . 1 }}
 {{- $_ := set  $secretValues "annotations"  ($secretValues.annotations | default dict) }}
-{{- $_ := set  $secretValues.annotations "kubernetes.io/service-account.name" $secretValues.service-account.name }}
+{{- $_ := set  $secretValues.annotations "kubernetes.io/service-account.name" $secretValues.serviceAccountName }}
 {{- $_ := set  $secretValues "type"  "kubernetes.io/service-account-token" }}
 {{- end }}
 
