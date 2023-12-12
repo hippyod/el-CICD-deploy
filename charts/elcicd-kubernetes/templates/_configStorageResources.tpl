@@ -50,7 +50,7 @@ Image Registry Secret
 {{- $dockerconfigjson := "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"auth\":\"%s\"}}}" }}
 {{- $base64Auths := (printf "%s:%s" $secretValues.username $secretValues.password | b64enc) }}
 {{- $dockerconfigjson = (printf $dockerconfigjson $secretValues.server $secretValues.username $secretValues.password $base64Auths | b64enc) }}
-{{- $_ := set  $secretValues ".dockerconfigjson" $dockerconfigjson }}
+{{- $_ := set  $secretValues.data ".dockerconfigjson" $dockerconfigjson }}
 {{- $_ := set  $secretValues "type"  "kubernetes.io/dockerconfigjson" }}
 {{- include "elcicd-kubernetes.secret" (list $ $secretValues) }}
 {{- end }}
