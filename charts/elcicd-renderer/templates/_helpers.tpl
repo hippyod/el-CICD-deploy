@@ -1,5 +1,29 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 
+#########################################
+##
+## ======================================
+## elcicd-renderer.initElCicdRenderer
+## ======================================
+##
+## Description: Initializes the el-CICD Renderer.
+##
+## 1. Ensures all lists and dictionaries are non-null.
+##    a. Helm global dictionary
+##    b. elCicdDefaults: contains all default values for rendering
+##       i. Default ojbName will be the release name unless otherwise defined.
+##      ii. Default chart for full templateNames; e.g. elcicd-kubernetes is the default, so
+##          a templateName `foo` will be searched as `elcicd-kubernetes.foo`, whereas `other-chart.foo`
+##          remain untouched.
+##    c. elCicdDefs: el-CICD Chart user-defined values files variable definitions
+##    d. elCicdTemplates: list of el-CICD Chart style Helm templates to render
+##       i. Must not be empty; exception will occur if empty
+## 2. Initilizes default key/value pairs (elcicd-renderer.gatherElCicdDefaults)
+## 3. Initializes el-CICD Kubernetes resources, if included as a library chart dependency. (elcicd-kubernetes.init)
+## 4. Defines internal el-CICD Chart values for parsing.
+##
+#########################################
+
 {{- define "elcicd-renderer.initElCicdRenderer" }}
   {{- $ := . }}
   
@@ -42,6 +66,16 @@
   {{- $_ := set $.Values.elCicdDefs "HELM_RELEASE_NAMESPACE" $.Release.Namespace }}
 {{- end }}
 
+#########################################
+##
+## ======================================
+## elcicd-renderer.gatherElCicdDefaults
+## ======================================
+##
+## Description: Collects the defaults el-CICD Chart will use when rendering.  Merges active profile
+##              specific defaults in.
+##
+#########################################
 {{- define "elcicd-renderer.gatherElCicdDefaults" }}
   {{- $ := . }}
 
@@ -55,6 +89,16 @@
   {{- end }}
 {{- end }}
 
+#########################################
+##
+## ======================================
+## elcicd-renderer.gatherElCicdTemplates
+## ======================================
+##
+## Description: Ensures elCicdTemplates is note empty.  Appends templates from lists
+##              with prefixes of `elCicdTemplates-`
+##
+#########################################
 {{- define "elcicd-renderer.gatherElCicdTemplates" }}
   {{- $ := . }}
 
@@ -77,6 +121,26 @@
   {{- $_ := required "Missing elCicdTemplates: list" $.Values.elCicdTemplates }}
 {{- end }}
 
+#########################################
+##
+## ======================================
+## elcicd-renderer.filterTemplates
+## ======================================
+##
+## Description: el-CICD Chart templates may be condigured to only render or not render depending on
+##              the active profile(s).
+##
+## elCicdTemplates:
+## - templateName: <template name>
+##   objName: <object name>
+##   mustHaveAnyProfile: <render if the active profile is list>
+##   mustNotHaveAnyProfile: <do NOT render if the active profile is list>
+##   mustHaveEveryProfile: <render only every profiles in list is active>
+##   mustHaveEveryProfile: <do NOT render only every profiles in list is active>
+##
+## Skipped templates will be listed when the Chart has completed rendering.
+##
+#########################################
 {{- define "elcicd-renderer.filterTemplates" }}
   {{- $ := . }}
   {{- $_ := set $.Values "elCicdProfiles" ($.Values.elCicdProfiles | default list) }}
@@ -122,6 +186,23 @@
   {{- $_ := set $.Values "skippedTemplates" $skippedList }}
 {{- end }}
 
+#########################################
+##
+## ======================================
+## elcicd-renderer.createNamespaces
+## ======================================
+##
+## Description: Create all namespaces beyond the chart namespace.
+##
+## elCicdNamespaces:
+## - <namespace name>
+##
+## Charts cannot in and of themselves create the namespace where they deployed to.
+## Helm can create the deployment namespace if it doesn't exist, but it doesn't manage
+## it as part of the chart.  Chart's outside the deployment namespace can be managed by
+## a Helm chart, though, and this top-level el-CICD option allows you
+##
+#########################################
 {{- define "elcicd-renderer.createNamespaces" }}
   {{- $ := . }}
   {{- $nsValues := dict }}
@@ -135,6 +216,15 @@
   {{- end }}
 {{- end }}
 
+#########################################
+##
+## ======================================
+## elcicd-renderer.circularReferenceCheck
+## ======================================
+##
+## Description: Check for circular references between el-CICD Chart variables and fail if detected.
+##
+#########################################
 {{- define "elcicd-renderer.circularReferenceCheck" }}
   {{- $value := index . 0 }}
   {{- $key := index . 1 }}
@@ -145,8 +235,4 @@
   {{- if has $elCicdDef $processDefList }}
     {{- fail (printf "Circular elCicdDefs reference: '%s' in '%s: %s'" $elCicdRef $key $value) }}
   {{- end }}
-{{- end }}
-
-{{- define "elcicd-renderer.skippedTemplateLog" }}
-# EXCLUDED BY PROFILES: {{ index . 0 }} -> {{ index . 1 }}
 {{- end }}

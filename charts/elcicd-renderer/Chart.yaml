@@ -2,9 +2,11 @@ apiVersion: v2
 name: elcicd-renderer
 description: A chart meant to be added as a dependency for rendering parameterized values.yml files with profiles.
 keywords:
+- values.yml
 - parameterized
 - profiles
 - parameters
+- variables
 
 sources: [https://github.com/elcicd/el-CICD-deploy/tree/main/charts]
 

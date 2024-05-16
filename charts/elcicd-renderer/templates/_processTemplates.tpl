@@ -11,7 +11,7 @@
   {{- range $template := $.Values.renderingTemplates  }}
     {{- if $template.objName }}
       {{- if eq $template.objName "${OBJ_NAME}" }}
-        {{- $failMsgTpl := "templateName %s objName: ${OBJ_NAME}: OBJ_NAME IS RESERVED; use different variable name or elCicdDefaults.objName" }}
+        {{- $failMsgTpl := "templateName %s objName: $<OBJ_NAME>: OBJ_NAME IS RESERVED; use different variable name or elCicdDefaults.objName" }}
         {{- fail (printf $failMsgTpl $template.templateName) }}
       {{- end }}
     {{- end }}
@@ -49,7 +49,7 @@
 
       {{- $paramVal := get $.Values.elCicdDefs $elCicdDef }}
       {{- if not $paramVal }}
-        {{- fail (printf "%s cannot be empty [undefined parameter reference]: %s" $generatorName $elCicdDef) }}
+        {{- fail (printf "%s cannot be empty [undefined variable reference]: %s" $generatorName $elCicdDef) }}
       {{- end }}
       {{- $generatorVal = $paramVal }}
     {{- end }}
@@ -59,7 +59,7 @@
       {{- include "elcicd-renderer.processTemplateGenerator" (list $ $template $generatorName) }}
     {{- end }}
   {{- else if not (kindIs "slice" $generatorVal) }}
-    {{- fail (printf "%s must be either a parameter or a list: %s" $generatorName $generatorVal )}}
+    {{- fail (printf "%s must be either a variable or a list: %s" $generatorName $generatorVal )}}
   {{- end }}
 {{- end }}
 
@@ -121,10 +121,10 @@
 
   {{- range $template := $templates }}
     {{- $tplElCicdDefs := dict }}
-    {{- include "elcicd-renderer.deepCopyMap" (list $.Values.elCicdDefs $tplElCicdDefs) }}
-    {{- include "elcicd-renderer.deepCopyMap" (list $template.elCicdDefs $tplElCicdDefs) }}
-    {{- include "elcicd-renderer.mergeProfileDefs" (list $ $.Values $tplElCicdDefs $template.baseObjName $template.objName) }}
-    {{- include "elcicd-renderer.mergeProfileDefs" (list $ $template $tplElCicdDefs $template.baseObjName $template.objName) }}
+    {{- include "elcicd-renderer.deepCopyDict" (list $.Values.elCicdDefs $tplElCicdDefs) }}
+    {{- include "elcicd-renderer.deepCopyDict" (list $template.elCicdDefs $tplElCicdDefs) }}
+    {{- include "elcicd-renderer.mergeElCicdDefs" (list $ $.Values $tplElCicdDefs $template.baseObjName $template.objName) }}
+    {{- include "elcicd-renderer.mergeElCicdDefs" (list $ $template $tplElCicdDefs $template.baseObjName $template.objName) }}
     {{- include "elcicd-renderer.preProcessFilesAndConfig" (list $ $tplElCicdDefs) }}
 
     {{- $_ := set $tplElCicdDefs "EL_CICD_DEPLOYMENT_TIME" $.Values.EL_CICD_DEPLOYMENT_TIME }}

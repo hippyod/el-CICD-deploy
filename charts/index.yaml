@@ -84,9 +84,11 @@ entries:
       values.yml files with profiles.
     digest: 206a942e9f022dbfaa9540040ac164da564fef8948869f5c014a710575917545
     keywords:
+    - values.yml
     - parameterized
     - profiles
     - parameters
+    - variables
     name: elcicd-renderer
     sources:
     - https://github.com/elcicd/el-CICD-deploy/tree/main/charts
