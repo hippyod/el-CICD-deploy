@@ -1,5 +1,34 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 
+{{/*
+  ======================================
+  elcicd-renderer.generateAllTemplates
+  ======================================
+
+  Merges all elCicdDefs dictionaries based on profiles and object names to create a
+  dictionary of variables that will be used before finally rendering the el-CICD template.
+
+  Order of precedence in ascending order is as follows dictionaries:
+
+    1. elCicdDefsMap
+      i. Source map submitted for merging.
+          a. If merging variable definitions a the top level, this will be a copy of Values.elCicdDefs
+          b. If merging variable definitions for a template, this will be a copy of the fully merged, top level elCicdDefs map.
+    2. elCicdDefs-<profile>
+      i. Following Helm standard, in order of listed profiles
+    3. elCicdDefs-<baseObjName>
+      i. baseObjName is the raw name of the object to be created before modification
+      ii. Use this form if all permutations of a template should recieve the values defined in this map
+    4. elCicdDefs-<objName>
+      i. objName is the final name of the resource being generated from the el-CICD template
+      ii. Use this form if only a specific permutation of a template should recieve the values defined in this map
+    5. elCicdDefs-<profile>-<baseObjName>
+      i. Same as elCicdDefs-<baseObjName>, but only for a specific profile
+    6. elCicdDefs-<profile>-<objName>
+      i. Same as elCicdDefs-<objName>, but only for a specific profile
+
+    Merged results are returned in destElCicdDefs.
+*/}}
 {{- define "elcicd-renderer.generateAllTemplates" }}
   {{- $ := . }}
 
@@ -17,15 +46,13 @@
     {{- end }}
 
     {{- if $template.objNames }}
-      {{- include "elcicd-renderer.processTemplateGenerator" (list $ $template "objNames") }}
-      {{- include "elcicd-renderer.processTplObjNames" (list $ $template) }}
+      {{- include "elcicd-renderer.procesObjNamesMatrix" (list $ $template) }}
     {{- else }}
       {{- $_ := set $template "objName" ($template.objName | default $.Values.elCicdDefaults.objName) }}
     {{- end }}
 
     {{- if $template.namespaces }}
-      {{- include "elcicd-renderer.processTemplateGenerator" (list $ $template "namespaces") }}
-      {{- include "elcicd-renderer.processTplNamespaces" (list $ $template $.Values.elCicdDefs) }}
+      {{- include "elcicd-renderer.procesNamespacesMatrix" (list $ $template $.Values.elCicdDefs) }}
     {{- end }}
 
     {{- if not (or $template.objNames $template.namespaces) }}
@@ -36,12 +63,20 @@
   {{- $_ := set $.Values "allTemplates" (concat $allTemplates $.Values.objNameTemplates $.Values.namespaceTemplates) }}
 {{- end }}
 
-{{- define "elcicd-renderer.processTemplateGenerator" }}
+{{/*
+  ======================================
+  elcicd-renderer.processTemplateMatrixValue
+  ======================================
+
+  Checks matrixKey (e.g. namespaces or objNames) on the el-CICD template.  If it's a variable,
+  it dereferences it.  If not a variable, verifies it's a list (slice).
+*/}}
+{{- define "elcicd-renderer.processTemplateMatrixValue" }}
   {{- $ := index . 0 }}
   {{- $template := index . 1 }}
-  {{- $generatorName := index . 2 }}
+  {{- $matrixKey := index . 2 }}
 
-  {{- $generatorVal := get $template $generatorName  }}
+  {{- $generatorVal := get $template $matrixKey  }}
   {{- if kindIs "string" $generatorVal }}
     {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $generatorVal -1 }}
     {{- range $elCicdRef := $matches }}
@@ -49,23 +84,41 @@
 
       {{- $paramVal := get $.Values.elCicdDefs $elCicdDef }}
       {{- if not $paramVal }}
-        {{- fail (printf "%s cannot be empty [undefined variable reference]: %s" $generatorName $elCicdDef) }}
+        {{- fail (printf "%s cannot be empty [undefined variable reference]: %s" $matrixKey $elCicdDef) }}
       {{- end }}
       {{- $generatorVal = $paramVal }}
     {{- end }}
 
-    {{- $_ := set $template $generatorName $generatorVal }}
+    {{- $_ := set $template $matrixKey $generatorVal }}
     {{- if $matches }}
-      {{- include "elcicd-renderer.processTemplateGenerator" (list $ $template $generatorName) }}
+      {{- include "elcicd-renderer.processTemplateMatrixValue" (list $ $template $matrixKey) }}
     {{- end }}
   {{- else if not (kindIs "slice" $generatorVal) }}
-    {{- fail (printf "%s must be either a variable or a list: %s" $generatorName $generatorVal )}}
+    {{- fail (printf "%s must be either a variable or a list: %s" $matrixKey $generatorVal )}}
   {{- end }}
 {{- end }}
 
-{{- define "elcicd-renderer.processTplObjNames" }}
+{{/*
+  ======================================
+  elcicd-renderer.procesObjNamesMatrix
+  ======================================
+
+  If a objNames key is defined on an el-CICD template, generate a copy of the template per value
+  in the objName list and append and add to the list of templates to render. The baseObjName will
+  be equivalent to the value in the list.  objName will will by default be equal to the baseObjName
+  unless otherwise templated with text.
+
+  Example objName template:
+    objName: <text>-$<>-<more text>-$<#>
+
+    objName values will replace the pattern `$<>` with the baseObjName
+    objName values will replace the pattern `$<#>` index of the baseObjName in the matrix
+*/}}
+{{- define "elcicd-renderer.procesObjNamesMatrix" }}
   {{- $ := index . 0 }}
   {{- $template := index . 1 }}
+  
+  {{- include "elcicd-renderer.processTemplateMatrixValue" (list $ $template "objNames") }}
 
   {{- $resultMap := dict }}
   {{- $objNameTemplates := list }}
@@ -88,10 +141,28 @@
   {{- $_ := set $.Values "objNameTemplates" (concat $.Values.objNameTemplates $objNameTemplates) }}
 {{- end }}
 
-{{- define "elcicd-renderer.processTplNamespaces" }}
+{{/*
+  ======================================
+  elcicd-renderer.procesNamespacesMatrix
+  ======================================
+
+  If a namespaces key is defined on an el-CICD template, generate a copy of the template per value
+  in the namespace list and append and add to the list of templates to render.  The baseNamespace will 
+  be equivalent to the value in the list.  namespace for the template will by default be equal to the
+  baseNamespace unless otherwise templated with text.
+
+  Example objName template:
+    namespace: <text>-$<>-<more text>-$<#>
+
+    namespace values will replace the pattern `$<>` with the baseNamespace
+    namespace values will replace the pattern `$<#>` index of the baseNamespace in the matrix
+*/}}
+{{- define "elcicd-renderer.procesNamespacesMatrix" }}
   {{- $ := index . 0 }}
   {{- $template := index . 1 }}
   {{- $elCicdDefs := index . 2 }}
+  
+  {{- include "elcicd-renderer.processTemplateMatrixValue" (list $ $template "namespaces") }}
 
   {{- $resultMap := dict }}
   {{- $namespaceTemplates := list }}
@@ -115,6 +186,34 @@
   {{- $_ := set $.Values "namespaceTemplates" (concat $.Values.namespaceTemplates $namespaceTemplates) }}
 {{- end }}
 
+{{/*
+  ======================================
+  elcicd-renderer.processTemplates
+  ======================================
+
+  Process all el-CICD templates in the template list before rendering.  This means building the template
+  specific dictionary of el-CICD Chart variables, and then adding or replacing all variable references in
+  el-CICD Chart template with values.
+
+  Process a template has the following steps:
+
+  1. Create a copy of the globally defined dictionary of el-CICD variables
+  2. Copy the template specific, general (elCicdDefs) el-CICD variables into the copy of the global variable dictionary
+    i. This dictionary represents the sum total of non-profile or object name specific variables
+  3. Merge globally defined baseObjName and objName specific variables into the template variable dictionary
+  4. Merge template defined baseObjName and objName specific variables into the template variable dictionary
+  5. Add key/values pairs from config files (donoted as $<FILE|path>) into the dictionary
+  6. Inject default el-CICD variables into final dictionary
+    i. EL_CICD_DEPLOYMENT_TIME_NUM: deployment time in milliseconds
+    ii. EL_CICD_DEPLOYMENT_TIME: human readable deployment time
+  iii. BASE_OBJ_NAME: baseObjName of template
+    iv. OBJ_NAME: objName of template
+    v. BASE_NAME_SPACE: base name of namespace final resource will be deployed to
+    vi. NAME_SPACE: namespace the final resource will be deployed to
+  7. Copy the elCicdDefaults dictionary onto the template
+  8. Replace all el-CICD variable references in the template with values in the final
+     el-CICD template variable dictionary (elcicd-renderer.processMap)
+*/}}
 {{- define "elcicd-renderer.processTemplates" }}
   {{- $ := index . 0 }}
   {{- $templates := index . 1 }}
@@ -126,13 +225,19 @@
     {{- include "elcicd-renderer.mergeElCicdDefs" (list $ $.Values $tplElCicdDefs $template.baseObjName $template.objName) }}
     {{- include "elcicd-renderer.mergeElCicdDefs" (list $ $template $tplElCicdDefs $template.baseObjName $template.objName) }}
     {{- include "elcicd-renderer.preProcessFilesAndConfig" (list $ $tplElCicdDefs) }}
+    {{- include "elcicd-renderer.mergeElCicdDefs" (list $ $template $tplElCicdDefs $template.baseObjName $template.objName) }}
 
-    {{- $_ := set $tplElCicdDefs "EL_CICD_DEPLOYMENT_TIME" $.Values.EL_CICD_DEPLOYMENT_TIME }}
     {{- $_ := set $tplElCicdDefs "EL_CICD_DEPLOYMENT_TIME_NUM" $.Values.EL_CICD_DEPLOYMENT_TIME_NUM }}
-    {{- $_ := set $tplElCicdDefs "OBJ_NAME" $template.objName }}
+    {{- $_ := set $tplElCicdDefs "EL_CICD_DEPLOYMENT_TIME" $.Values.EL_CICD_DEPLOYMENT_TIME }}
+    
     {{- $_ := set $tplElCicdDefs "BASE_OBJ_NAME" ($template.baseObjName | default $template.objName) }}
-    {{- $_ := set $tplElCicdDefs "NAME_SPACE" $template.namespace }}
+    {{- $_ := set $tplElCicdDefs "OBJ_NAME" $template.objName }}
+    
     {{- $_ := set $tplElCicdDefs "BASE_NAME_SPACE" ($template.baseNamespace | default $template.namespace) }}
+    {{- $_ := set $tplElCicdDefs "NAME_SPACE" $template.namespace }}
+    
+    {{- $_ := set $template "elCicdDefaults" dict }}
+    {{- include "elcicd-renderer.deepCopyDict" (list $.Values.elCicdDefaults $template.elCicdDefaults) }}
 
     {{- include "elcicd-renderer.processMap" (list $ $template $tplElCicdDefs) }}
   {{- end }}

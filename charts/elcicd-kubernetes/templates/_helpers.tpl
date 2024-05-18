@@ -1,6 +1,10 @@
 
 {{/*
-Iniitialize elcicd-kubernetes chart
+  ======================================
+  elcicd-kubernetes.init
+  ======================================
+  
+  Initialize elcicd-kubernetes chart.
 */}}
 {{- define "elcicd-kubernetes.init" }}
   {{- $ := . }}
