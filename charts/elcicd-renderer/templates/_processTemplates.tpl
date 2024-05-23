@@ -381,7 +381,7 @@
       {{- $value = replace $elCicdRef $varValue $value }}
     {{- else }}
       {{- if gt (len $matches) 1 }}
-        {{- fail (print "Attempting multiple, non-string objects into value: \nSOURCE: " $value "\nVARIABLE(" $elCicdDef "):" (ToYaml $varValue)) }}
+        {{- fail (print "Attempting multiple, non-string objects into value: \nSOURCE: " $value "\nVARIABLE(" $elCicdDef "):" (toYaml $varValue)) }}
       {{- end }}
       {{- $value = $varValue }}
     {{- end }}
