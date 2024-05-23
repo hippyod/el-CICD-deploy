@@ -46,7 +46,7 @@
     {{- end }}
 
     {{- if $template.objNames }}
-      {{- include "elcicd-renderer.procesObjNamesMatrix" (list $ $template) }}
+      {{- include "elcicd-renderer.procesObjNamesMatrix" (list $ $template $.Values.elCicdDefs) }}
     {{- else }}
       {{- $_ := set $template "objName" ($template.objName | default $.Values.elCicdDefaults.objName) }}
     {{- end }}
@@ -117,6 +117,7 @@
 {{- define "elcicd-renderer.procesObjNamesMatrix" }}
   {{- $ := index . 0 }}
   {{- $template := index . 1 }}
+  {{- $elCicdDefs := index . 2 }}
 
   {{- include "elcicd-renderer.processTemplateMatrixValue" (list $ $template "objNames") }}
 
