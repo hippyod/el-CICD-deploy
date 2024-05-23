@@ -330,7 +330,7 @@
     {{- $newElement := get $resultDict $resultKey }}
     {{- $_ := unset $resultDict $resultKey }}
     {{- if (ne (toString $newElement) $.Values__NULL) }}
-      {{ $newSlice = append $newSlice $element }}
+      {{ $newSlice = append $newSlice $newElement }}
     {{- end }}
   {{- end }}
 
@@ -347,6 +347,7 @@
 
   {{- if (kindIs "map" $value) }}
     {{- include "elcicd-renderer.replaceVarRefsInMap" (list $ $value $elCicdDefs $processedVarsList $resultDict) }}
+    {{- $_ := set $resultDict $resultKey $value }}
   {{- else }}
     {{- $args := (list $ $value $elCicdDefs $processedVarsList $resultDict $resultKey) }}
     {{- if (kindIs "slice" $value) }}
