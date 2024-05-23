@@ -178,8 +178,8 @@
     {{- $namespace = replace "$<>" $namespace $newTemplate.namespace }}
     {{- $namespace = replace "$<#>" (add $index 1 | toString) $namespace }}
 
-    {{- include "elcicd-renderer.processValue" (list $ $objName $elCicdDefs list $resultDict $resultKey) }}
-    {{- $objName := get $resultDict $resultKey }}
+    {{- include "elcicd-renderer.processValue" (list $ $namespace $elCicdDefs list $resultDict $resultKey) }}
+    {{- $namespace := get $resultDict $resultKey }}
     {{- $_ := unset $resultDict $resultKey }}
 
     {{- $_ := set $newTemplate "namespace" $namespace }}
