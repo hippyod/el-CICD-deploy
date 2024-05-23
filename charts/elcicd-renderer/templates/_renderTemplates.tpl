@@ -129,13 +129,13 @@
 # Rendered -> {{ $template.templateName }} {{ $template.objName }}
     {{- end }}
 
-    {{- $resultMap := dict }}
+    {{- $resultDict := dict }}
+    {{- $resultKey := uuidv4 }}
     {{- range $yamlMapKey, $rawYamlValue := $.Values }}
       {{- if and (hasPrefix "elCicdRawYaml" $yamlMapKey) (kindIs "map" $rawYamlValue) }}
         {{- range $yamlKey, $rawYaml := $rawYamlValue }}
-          {{- $_ := set $resultMap $.Values.__RESULT ($rawYaml | toString) }}
-          {{- include "elcicd-renderer.processString" (list $ $resultMap $.Values.elCicdDefs) }}
-          {{- $rawYaml = get $resultMap $.Values.__RESULT }}
+          {{- include "elcicd-renderer.processValue" (list $ ($rawYaml | toString) $.Values.elCicdDefs list $resultDict $resultKey) }}
+          {{- $rawYaml = get $resultDict $resultKey }}
 ---
   {{ $rawYaml }}
 # Rendered From {{ $yamlMapKey }} -> {{ $yamlKey }}
