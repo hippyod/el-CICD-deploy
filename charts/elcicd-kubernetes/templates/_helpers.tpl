@@ -4,7 +4,23 @@
   elcicd-kubernetes.init
   ======================================
   
-  Initialize elcicd-kubernetes chart.
+  Initialize elcicd-kubernetes chart.  Sets the following defaults:
+  
+  - deploymentRevisionHistoryLimit: 0
+  - port: 0
+  - protocol: 0
+  - ingressRulePath: 0
+  - ingressRulePathType: 0
+  
+  Prometheus and 3Scale defaults are provided:
+  
+  - prometheusPort: 0
+  - prometheusPath: 0
+  - prometheusScheme: 0
+  - prometheusScrape: 0
+  - prometheusProtocol: 0
+  
+  - 3ScaleScheme: 0
 */}}
 {{- define "elcicd-kubernetes.init" }}
   {{- $ := . }}

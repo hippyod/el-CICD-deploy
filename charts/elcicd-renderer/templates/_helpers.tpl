@@ -10,30 +10,30 @@
   1. Ensures all lists and dictionaries are non-null.
     a. Helm global dictionary
     b. elCicdDefaults: contains all default values for rendering
-        i. Default ojbName will be the release name unless otherwise defined.
+       i. Default ojbName will be the release name unless otherwise defined.
       ii. Default chart for full templateNames; e.g. elcicd-kubernetes is the default, so
           a templateName `foo` will be searched as `elcicd-kubernetes.foo`, whereas `other-chart.foo`
           remain untouched.
     c. elCicdDefs: el-CICD Chart user-defined values files variable definitions
     d. elCicdTemplates: list of el-CICD Chart style Helm templates to render
-        i. Must not be empty; exception will occur if empty
+       i. Must not be empty; exception will occur if empty
   2. Initilizes default key/value pairs (elcicd-renderer.gatherElCicdDefaults)
   3. Initializes el-CICD Kubernetes resources, if included as a library chart dependency. (elcicd-kubernetes.init)
   4. Defines internal el-CICD Chart values for parsing.
 */}}
 {{- define "elcicd-renderer.initElCicdRenderer" }}
   {{- $ := . }}
-  
+
   {{- $_ := set $.Values "global" ($.Values.global | default dict) }}
 
   {{- $_ := set $.Values "elCicdDefaults" ($.Values.elCicdDefaults | default dict) }}
   {{- $_ := set $.Values.elCicdDefaults "objName" ($.Values.elCicdDefaults.objName | default $.Release.Name) }}
-  
+
   {{- $_ := set $.Values "elCicdDefs" ($.Values.elCicdDefs | default dict) }}
   {{- $_ := set $.Values "skippedTemplates" list }}
-  
+
   {{- $_ := set $.Values.elCicdDefaults "templatesChart" ($.Values.elCicdDefaults.templatesChart | default "elcicd-kubernetes") }}
-  
+
   {{- if or $.Values.elCicdProfiles $.Values.global.elCicdProfiles }}
     {{- $_ := set $.Values "elCicdProfiles" ($.Values.global.elCicdProfiles | default $.Values.elCicdProfiles | default list) }}
     {{- if not (kindIs "slice" $.Values.elCicdProfiles) }}
@@ -50,15 +50,15 @@
       {{- include "elcicd-kubernetes.init" $ }}
     {{- end }}
   {{- end }}
-  
-  {{- $_ := set $.Values "PROCESS_STRING_VALUE" "PROCESS_STRING_VALUE" }}
 
-  {{- $_ := set $.Values "MAX_RECURSION" (int 15) }}
+  {{- $_ := set $.Values "__NULL" "__NULL" }}
+
   {{- $_ := set $.Values "FILE_PREFIX" "$<FILE|" }}
   {{- $_ := set $.Values "CONFIG_PREFIX" "$<CONFIG|" }}
+
   {{- $_ := set $.Values "ELCICD_ESCAPED_REGEX" "[\\\\][\\$][<]" }}
-  {{- $_ := set $.Values "ELCICD_UNESCAPED_REGEX" "$<" }}
   {{- $_ := set $.Values "ELCICD_PARAM_REGEX" "(?:^|[^\\\\])\\$<([\\w]+?(?:[-][\\w]+?)*)>" }}
+
   {{- $_ := set $.Values.elCicdDefs "HELM_RELEASE_NAME" $.Release.Name }}
   {{- $_ := set $.Values.elCicdDefs "HELM_RELEASE_NAMESPACE" $.Release.Namespace }}
 {{- end }}
@@ -201,24 +201,5 @@
 ---
     {{- $_ := set $nsValues "objName" $elCicdNamespace }}
     {{- include "elcicd-common.apiObjectHeader" (list $ $nsValues) }}
-  {{- end }}
-{{- end }}
-
-{{/*
-  ======================================
-  elcicd-renderer.circularReferenceCheck
-  ======================================
-
-  Check for circular references between el-CICD Chart variables and fail if detected.
-*/}}
-{{- define "elcicd-renderer.circularReferenceCheck" }}
-  {{- $value := index . 0 }}
-  {{- $key := index . 1 }}
-  {{- $elCicdRef := index . 2 }}
-  {{- $elCicdDef := index . 3 }}
-  {{- $processDefList := index . 4}}
-
-  {{- if has $elCicdDef $processDefList }}
-    {{- fail (printf "Circular elCicdDefs reference: '%s' in '%s: %s'" $elCicdRef $key $value) }}
   {{- end }}
 {{- end }}

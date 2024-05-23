@@ -117,7 +117,7 @@
 {{- define "elcicd-renderer.procesObjNamesMatrix" }}
   {{- $ := index . 0 }}
   {{- $template := index . 1 }}
-  
+
   {{- include "elcicd-renderer.processTemplateMatrixValue" (list $ $template "objNames") }}
 
   {{- $resultMap := dict }}
@@ -130,9 +130,9 @@
     {{- $objName = replace "$<>" $objName $newTemplate.objName }}
     {{- $objName = replace "$<#>" (add $index 1 | toString) $objName }}
 
-    {{- $_ := set $resultMap $.Values.PROCESS_STRING_VALUE ($objName | toString) }}
+    {{- $_ := set $resultMap $.Values.__RESULT ($objName | toString) }}
     {{- include "elcicd-renderer.processString" (list $ $resultMap  $.Values.elCicdDefs) }}
-    {{- $objName = get $resultMap $.Values.PROCESS_STRING_VALUE }}
+    {{- $objName = get $resultMap $.Values.__RESULT }}
 
     {{- $_ := set $newTemplate "objName" ($objName | toString) }}
     {{- $objNameTemplates = append $objNameTemplates $newTemplate }}
@@ -147,7 +147,7 @@
   ======================================
 
   If a namespaces key is defined on an el-CICD template, generate a copy of the template per value
-  in the namespace list and append and add to the list of templates to render.  The baseNamespace will 
+  in the namespace list and append and add to the list of templates to render.  The baseNamespace will
   be equivalent to the value in the list.  namespace for the template will by default be equal to the
   baseNamespace unless otherwise templated with text.
 
@@ -161,7 +161,7 @@
   {{- $ := index . 0 }}
   {{- $template := index . 1 }}
   {{- $elCicdDefs := index . 2 }}
-  
+
   {{- include "elcicd-renderer.processTemplateMatrixValue" (list $ $template "namespaces") }}
 
   {{- $resultMap := dict }}
@@ -175,9 +175,9 @@
     {{- $namespace = replace "$<>" $namespace $newTemplate.namespace }}
     {{- $namespace = replace "$<#>" (add $index 1 | toString) $namespace }}
 
-    {{- $_ := set $resultMap $.Values.PROCESS_STRING_VALUE ($namespace | toString) }}
+    {{- $_ := set $resultMap $.Values.__RESULT ($namespace | toString) }}
     {{- include "elcicd-renderer.processString" (list $ $resultMap $elCicdDefs) }}
-    {{- $namespace = get $resultMap $.Values.PROCESS_STRING_VALUE }}
+    {{- $namespace = get $resultMap $.Values.__RESULT }}
 
     {{- $_ := set $newTemplate "namespace" $namespace }}
     {{- $namespaceTemplates = append $namespaceTemplates $newTemplate }}
@@ -212,7 +212,7 @@
     vi. NAME_SPACE: namespace the final resource will be deployed to
   7. Copy the elCicdDefaults dictionary onto the template
   8. Replace all el-CICD variable references in the template with values in the final
-     el-CICD template variable dictionary (elcicd-renderer.processMap)
+     el-CICD template variable dictionary (elcicd-renderer.replaceVarRefsInMap)
 */}}
 {{- define "elcicd-renderer.processTemplates" }}
   {{- $ := index . 0 }}
@@ -229,229 +229,163 @@
 
     {{- $_ := set $tplElCicdDefs "EL_CICD_DEPLOYMENT_TIME_NUM" $.Values.EL_CICD_DEPLOYMENT_TIME_NUM }}
     {{- $_ := set $tplElCicdDefs "EL_CICD_DEPLOYMENT_TIME" $.Values.EL_CICD_DEPLOYMENT_TIME }}
-    
+
     {{- $_ := set $tplElCicdDefs "BASE_OBJ_NAME" ($template.baseObjName | default $template.objName) }}
     {{- $_ := set $tplElCicdDefs "OBJ_NAME" $template.objName }}
-    
+
     {{- $_ := set $tplElCicdDefs "BASE_NAME_SPACE" ($template.baseNamespace | default $template.namespace) }}
     {{- $_ := set $tplElCicdDefs "NAME_SPACE" $template.namespace }}
-    
+
     {{- $_ := set $template "elCicdDefaults" dict }}
     {{- include "elcicd-renderer.deepCopyDict" (list $.Values.elCicdDefaults $template.elCicdDefaults) }}
 
-    {{- include "elcicd-renderer.processMap" (list $ $template $tplElCicdDefs) }}
+    {{- include "elcicd-renderer.replaceVarRefsInMap" (list $ $template $tplElCicdDefs list dict) }}
   {{- end }}
 {{- end }}
 
-{{- define "elcicd-renderer.processMap" }}
+{{/*
+  ======================================
+  elcicd-renderer.replaceVarRefsInMap
+  ======================================
+
+  Walk the dictionary and replace any el-CICD variable references with their values.  Depending on
+  the type and location of the variable reference, another Helm template will be called.  In particular,
+  if a dict value is of type:
+  - map -> elcicd-renderer.replaceVarRefsInMap (i.e. recursive call)
+  - slice -> elcicd-renderer.replaceVarRefsInSlice
+  - string -> elcicd-renderer.replaceVarRefsInMapValue
+
+  And if a key in the map is a variable reference, call elcicd-renderer.replaceVarRefsInMapKey.
+*/}}
+{{- define "elcicd-renderer.replaceVarRefsInMap" }}
   {{- $ := index . 0 }}
   {{- $map := index . 1 }}
   {{- $elCicdDefs := index . 2 }}
-
+  {{- $processedVarsList := index . 3 }}
+  {{- $resultDict := index . 4 }}
+  
+  {{- $resultKey := uuidv4 }}
   {{- range $key, $value := $map }}
-    {{- if not $value }}
-      {{- $_ := set $map $key dict }}
-    {{- else }}
-      {{- $args := (list $ $map $key $elCicdDefs) }}
-      {{- if (kindIs "map" $value) }}
-        {{- include "elcicd-renderer.processMap" (list $ $value $elCicdDefs) }}
-      {{- else if (kindIs "slice" $value) }}
-        {{- include "elcicd-renderer.processSlice" (list $ $map $key $elCicdDefs) }}
-      {{- else if (kindIs "string" $value) }}
-        {{- include "elcicd-renderer.processMapValue" (list $ $map $key $elCicdDefs list 0) }}
-      {{- end  }}
-
-      {{- if (get $map $key) }}
-        {{- include "elcicd-renderer.processMapKey" (list $ $map $key $elCicdDefs list 0) }}
-      {{- else }}
-        {{- $_ := unset $map $key }}
+    {{- if $value }}
+      {{- $copyProcessedVarsList := concat list $processedVarsList }}
+      {{- include "elcicd-renderer.processValue" (list $ $value $elCicdDefs $copyProcessedVarsList $resultDict $resultKey) }}
+      
+      {{- $newValue := get $resultDict $resultKey }}
+      {{- $_ := unset $resultDict $resultKey }}
+      {{- if $newValue }}
+        {{- $_ := set $map $key $newValue }}
+        {{- if (eq (toString $newValue) $.Values__NULL) }}
+          {{- $_ := unset $map $key }}
+        {{- end }}
       {{- end }}
+    {{- else }}
+      {{- $_ := unset $map $key }}
+    {{- end }}
+
+    {{- include "elcicd-renderer.replaceRefsInMapKey" (list $ $map $key $elCicdDefs $resultDict $resultKey) }}
+  {{- end }}
+{{- end }}
+
+{{- define "elcicd-renderer.replaceRefsInMapKey" }}
+  {{- $ := index . 0 }}
+  {{- $map := index . 1 }}
+  {{- $key := index . 2 }}
+  {{- $elCicdDefs := index . 3 }} 
+  {{- $resultDict := index . 4 }} 
+  {{- $resultKey := index . 5 }}
+  
+  {{- $value := get $map $key }}
+  {{- $_ := unset $map $key }}
+  {{- if $value }}
+    {{- include "elcicd-renderer.processValue" (list $ $key $elCicdDefs list $resultDict $resultKey) }}
+    
+    {{- $newKey := get $resultDict $resultKey }}
+    {{- $_ := unset $resultDict $resultKey }}
+    {{- $_ := unset $map $key }}
+    {{- if (ne (toString $newKey) $.Values__NULL) }}
+      {{- $_ := set $map $newKey $value }}
     {{- end }}
   {{- end }}
 {{- end }}
 
-{{- define "elcicd-renderer.processMapValue" }}
+{{- define "elcicd-renderer.replaceVarRefsInSlice" }}
   {{- $ := index . 0 }}
-  {{- $map := index . 1 }}
-  {{- $key := index . 2 }}
-  {{- $elCicdDefs := index . 3 }}
-  {{- $processDefList := index . 4}}
-  {{- $depth := index . 5 }}
+  {{- $slice := index . 1 }}
+  {{- $elCicdDefs := index . 2 }}
+  {{- $processedVarsList := index . 3 }}
+  {{- $resultDict := index . 4 }}
+  {{- $parentResultKey := index . 5 }}
 
-  {{- $value := get $map $key }}
-  {{- if gt $depth (int $.Values.MAX_RECURSION) }}
-    {{- $formatMsg := "\nPotential circular reference? Exceeded %s recursions!" }}
-    {{- $formatMsg = (cat $formatMsg "\nelCicdDefs.OBJ_NAME: %s\nkey: %s\n---\n== Value ==\n%s\n---\n== processDefList ==\n%s\n---\n== elCicdDefs ==\n%s\n---") }}
-    {{- fail (printf $formatMsg (toString $.Values.MAX_RECURSION) $elCicdDefs.OBJ_NAME $key $value $processDefList $elCicdDefs) }}
+  {{- $newSlice := list }}
+  {{- $resultKey := uuidv4 }}
+  {{- range $element := $slice }}
+    {{- $copyProcessedVarsList := concat list $processedVarsList }}
+    {{- include "elcicd-renderer.processValue" (list $ $element $elCicdDefs $copyProcessedVarsList $resultDict $resultKey) }}
+    
+    {{- $newElement := get $resultDict $resultKey }}
+    {{- $_ := unset $resultDict $resultKey }}
+    {{- if (ne (toString $newElement) $.Values__NULL) }}
+      {{ $newSlice := append $newSlice $element }}
+    {{- end }}
   {{- end }}
-  {{- $depth := add $depth 1 }}
+  
+  {{- $_ := set $resultDict $parentResultKey $newSlice }}
+{{- end }}
+
+{{- define "elcicd-renderer.processValue" }}
+  {{- $ := index . 0 }}
+  {{- $value := index . 1 }}
+  {{- $elCicdDefs := index . 2 }}
+  {{- $processedVarsList := index . 3 }}
+  {{- $resultDict := index . 4 }}
+  {{- $resultKey := index . 5 }}
+
+  {{- if (kindIs "map" $value) }}
+    {{- include "elcicd-renderer.replaceVarRefsInMap" (list $ $value $elCicdDefs $processedVarsList $resultDict) }}
+  {{- else }}
+    {{- $args := (list $ $value $elCicdDefs $processedVarsList $resultDict $resultKey) }}
+    {{- if (kindIs "slice" $value) }}
+      {{- include "elcicd-renderer.replaceVarRefsInSlice" $args }}
+    {{- else if (kindIs "string" $value) }}
+      {{- include "elcicd-renderer.replaceVarRefsInString" $args }}
+    {{- end  }}
+    
+    {{- $newValue := get $resultDict $resultKey }}
+    {{- if ne (toYaml $value) (toYaml $newValue) }}
+      {{- include "elcicd-renderer.processValue" (list $ $newValue $elCicdDefs $processedVarsList $resultDict $resultKey) }}
+    {{- end }}
+  {{- end  }}
+{{- end }}
+
+{{- define "elcicd-renderer.replaceVarRefsInString" }}
+  {{- $ := index . 0 }}
+  {{- $value := index . 1 }}
+  {{- $elCicdDefs := index . 2 }}
+  {{- $processedVarsList := index . 3 }}
+  {{- $resultDict := index . 4 }}
+  {{- $resultKey := index . 5 }}
 
   {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $value -1 | uniq }}
-  {{- include "elcicd-renderer.replaceParamRefs" (list $ $map $key $elCicdDefs $matches) }}
-  {{- $processDefList = (concat $processDefList $matches | uniq)  }}
-
-  {{- $value := get $map $key }}
-  {{- if and $matches $value }}
-    {{- if (kindIs "map" $value) }}
-      {{- include "elcicd-renderer.processMap" (list $ $value $elCicdDefs) }}
-    {{- else if (kindIs "slice" $value) }}
-      {{- include "elcicd-renderer.processSlice" (list $ $map $key $elCicdDefs) }}
-    {{- else if (kindIs "string" $value) }}
-      {{- include "elcicd-renderer.processMapValue" (list $ $map $key $elCicdDefs $processDefList $depth) }}
-
-      {{- $value = get $map $key }}
-    {{- end }}
-  {{- end }}
-  
-  {{- if (kindIs "string" $value) }}
-    {{- $_ := set $map $key (regexReplaceAll $.Values.ELCICD_ESCAPED_REGEX $value $.Values.ELCICD_UNESCAPED_REGEX) }}
-  {{- end }}
-{{- end }}
-
-{{- define "elcicd-renderer.replaceParamRefs" }}
-  {{- $ := index . 0 }}
-  {{- $map := index . 1 }}
-  {{- $key := index . 2 }}
-  {{- $elCicdDefs := index . 3 }}
-  {{- $matches := index . 4 }}
-
-  {{- $value := get $map $key }}
   {{- range $elCicdRef := $matches }}
     {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
-
-    {{- $paramVal := get $elCicdDefs $elCicdDef }}
-
-    {{- if (kindIs "string" $paramVal) }}
-      {{- if not (hasPrefix "$" $elCicdRef ) }}
-        {{- $elCicdRef = substr 1 (len $elCicdRef) $elCicdRef }}
-      {{- end }}
-      {{- if contains "\n" $paramVal }}
-        {{- $indentRegex := printf "%s%s" ".*" (replace "$" "[$]" $elCicdRef) }}
-        {{- $indentation := regexFindAll $indentRegex $value 1 | first | replace $elCicdRef "" }}
-        {{- if $indentation }}
-          {{- $indentation = printf "%s%s" "\n" (repeat (len $indentation) " ") }}
-          {{- $paramVal = replace "\n" $indentation $paramVal }}
-        {{- end }}
-      {{- end }}
-      {{- $value = replace $elCicdRef (toString $paramVal) $value }}
-    {{- else }}
-      {{- if (kindIs "map" $paramVal) }}
-        {{- $paramVal = deepCopy $paramVal }}
-      {{- else if (kindIs "slice" $paramVal) }}
-        {{- if (kindIs "map" (first $paramVal)) }}
-          {{- $newList := list }}
-          {{- range $element := $paramVal }}
-            {{- $newList = append $newList (deepCopy $element) }}
-          {{- end }}
-          {{- $paramVal = $newList }}
-        {{- end }}
-      {{- end }}
-
-      {{- $value = $paramVal }}
+    {{- if has $elCicdDef $processedVarsList }}
+      {{- fail (print "Circular elCicdDefs reference detected: \n" (join " -> " $processedVarsList) " -> " $elCicdDef) }}
     {{- end }}
-  {{- end }}
+    {{- $processedVarsList = append $processedVarsList $elCicdDef }}
 
-  {{- $_ := set $map $key $value }}
-{{- end }}
-
-{{- define "elcicd-renderer.processMapKey" }}
-  {{- $ := index . 0 }}
-  {{- $map := index . 1 }}
-  {{- $key := index . 2 }}
-  {{- $elCicdDefs := index . 3 }}
-  {{- $processDefList := index . 4}}
-
-  {{- $value := get $map $key }}
-  {{- $oldKey := $key }}
-  {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $key -1 }}
-  {{- range $elCicdRef := $matches }}
-    {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
-    {{- include "elcicd-renderer.circularReferenceCheck" (list $value $key $elCicdRef $elCicdDef $processDefList) }}
-    {{- $processDefList = append $processDefList $elCicdDef }}
-
-    {{- $paramVal := get $elCicdDefs $elCicdDef }}
-    {{- $_ := unset $map $key }}
-    {{- if not (hasPrefix "$" $elCicdRef ) }}
+    {{- $varValue := get $elCicdDefs $elCicdDef }}
+    {{- if not (hasPrefix "$" $elCicdRef) }}
       {{- $elCicdRef = substr 1 (len $elCicdRef) $elCicdRef }}
     {{- end }}
-    {{- $key = replace $elCicdRef (toString $paramVal) $key }}
-  {{- end }}
-  {{- if ne $oldKey $key }}
-    {{- $_ := unset $map $oldKey }}
-  {{- end }}
-  {{- if and $matches (ne $oldKey $key) $key }}
-    {{- $oldKey = $key }}
-    {{- $_ := set $map $key $value }}
-    {{- include "elcicd-renderer.processMapKey" (list $ $map $key $elCicdDefs $processDefList) }}
-  {{- end }}
-  
-  {{- $key := regexReplaceAll $.Values.ELCICD_ESCAPED_REGEX $key $.Values.ELCICD_UNESCAPED_REGEX }}
-  {{- if ne $oldKey $key }}
-    {{- $_ := unset $map $oldKey }}
-    {{- $_ := set $map $key $value }}
-  {{- end }}
-{{- end }}
-
-{{- define "elcicd-renderer.processSlice" }}
-  {{- $ := index . 0 }}
-  {{- $map := index . 1 }}
-  {{- $key := index . 2 }}
-  {{- $elCicdDefs := index . 3 }}
-
-  {{- $list := get $map $key }}
-  {{- $newList := list }}
-  {{- $resultMap := dict }}
-  {{- range $element := $list }}
-    {{- if and (kindIs "map" $element) }}
-      {{- include "elcicd-renderer.processMap" (list $ $element $elCicdDefs) }}
-    {{- else if (kindIs "string" $element) }}
-      {{- $_ := set $resultMap $.Values.PROCESS_STRING_VALUE ($element | toString) }}
-      {{- include "elcicd-renderer.processString" (list $ $resultMap $elCicdDefs) }}
-      {{- $element = get $resultMap $.Values.PROCESS_STRING_VALUE }}
-    {{- end }}
-
-    {{- if $element }}
-      {{- $newList = append $newList $element }}
-    {{- end }}
-  {{- end }}
-
-  {{- $_ := set $map $key $newList }}
-{{- end }}
-
-{{- define "elcicd-renderer.processString" }}
-  {{- $ := index . 0 }}
-  {{- $resultMap := index . 1 }}
-  {{- $elCicdDefs := index . 2 }}
-
-  {{- $element := get $resultMap $.Values.PROCESS_STRING_VALUE }}
-  {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $element -1 }}
-  {{- range $elCicdRef := $matches }}
-    {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
-    {{- $paramVal := get $elCicdDefs $elCicdDef }}
-    {{- if (kindIs "string" $paramVal) }}
-      {{- if not (hasPrefix "$" $elCicdRef ) }}
-        {{- $elCicdRef = substr 1 (len $elCicdRef) $elCicdRef }}
-      {{- end }}
-      {{- if contains "\n" $paramVal }}
-        {{- $indentRegex := printf "%s%s" ".*" (replace "$" "[$]" $elCicdRef) }}
-        {{- $indentation := regexFindAll $indentRegex $element 1 | first | replace $elCicdRef "" }}
-        {{- if $indentation }}
-          {{- $paramVal = replace "\n" (cat "\n" $indentation) $paramVal }}
-        {{- end }}
-      {{- end }}
-      {{- $element = replace $elCicdRef (toString $paramVal) $element }}
+    {{- if or (kindIs "string" $varValue) }}
+      {{- $value = replace $elCicdRef $varValue $value }}
     {{- else }}
-      {{- if (kindIs "map" $paramVal) }}
-        {{- include "elcicd-renderer.processMap" (list $ $paramVal $elCicdDefs) }}
+      {{- if gt (len $matches) 1 }}
+        {{- fail (print "Attempting multiple, non-string objects into value: \nSOURCE: " $value "\nVARIABLE(" $elCicdDef "):" (ToYaml $varValue)) }}
       {{- end }}
-      {{- $element = $paramVal }}
+      {{- $value = $varValue }}
     {{- end }}
   {{- end }}
 
-  {{- if $matches }}
-    {{- $_ := set $resultMap $.Values.PROCESS_STRING_VALUE $element }}
-    {{- if (kindIs "string" $element) }}
-      {{- include "elcicd-renderer.processString" (list $ $resultMap $elCicdDefs) }}
-    {{- end }}
-  {{- end }}
+  {{- $_ := set $resultDict $resultKey $value }}
 {{- end }}

@@ -84,12 +84,12 @@
   2. If necessary, creates extra namespace (elcicd-renderer.createNamespaces)
   3. Merge all elCicdDefs(-*) directly attached to the built-in Values object (elcicd-renderer.mergeElCicdDefs)
   4. If templates include a list of names or namespaces, creates a copy for
-    each one in the overall template list to be rendered.  Also filters out any
-    templates not matching the profile(s) (elcicd-renderer.generateAllTemplates)
+     each one in the overall template list to be rendered.  Also filters out any
+     templates not matching the profile(s) (elcicd-renderer.generateAllTemplates)
   5. Processing the templates means overriding the global variables with template specific ones,
-    replacing variable references with values, and then rendering the templates.
+     replacing variable references with values, and then rendering the templates.
   6. If the calculated values file is to be rendered for debugging purposes or resuse in a pre-rendered
-    deployment strategy, do so.  The values are NOT commented out.
+     deployment strategy, do so.  The values are NOT commented out.
   7. Add comments describing which templates were rendered and which were skipped due to profile filtering.
 
   See the named Helm templates for more information.
@@ -133,9 +133,9 @@
     {{- range $yamlMapKey, $rawYamlValue := $.Values }}
       {{- if and (hasPrefix "elCicdRawYaml" $yamlMapKey) (kindIs "map" $rawYamlValue) }}
         {{- range $yamlKey, $rawYaml := $rawYamlValue }}
-          {{- $_ := set $resultMap $.Values.PROCESS_STRING_VALUE ($rawYaml | toString) }}
+          {{- $_ := set $resultMap $.Values.__RESULT ($rawYaml | toString) }}
           {{- include "elcicd-renderer.processString" (list $ $resultMap $.Values.elCicdDefs) }}
-          {{- $rawYaml = get $resultMap $.Values.PROCESS_STRING_VALUE }}
+          {{- $rawYaml = get $resultMap $.Values.__RESULT }}
 ---
   {{ $rawYaml }}
 # Rendered From {{ $yamlMapKey }} -> {{ $yamlKey }}

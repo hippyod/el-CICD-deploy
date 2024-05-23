@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
+
 {{/*
   ======================================
   elcicd-renderer.mergeElCicdDefs
@@ -10,21 +11,21 @@
   Order of precedence in ascending order is as follows dictionaries:
 
     1. elCicdDefsMap
-      i. Source map submitted for merging.
+       i. Source map submitted for merging.
           a. If merging variable definitions a the top level, this will be a copy of Values.elCicdDefs
           b. If merging variable definitions for a template, this will be a copy of the fully merged, top level elCicdDefs map.
     2. elCicdDefs-<profile>
-      i. Following Helm standard, in order of listed profiles
+       i. Following Helm standard, in order of listed profiles
     3. elCicdDefs-<baseObjName>
-      i. baseObjName is the raw name of the object to be created before modification
+       i. baseObjName is the raw name of the object to be created before modification
       ii. Use this form if all permutations of a template should recieve the values defined in this map
     4. elCicdDefs-<objName>
-      i. objName is the final name of the resource being generated from the el-CICD template
+       i. objName is the final name of the resource being generated from the el-CICD template
       ii. Use this form if only a specific permutation of a template should recieve the values defined in this map
     5. elCicdDefs-<profile>-<baseObjName>
-      i. Same as elCicdDefs-<baseObjName>, but only for a specific profile
+       i. Same as elCicdDefs-<baseObjName>, but only for a specific profile
     6. elCicdDefs-<profile>-<objName>
-      i. Same as elCicdDefs-<objName>, but only for a specific profile
+       i. Same as elCicdDefs-<objName>, but only for a specific profile
 
     Merged results are returned in destElCicdDefs.
 */}}
@@ -68,7 +69,7 @@
   elcicd-renderer.deepCopyDict
   ======================================
 
-  Recursively copies keys and values of a source dictionary into destination dictionary.
+  Recursively copies keys and values of a source dictionary into a destination dictionary.
 */}}
 {{- define "elcicd-renderer.deepCopyDict" }}
   {{- $srcDict := index . 0 }}
