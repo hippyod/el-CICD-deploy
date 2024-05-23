@@ -120,7 +120,8 @@
 
   {{- include "elcicd-renderer.processTemplateMatrixValue" (list $ $template "objNames") }}
 
-  {{- $resultMap := dict }}
+  {{- $resultDict := dict }}
+  {{- $resultKey := uuidv4 }}
   {{- $objNameTemplates := list }}
   {{- range $index, $objName := $template.objNames }}
     {{- $newTemplate := deepCopy $template }}
@@ -130,9 +131,9 @@
     {{- $objName = replace "$<>" $objName $newTemplate.objName }}
     {{- $objName = replace "$<#>" (add $index 1 | toString) $objName }}
 
-    {{- $_ := set $resultMap $.Values.__RESULT ($objName | toString) }}
-    {{- include "elcicd-renderer.processString" (list $ $resultMap  $.Values.elCicdDefs) }}
-    {{- $objName = get $resultMap $.Values.__RESULT }}
+    {{- include "elcicd-renderer.processValue" (list $ $objName $elCicdDefs list $resultDict $resultKey) }}
+    {{- $objName := get $resultDict $resultKey }}
+    {{- $_ := unset $resultDict $resultKey }}
 
     {{- $_ := set $newTemplate "objName" ($objName | toString) }}
     {{- $objNameTemplates = append $objNameTemplates $newTemplate }}
@@ -164,7 +165,8 @@
 
   {{- include "elcicd-renderer.processTemplateMatrixValue" (list $ $template "namespaces") }}
 
-  {{- $resultMap := dict }}
+  {{- $resultDict := dict }}
+  {{- $resultKey := uuidv4 }}
   {{- $namespaceTemplates := list }}
   {{- range $index, $namespace := $template.namespaces }}
     {{- $newTemplate := deepCopy $template }}
@@ -175,9 +177,9 @@
     {{- $namespace = replace "$<>" $namespace $newTemplate.namespace }}
     {{- $namespace = replace "$<#>" (add $index 1 | toString) $namespace }}
 
-    {{- $_ := set $resultMap $.Values.__RESULT ($namespace | toString) }}
-    {{- include "elcicd-renderer.processString" (list $ $resultMap $elCicdDefs) }}
-    {{- $namespace = get $resultMap $.Values.__RESULT }}
+    {{- include "elcicd-renderer.processValue" (list $ $objName $elCicdDefs list $resultDict $resultKey) }}
+    {{- $objName := get $resultDict $resultKey }}
+    {{- $_ := unset $resultDict $resultKey }}
 
     {{- $_ := set $newTemplate "namespace" $namespace }}
     {{- $namespaceTemplates = append $namespaceTemplates $newTemplate }}
@@ -263,13 +265,13 @@
   {{- $elCicdDefs := index . 2 }}
   {{- $processedVarsList := index . 3 }}
   {{- $resultDict := index . 4 }}
-  
+
   {{- $resultKey := uuidv4 }}
   {{- range $key, $value := $map }}
     {{- if $value }}
       {{- $copyProcessedVarsList := concat list $processedVarsList }}
       {{- include "elcicd-renderer.processValue" (list $ $value $elCicdDefs $copyProcessedVarsList $resultDict $resultKey) }}
-      
+
       {{- $newValue := get $resultDict $resultKey }}
       {{- $_ := unset $resultDict $resultKey }}
       {{- if $newValue }}
@@ -290,15 +292,15 @@
   {{- $ := index . 0 }}
   {{- $map := index . 1 }}
   {{- $key := index . 2 }}
-  {{- $elCicdDefs := index . 3 }} 
-  {{- $resultDict := index . 4 }} 
+  {{- $elCicdDefs := index . 3 }}
+  {{- $resultDict := index . 4 }}
   {{- $resultKey := index . 5 }}
-  
+
   {{- $value := get $map $key }}
   {{- $_ := unset $map $key }}
   {{- if $value }}
     {{- include "elcicd-renderer.processValue" (list $ $key $elCicdDefs list $resultDict $resultKey) }}
-    
+
     {{- $newKey := get $resultDict $resultKey }}
     {{- $_ := unset $resultDict $resultKey }}
     {{- $_ := unset $map $key }}
@@ -321,14 +323,14 @@
   {{- range $element := $slice }}
     {{- $copyProcessedVarsList := concat list $processedVarsList }}
     {{- include "elcicd-renderer.processValue" (list $ $element $elCicdDefs $copyProcessedVarsList $resultDict $resultKey) }}
-    
+
     {{- $newElement := get $resultDict $resultKey }}
     {{- $_ := unset $resultDict $resultKey }}
     {{- if (ne (toString $newElement) $.Values__NULL) }}
       {{ $newSlice := append $newSlice $element }}
     {{- end }}
   {{- end }}
-  
+
   {{- $_ := set $resultDict $parentResultKey $newSlice }}
 {{- end }}
 
@@ -349,7 +351,7 @@
     {{- else if (kindIs "string" $value) }}
       {{- include "elcicd-renderer.replaceVarRefsInString" $args }}
     {{- end  }}
-    
+
     {{- $newValue := get $resultDict $resultKey }}
     {{- if ne (toYaml $value) (toYaml $newValue) }}
       {{- include "elcicd-renderer.processValue" (list $ $newValue $elCicdDefs $processedVarsList $resultDict $resultKey) }}
