@@ -82,11 +82,11 @@
   {{- if kindIs "string" $generatorVal }}
     {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $generatorVal -1 }}
     {{- range $elCicdRef := $matches }}
-      {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
+      {{- $elCicdVarName := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
 
-      {{- $varValue := get $.Values.elCicdDefs $elCicdDef }}
+      {{- $varValue := get $.Values.elCicdDefs $elCicdVarName }}
       {{- if not $varValue }}
-        {{- fail (printf "%s cannot be empty [undefined variable reference]: %s" $matrixKey $elCicdDef) }}
+        {{- fail (printf "%s cannot be empty [undefined variable reference]: %s" $matrixKey $elCicdVarName) }}
       {{- end }}
       {{- $generatorVal = $varValue }}
     {{- end }}
@@ -272,8 +272,7 @@
   {{- $resultKey := uuidv4 }}
   {{- range $key, $value := $map }}
     {{- if $value }}
-      {{- $copyProcessedVarsList := concat list $processedVarsList }}
-      {{- include "elcicd-renderer.processValue" (list $ $value $elCicdDefs $copyProcessedVarsList $resultDict $resultKey) }}
+      {{- include "elcicd-renderer.processValue" (list $ $value $elCicdDefs $processedVarsList $resultDict $resultKey) }}
       {{- $newValue := get $resultDict $resultKey }}
       
       {{- $_ := unset $resultDict $resultKey }}
@@ -324,8 +323,7 @@
   {{- $newSlice := list }}
   {{- $resultKey := uuidv4 }}
   {{- range $element := $slice }}
-    {{- $copyProcessedVarsList := concat list $processedVarsList }}
-    {{- include "elcicd-renderer.processValue" (list $ $element $elCicdDefs $copyProcessedVarsList $resultDict $resultKey) }}
+    {{- include "elcicd-renderer.processValue" (list $ $element $elCicdDefs $processedVarsList $resultDict $resultKey) }}
 
     {{- $newElement := get $resultDict $resultKey }}
     {{- $_ := unset $resultDict $resultKey }}
@@ -351,9 +349,12 @@
   {{- else }}
     {{- $args := (list $ $value $elCicdDefs $processedVarsList $resultDict $resultKey) }}
     {{- if (kindIs "slice" $value) }}
-      {{- include "elcicd-renderer.replaceVarRefsInSlice" $args }}
+      {{- include "elcicd-renderer.replaceVarRefsInSlice" (list $ $value $elCicdDefs $processedVarsList $resultDict $resultKey) }}
     {{- else if (kindIs "string" $value) }}
-      {{- include "elcicd-renderer.replaceVarRefsInString" $args }}
+      {{- $processedVarsKey := uuidv4 }}
+      {{- include "elcicd-renderer.replaceVarRefsInString" (list $ $value $elCicdDefs $processedVarsList $resultDict $resultKey $processedVarsKey) }}
+      {{- $processedVarsList = get $resultDict $processedVarsKey }}
+      {{- $_ := unset $resultDict $processedVarsKey }}
     {{- end  }}
 
     {{- $newValue := get $resultDict $resultKey }}
@@ -370,58 +371,55 @@
   {{- $processedVarsList := index . 3 }}
   {{- $resultDict := index . 4 }}
   {{- $resultKey := index . 5 }}
+  {{- $processedVarsKey := index . 6 }}
 
   {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $value -1 }}
-  {{- $curratedMatches := list }}
-  {{- range $match := $matches }}
-    {{- if not (hasPrefix "$" $match) }}
-      {{- $match = substr 1 (len $match) $match }}
-    {{- end }}
-    {{- $curratedMatches = append $curratedMatches $match  }}
-  {{- end }}
-
-  {{- range $elCicdRef := ($curratedMatches | uniq) }}
-    {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
-    {{- if has $elCicdDef $processedVarsList }}
-      {{- fail (print "Circular elCicdDefs reference detected: \n" (join " -> " $processedVarsList) " -> " $elCicdDef) }}
-    {{- end }}
-    {{- $processedVarsList = append $processedVarsList $elCicdDef }}
-    {{- $varValue := get $elCicdDefs $elCicdDef }}
-
-    {{- if (kindIs "string" $varValue) }}
-      {{- if not (hasPrefix "$" $elCicdRef) }}
-        {{- $elCicdRef = substr 1 (len $elCicdRef) $elCicdRef }}
+  {{- $localProcessedVars := list }}
+  {{- range $elCicdRef := $matches }}
+    {{ if not has $elCicdRef $localProcessedVars }}
+      {{- $elCicdVarName := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
+      {{- if has $elCicdVarName $processedVarsList }}
+        {{- fail (print "Circular elCicdDefs reference detected: \n" (join " -> " $processedVarsList) " -> " $elCicdVarName) }}
       {{- end }}
-      {{- if contains "\n" $varValue }}
-        {{- $indentRegex := printf "%s%s" ".*" (replace "$" "[$]" $elCicdRef) }}
-        {{- $indentation := regexFindAll $indentRegex $value 1 | first | replace $elCicdRef "" }}
-        {{- if $indentation }}
-          {{- $indentation = printf "%s%s" "\n" (repeat (len $indentation) " ") }}
-          {{- $varValue = replace "\n" $indentation $varValue }}
+      {{- $localProcessedVars = append $localProcessedVars $elCicdVarName }}
+      {{- $varValue := get $elCicdDefs $elCicdVarName }}
+
+      {{- if (kindIs "string" $varValue) }}
+        {{- if not (hasPrefix "$" $elCicdRef) }}
+          {{- $elCicdRef = substr 1 (len $elCicdRef) $elCicdRef }}
         {{- end }}
-      {{- end }}
-      {{- $value = replace $elCicdRef (toString $varValue) $value }}
-    {{- else }}
-      {{- if gt (len $matches) 1 }}
-        {{- fail (print "Attempting multiple, non-string objects into value: \nSOURCE: " $value "\nVARIABLE(" $elCicdDef "):" (toYaml $varValue)) }}
-      {{- end }}
-
-      {{- if (kindIs "map" $varValue) }}
-        {{- $varValue = deepCopy $varValue }}
-      {{- else if (kindIs "slice" $varValue) }}
-        {{- $newList := list }}
-        {{- range $element := $varValue }}
-          {{- if (kindIs "map" $element) }}
-            {{- $element = deepCopy $element }}
+        {{- if contains "\n" $varValue }}
+          {{- $indentRegex := printf "%s%s" ".*" (replace "$" "[$]" $elCicdRef) }}
+          {{- $indentation := regexFindAll $indentRegex $value 1 | first | replace $elCicdRef "" }}
+          {{- if $indentation }}
+            {{- $indentation = printf "%s%s" "\n" (repeat (len $indentation) " ") }}
+            {{- $varValue = replace "\n" $indentation $varValue }}
           {{- end }}
-          {{- $newList = append $newList $element }}
         {{- end }}
-        {{- $varValue = $newList }}
-      {{- end }}
+        {{- $value = replace $elCicdRef (toString $varValue) $value }}
+      {{- else }}
+        {{- if gt (len $matches) 1 }}
+          {{- fail (print "Attempting multiple, non-string objects into value: \nSOURCE: " $value "\nVARIABLE(" $elCicdVarName "):" (toYaml $varValue)) }}
+        {{- end }}
 
-      {{- $value = $varValue }}
+        {{- if (kindIs "map" $varValue) }}
+          {{- $varValue = deepCopy $varValue }}
+        {{- else if (kindIs "slice" $varValue) }}
+          {{- $newList := list }}
+          {{- range $element := $varValue }}
+            {{- if (kindIs "map" $element) }}
+              {{- $element = deepCopy $element }}
+            {{- end }}
+            {{- $newList = append $newList $element }}
+          {{- end }}
+          {{- $varValue = $newList }}
+        {{- end }}
+
+        {{- $value = $varValue }}
+      {{- end }}
     {{- end }}
   {{- end }}
+  {{- $_ := set $resultDict $processedVarsKey (concat $processedVarsList $localProcessedVars) }}
 
   {{- $_ := set $resultDict $resultKey $value }}
 {{- end }}
