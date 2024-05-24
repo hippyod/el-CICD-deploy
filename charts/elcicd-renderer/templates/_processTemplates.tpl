@@ -409,13 +409,14 @@
       {{- if (kindIs "map" $varValue) }}
         {{- $varValue = deepCopy $varValue }}
       {{- else if (kindIs "slice" $varValue) }}
-        {{- if (kindIs "map" (first $varValue)) }}
-          {{- $newList := list }}
-          {{- range $element := $varValue }}
-            {{- $newList = append $newList (deepCopy $element) }}
+        {{- $newList := list }}
+        {{- range $element := $varValue }}
+          {{- if (kindIs "map" $element) }}
+            {{- $element = deepCopy $element }}
           {{- end }}
-          {{- $varValue = $newList }}
+          {{- $newList = append $newList $element }}
         {{- end }}
+        {{- $varValue = $newList }}
       {{- end }}
 
       {{- $value = $varValue }}
