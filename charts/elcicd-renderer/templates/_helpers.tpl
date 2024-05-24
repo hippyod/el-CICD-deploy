@@ -51,6 +51,9 @@
     {{- end }}
   {{- end }}
 
+  {{- $_ := set $.Values "__DEPTH" "__DEPTH" }}
+  {{- $_ := set $.Values "__MAX_DEPTH" 15 }}
+  {{- $_ := set $.Values "__ORIG_VALUE_KEY" "__ORIG_VALUE" }}
   {{- $_ := set $.Values "__NULL" "__NULL" }}
 
   {{- $_ := set $.Values "FILE_PREFIX" "$<FILE|" }}

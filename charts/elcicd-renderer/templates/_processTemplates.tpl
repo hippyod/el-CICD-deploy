@@ -343,6 +343,11 @@
   {{- $resultDict := index . 4 }}
   {{- $resultKey := index . 5 }}
 
+  {{- $depth := add1 (get $resultDict $.Values.__DEPTH | default 0) }}
+  {{- if eq $depth 1 }}
+    {{- $_ := set $resultDict $.Values.__ORIG_VALUE_KEY (substr 0 120 (toString $value)) }}
+  {{- end }}
+  
   {{- if (kindIs "map" $value) }}
     {{- include "elcicd-renderer.replaceVarRefsInMap" (list $ $value $elCicdDefs $processedVarsList $resultDict) }}
     {{- $_ := set $resultDict $resultKey $value }}
@@ -360,8 +365,14 @@
 
     {{- $newValue := get $resultDict $resultKey }}
     {{- if and $newValue (ne (toYaml $value) (toYaml $newValue)) }}
+      {{- $_ := set $resultDict $.Values.__DEPTH $depth }}
+      {{- if gt $depth $.Values.__MAX_DEPTH }}
+        {{- $origValue := get $resultDict $.Values.__ORIG_VALUE_KEY }}
+        {{- fail (print "Stack depth (" $.Values.__MAX_DEPTH ") exceeded: \nVAR STACK: " (join " -> " $processedVarsList) "\nvalues.yaml REF: " $origValue) }}
+      {{- end }}
       {{- include "elcicd-renderer.processValue" (list $ $newValue $elCicdDefs $processedVarsList $resultDict $resultKey) }}
     {{- end }}
+    {{- $_ := set $resultDict $.Values.__DEPTH (sub $depth 1) }}
   {{- end  }}
 {{- end }}
 
@@ -379,9 +390,6 @@
   {{- range $elCicdRef := $matches }}
     {{- $elCicdVarName := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
     {{ if not (has $elCicdRef $localProcessedVars) }}
-      {{- if has $elCicdVarName $processedVarsList }}
-        {{- fail (print "Circular elCicdDefs reference detected: \n" (join " -> " $processedVarsList) " -> " $elCicdVarName) }}
-      {{- end }}
       {{- $localProcessedVars = append $localProcessedVars $elCicdVarName }}
       {{- $varValue := get $elCicdDefs $elCicdVarName }}
 
@@ -420,7 +428,8 @@
       {{- end }}
     {{- end }}
   {{- end }}
-  {{- $_ := set $resultDict $processedVarsKey (concat $processedVarsList $localProcessedVars) }}
+  
+  {{- $_ := set $resultDict $processedVarsKey (concat $processedVarsList ($localProcessedVars | uniq)) }}
 
   {{- $_ := set $resultDict $resultKey $value }}
 {{- end }}
