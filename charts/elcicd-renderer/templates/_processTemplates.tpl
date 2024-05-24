@@ -376,8 +376,8 @@
   {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $value -1 }}
   {{- $localProcessedVars := list }}
   {{- range $elCicdRef := $matches }}
+    {{- $elCicdVarName := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
     {{ if not has $elCicdRef $localProcessedVars }}
-      {{- $elCicdVarName := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
       {{- if has $elCicdVarName $processedVarsList }}
         {{- fail (print "Circular elCicdDefs reference detected: \n" (join " -> " $processedVarsList) " -> " $elCicdVarName) }}
       {{- end }}
