@@ -371,8 +371,16 @@
   {{- $resultDict := index . 4 }}
   {{- $resultKey := index . 5 }}
 
-  {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $value -1 | uniq }}
-  {{- range $elCicdRef := $matches }}
+  {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $value -1 }}
+  {{- $curratedMatches := list }}
+  {{- range $match := $matches }}
+    {{- if not (hasPrefix "$" $match) }}
+      {{- $match = substr 1 (len $match) $match }}
+    {{- end }}
+    {{- $curratedMatches = append $curratedMatches $match  }}
+  {{- end }}
+
+  {{- range $elCicdRef := ($curratedMatches | uniq) }}
     {{- $elCicdDef := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
     {{- if has $elCicdDef $processedVarsList }}
       {{- fail (print "Circular elCicdDefs reference detected: \n" (join " -> " $processedVarsList) " -> " $elCicdDef) }}
