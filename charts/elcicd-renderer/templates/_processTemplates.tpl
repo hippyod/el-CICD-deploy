@@ -274,8 +274,8 @@
     {{- if $value }}
       {{- include "elcicd-renderer.processValue" (list $ $value $elCicdDefs $processedVarsList $resultDict $resultKey) }}
       {{- $newValue := get $resultDict $resultKey }}
-      
       {{- $_ := unset $resultDict $resultKey }}
+      
       {{- if $newValue }}
         {{- $_ := set $map $key $newValue }}
         {{- if (eq (toString $newValue) $.Values__NULL) }}
@@ -302,9 +302,9 @@
   {{- $_ := unset $map $key }}
   {{- if $value }}
     {{- include "elcicd-renderer.processValue" (list $ $key $elCicdDefs list $resultDict $resultKey) }}
-
     {{- $newKey := get $resultDict $resultKey }}
     {{- $_ := unset $resultDict $resultKey }}
+
     {{- $_ := unset $map $key }}
     {{- if (ne (toString $newKey) $.Values__NULL) }}
       {{- $_ := set $map $newKey $value }}
@@ -324,9 +324,9 @@
   {{- $resultKey := uuidv4 }}
   {{- range $element := $slice }}
     {{- include "elcicd-renderer.processValue" (list $ $element $elCicdDefs $processedVarsList $resultDict $resultKey) }}
-
     {{- $newElement := get $resultDict $resultKey }}
     {{- $_ := unset $resultDict $resultKey }}
+
     {{- if (ne (toString $newElement) $.Values__NULL) }}
       {{ $newSlice = append $newSlice $newElement }}
     {{- end }}
@@ -347,7 +347,6 @@
     {{- include "elcicd-renderer.replaceVarRefsInMap" (list $ $value $elCicdDefs $processedVarsList $resultDict) }}
     {{- $_ := set $resultDict $resultKey $value }}
   {{- else }}
-    {{- $args := (list $ $value $elCicdDefs $processedVarsList $resultDict $resultKey) }}
     {{- if (kindIs "slice" $value) }}
       {{- include "elcicd-renderer.replaceVarRefsInSlice" (list $ $value $elCicdDefs $processedVarsList $resultDict $resultKey) }}
     {{- else if (kindIs "string" $value) }}
@@ -355,6 +354,8 @@
       {{- include "elcicd-renderer.replaceVarRefsInString" (list $ $value $elCicdDefs $processedVarsList $resultDict $resultKey $processedVarsKey) }}
       {{- $processedVarsList = get $resultDict $processedVarsKey }}
       {{- $_ := unset $resultDict $processedVarsKey }}
+    {{- else }}
+      {{- $_ := set $resultDict $resultKey $value }}
     {{- end  }}
 
     {{- $newValue := get $resultDict $resultKey }}
