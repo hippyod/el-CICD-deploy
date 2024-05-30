@@ -179,30 +179,3 @@
   {{- $_ := set $.Values "skippedTemplates" $skippedList }}
 {{- end }}
 
-{{/*
-  ======================================
-  elcicd-renderer.createNamespaces
-  ======================================
-
-  Create all namespaces beyond the chart namespace.
-
-  elCicdNamespaces:
-  - <namespace name>
-
-  Charts cannot in and of themselves create the namespace where they deployed to.
-  Helm can create the deployment namespace if it doesn't exist, but it doesn't manage
-  it as part of the chart.  Chart's outside the deployment namespace can be managed by
-  a Helm chart, though, and this top-level el-CICD option allows you
-*/}}
-{{- define "elcicd-renderer.createNamespaces" }}
-  {{- $ := . }}
-  {{- $nsValues := dict }}
-  {{- $_ := set $nsValues "kind" "Namespace" }}
-  {{- $_ := set $nsValues "apiVersion" "v1" }}
-
-  {{- range $elCicdNamespace := $.Values.elCicdNamespaces }}
----
-    {{- $_ := set $nsValues "objName" $elCicdNamespace }}
-    {{- include "elcicd-common.apiObjectHeader" (list $ $nsValues) }}
-  {{- end }}
-{{- end }}

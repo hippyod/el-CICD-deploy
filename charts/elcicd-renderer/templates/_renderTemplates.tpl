@@ -57,9 +57,6 @@
 
       \$<variableName> # NOTE: backslashes will be removed post-rendering
 
-  elCicdNamespaces
-    List of namespaces beyond the chart namespace to be created.
-
   elCicdTemplates
     List of el-CICD chart template to render.  Order is not important.  Basic form is as follows:
 
@@ -102,8 +99,6 @@
   {{- $_ := set $.Values "EL_CICD_DEPLOYMENT_TIME_NUM" (now | date "2006_01_02_15_04_05") }}
 
   {{- include "elcicd-renderer.initElCicdRenderer" . }}
-
-  {{- include "elcicd-renderer.createNamespaces" . }}
 
   {{- include "elcicd-renderer.mergeElCicdDefs" (list $ $.Values $.Values.elCicdDefs "" "") }}
 

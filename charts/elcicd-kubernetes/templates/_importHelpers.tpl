@@ -2,7 +2,7 @@
   {{- $ := index . 0 }}
   {{- $containerVals := index . 0 }}
 
-  {{- if or $.Release.IsUpgrade $.Release.IsInstall }}  
+  {{- if or $.Release.IsUpgrade $.Release.IsInstall }}
     {{- $resources := ((lookup "v1" "ConfigMap" $.Release.Namespace "").items | default list) }}
     {{- $resources := concat $resources.items ((lookup "v1" "Secret" $.Release.Namespace "").items | default list) }}
 
@@ -10,11 +10,11 @@
       {{- $resultMap := dict }}
       {{- include "elcicd-kubernetes.getResourcesByLabel" (list $ $resources $envFromLabels.labels $resultMap) }}
       {{- $labelResources := $resultMap.result }}
-      
+
       {{- $envFromList := list }}
       {{- range $resourceName, $resource := $labelResources }}
         {{- $resourceMap := dict "name" $resourceName "optional" ($envFromLabels.optional | default false) }}
-      
+
         {{- $sourceKey := printf "%sRef" ((eq $resource.kind "ConfigMap") | ternary "configMap" "secret") }}
         {{- $envFromList = append $envFromList (dict $sourceKey $resourceMap) }}
       {{- end }}
@@ -28,10 +28,10 @@
   {{- $podValues := index . 1 }}
   {{- $containerVals := index . 2 }}
 
-  {{- if or $.Release.IsUpgrade $.Release.IsInstall }}  
+  {{- if or $.Release.IsUpgrade $.Release.IsInstall }}
     {{- $resources := ((lookup "v1" "ConfigMap" $.Release.Namespace "").items | default list) }}
     {{- $resources := concat $resources ((lookup "v1" "Secret" $.Release.Namespace "").items | default list) }}
-    
+
     {{- range $volumeByLabels := $containerVals.projectedVolumeLabels }}
       {{- $resultMap := dict }}
       {{- include "elcicd-kubernetes.getResourcesByLabel" (list $ $resources $volumeByLabels.labels $resultMap) }}
@@ -87,7 +87,7 @@
   {{- $resources := index . 1 }}
   {{- $labels := index . 2 }}
   {{- $resultMap := index . 3 }}
-  
+
   {{- $labelResources := dict }}
   {{- range $resource := $resources }}
     {{- range $volumeLabel := $labels }}
@@ -98,6 +98,6 @@
       {{- end }}
     {{- end }}
   {{- end }}
-  
+
   {{- $_ := set $resultMap "result" $labelResources }}
 {{- end }}
