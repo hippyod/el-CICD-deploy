@@ -275,7 +275,7 @@
       {{- include "elcicd-renderer.processValue" (list $ $value $elCicdDefs $processedVarsList $resultDict $resultKey) }}
       {{- $newValue := get $resultDict $resultKey }}
       {{- $_ := unset $resultDict $resultKey }}
-      
+
       {{- if $newValue }}
         {{- $_ := set $map $key $newValue }}
         {{- if (eq (toString $newValue) $.Values__NULL) }}
@@ -319,7 +319,7 @@
   {{- $processedVarsList := index . 3 }}
   {{- $resultDict := index . 4 }}
   {{- $parentResultKey := index . 5 }}
-  
+
   {{- $newSlice := list }}
   {{- $resultKey := uuidv4 }}
   {{- range $element := $slice }}
@@ -347,7 +347,7 @@
   {{- if eq $depth 1 }}
     {{- $_ := set $resultDict $.Values.__ORIG_VALUE_KEY (substr 0 120 (toString $value)) }}
   {{- end }}
-  
+
   {{- if (kindIs "map" $value) }}
     {{- include "elcicd-renderer.replaceVarRefsInMap" (list $ $value $elCicdDefs $processedVarsList $resultDict) }}
     {{- $_ := set $resultDict $resultKey $value }}
@@ -374,6 +374,11 @@
     {{- end }}
     {{- $_ := set $resultDict $.Values.__DEPTH (sub $depth 1) }}
   {{- end  }}
+
+  {{- $value := get $resultDict $resultKey }}
+  {{- if (kindIs "string" $value) and (eq $depth 1) }}
+    {{- $_ := set $resultDict $resultKey (regexReplaceAll $.Values.ELCICD_ESCAPED_REGEX $value $.Values.ELCICD_UNESCAPED_REGEX) }}
+  {{- end }}
 {{- end }}
 
 {{- define "elcicd-renderer.replaceVarRefsInString" }}
@@ -428,7 +433,7 @@
       {{- end }}
     {{- end }}
   {{- end }}
-  
+
   {{- $_ := set $resultDict $processedVarsKey (concat $processedVarsList ($localProcessedVars | uniq)) }}
 
   {{- $_ := set $resultDict $resultKey $value }}
