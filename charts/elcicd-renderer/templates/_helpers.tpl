@@ -60,6 +60,7 @@
   {{- $_ := set $.Values "CONFIG_PREFIX" "$<CONFIG|" }}
 
   {{- $_ := set $.Values "ELCICD_ESCAPED_REGEX" "[\\\\][\\$][<]" }}
+  {{- $_ := set $.Values "ELCICD_UNESCAPED_REGEX" "$<" }}
   {{- $_ := set $.Values "ELCICD_PARAM_REGEX" "(?:^|[^\\\\])\\$<([\\w]+?(?:[-][\\w]+?)*)>" }}
 
   {{- $_ := set $.Values.elCicdDefs "HELM_RELEASE_NAME" $.Release.Name }}
