@@ -376,7 +376,7 @@
   {{- end  }}
 
   {{- $value := get $resultDict $resultKey }}
-  {{- if (kindIs "string" $value) and (eq $depth 1) }}
+  {{- if and (kindIs "string" $value) (eq $depth 1) }}
     {{- $_ := set $resultDict $resultKey (regexReplaceAll $.Values.ELCICD_ESCAPED_REGEX $value $.Values.ELCICD_UNESCAPED_REGEX) }}
   {{- end }}
 {{- end }}
