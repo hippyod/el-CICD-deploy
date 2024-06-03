@@ -72,6 +72,9 @@
     objName and objNames are mutually exclusive.  Namespaces is optional and only needed
     if the resource is to be rendered outside the chart's namepsace.  Variables can be used
     in lieu of static text when defining specific template elCicdDefs.
+    
+  valuesYamlToStdOut
+    If set to true, will render processed values object for debugging purposes.
 
   =====================================
 
@@ -106,11 +109,12 @@
 
   {{- include "elcicd-renderer.processTemplates" (list $ $.Values.allTemplates) }}
 
+  {{- include "elcicd-renderer.filterTemplates" . }}
+
   {{- if (or $.Values.valuesYamlToStdOut $.Values.global.valuesYamlToStdOut) }}
     {{ $.Values | toYaml }}
   {{- else }}
-    {{- $skippedList := list }}
-    {{- range $template := $.Values.allTemplates  }}
+    {{- range $template := $.Values.renderingTemplates }}
       {{- $templateName := $template.templateName }}
       {{- if not (contains "." $templateName) }}
         {{- if eq $templateName "copyResource" }}

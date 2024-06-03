@@ -141,7 +141,7 @@
 
   {{- $renderList := list }}
   {{- $skippedList := list }}
-  {{- range $template := $.Values.elCicdTemplates  }}
+  {{- range $template := $.Values.allTemplates }}
     {{- $_ := set $template "mustHaveAnyProfile" ($template.mustHaveAnyProfile | default list) }}
     {{- $_ := set $template "mustNotHaveAnyProfile" ($template.mustNotHaveAnyProfile | default list) }}
     {{- $_ := set $template "mustHaveEveryProfile" ($template.mustHaveEveryProfile | default list) }}
@@ -172,7 +172,7 @@
     {{- if and $hasMatchingProfile $hasNoProhibitedProfiles $hasAllRequiredProfiles $doesNotHaveAllProhibitedProfiles  }}
       {{- $renderList = append $renderList $template }}
     {{- else }}
-      {{- $skippedList = append $skippedList (list $template.templateName ($template.objNames | default $template.objName)) }}
+      {{- $skippedList = append $skippedList (list $template.templateName $template.objName) }}
     {{- end }}
   {{- end }}
 

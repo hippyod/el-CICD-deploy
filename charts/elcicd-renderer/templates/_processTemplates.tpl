@@ -32,12 +32,10 @@
 {{- define "elcicd-renderer.generateAllTemplates" }}
   {{- $ := . }}
 
-  {{- include "elcicd-renderer.filterTemplates" $ }}
-
   {{- $allTemplates := list }}
   {{- $_ := set $.Values "objNameTemplates" list }}
   {{- $_ := set $.Values "namespaceTemplates" list }}
-  {{- range $template := $.Values.renderingTemplates  }}
+  {{- range $template := $.Values.elCicdTemplates  }}
     {{- if $template.objName }}
       {{- if eq $template.objName "${OBJ_NAME}" }}
         {{- $failMsgTpl := "templateName %s objName: $<OBJ_NAME>: OBJ_NAME IS RESERVED; use different variable name or elCicdDefaults.objName" }}
