@@ -30,12 +30,13 @@
     Merged results are returned in destElCicdDefs.
 */}}
 {{- define "elcicd-renderer.generateAllTemplates" }}
-  {{- $ := . }}
+  {{- $ := index . 0 }}
+  {{- $templates := index . 1 }}
 
   {{- $allTemplates := list }}
   {{- $_ := set $.Values "objNameTemplates" list }}
   {{- $_ := set $.Values "namespaceTemplates" list }}
-  {{- range $template := $.Values.elCicdTemplates  }}
+  {{- range $template := $templates }}
     {{- if $template.objName }}
       {{- if eq $template.objName "${OBJ_NAME}" }}
         {{- $failMsgTpl := "templateName %s objName: $<OBJ_NAME>: OBJ_NAME IS RESERVED; use different variable name or elCicdDefaults.objName" }}

@@ -136,12 +136,14 @@
   Skipped templates will be listed when the Chart has completed rendering.
 */}}
 {{- define "elcicd-renderer.filterTemplates" }}
-  {{- $ := . }}
+  {{- $ := index . 0 }}
+  {{- $templates := index . 1 }}
+
   {{- $_ := set $.Values "elCicdProfiles" ($.Values.elCicdProfiles | default list) }}
 
   {{- $renderList := list }}
   {{- $skippedList := list }}
-  {{- range $template := $.Values.allTemplates }}
+  {{- range $template := $templates }}
     {{- $_ := set $template "mustHaveAnyProfile" ($template.mustHaveAnyProfile | default list) }}
     {{- $_ := set $template "mustNotHaveAnyProfile" ($template.mustNotHaveAnyProfile | default list) }}
     {{- $_ := set $template "mustHaveEveryProfile" ($template.mustHaveEveryProfile | default list) }}

@@ -105,11 +105,11 @@
 
   {{- include "elcicd-renderer.mergeElCicdDefs" (list $ $.Values $.Values.elCicdDefs "" "") }}
 
-  {{- include "elcicd-renderer.generateAllTemplates" . }}
+  {{- include "elcicd-renderer.processTemplates" (list $ $.Values.elCicdTemplates) }}
 
-  {{- include "elcicd-renderer.processTemplates" (list $ $.Values.allTemplates) }}
+  {{- include "elcicd-renderer.generateAllTemplates" (list $ $.Values.elCicdTemplates) }}
 
-  {{- include "elcicd-renderer.filterTemplates" . }}
+  {{- include "elcicd-renderer.filterTemplates" (list $ $.Values.allTemplates) }}
 
   {{- if (or $.Values.valuesYamlToStdOut $.Values.global.valuesYamlToStdOut) }}
     {{ $.Values | toYaml }}
