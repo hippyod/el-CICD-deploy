@@ -35,7 +35,7 @@
   {{- $destElCicdDefs := index . 2 }}
   {{- $baseObjName := index . 3 }}
   {{- $objName := index . 4 }}
-  
+
   {{- range $profile := $.Values.elCicdProfiles }}
     {{- $profileDefs := get $elCicdDefsMap (printf "elCicdDefs-%s" $profile) }}
     {{- include "elcicd-renderer.deepCopyDict" (list $profileDefs $destElCicdDefs) }}
@@ -50,7 +50,7 @@
     {{- $objNameDefs := get $elCicdDefsMap (printf "elCicdDefs-%s" $objName) }}
     {{- include "elcicd-renderer.deepCopyDict" (list $objNameDefs $destElCicdDefs) }}
   {{- end }}
-    
+
   {{- range $profile := $elCicdDefsMap.elCicdProfiles }}
     {{- if ne $baseObjName $objName }}
       {{- $baseObjNameDefs := get $elCicdDefsMap (printf "elCicdDefs-%s-%s" $baseObjName $profile) }}

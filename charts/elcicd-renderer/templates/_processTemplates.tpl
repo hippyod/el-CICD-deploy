@@ -45,7 +45,7 @@
     {{- end }}
 
     {{- if $template.objNames }}
-      {{- include "elcicd-renderer.procesObjNamesMatrix" (list $ $template $.Values.elCicdDefs) }}
+      {{- include "elcicd-renderer.processObjNamesMatrix" (list $ $template $.Values.elCicdDefs) }}
     {{- else }}
       {{- $_ := set $template "objName" ($template.objName | default $.Values.elCicdDefaults.objName) }}
     {{- end }}
@@ -65,7 +65,7 @@
 
 {{/*
   ======================================
-  elcicd-renderer.procesObjNamesMatrix
+  elcicd-renderer.processObjNamesMatrix
   ======================================
 
   If a objNames key is defined on an el-CICD template, generate a copy of the template per value
@@ -79,7 +79,7 @@
     objName values will replace the pattern `$<>` with the baseObjName
     objName values will replace the pattern `$<#>` index of the baseObjName in the matrix
 */}}
-{{- define "elcicd-renderer.procesObjNamesMatrix" }}
+{{- define "elcicd-renderer.processObjNamesMatrix" }}
   {{- $ := index . 0 }}
   {{- $template := index . 1 }}
   {{- $elCicdDefs := index . 2 }}
@@ -215,15 +215,19 @@
   {{- $ := index . 0 }}
   {{- $templates := index . 1 }}
 
+  {{- include "elcicd-renderer.preProcessTemplatesElCicdDefs" (list $ $.Values $.Values.elCicdDefs) }}  
   {{- range $template := $templates }}
-    {{- $tplElCicdDefs := dict }}
+    {{- $tplElCicdDefs := dict }}    
     {{- include "elcicd-renderer.deepCopyDict" (list $.Values.elCicdDefs $tplElCicdDefs) }}
     {{- include "elcicd-renderer.deepCopyDict" (list $template.elCicdDefs $tplElCicdDefs) }}
+    
+    {{- include "elcicd-renderer.preProcessTemplatesElCicdDefs" (list $ $template $tplElCicdDefs) }}  
+    
     {{- include "elcicd-renderer.mergeElCicdDefs" (list $ $.Values $tplElCicdDefs $template.baseObjName $template.objName) }}
     {{- include "elcicd-renderer.mergeElCicdDefs" (list $ $template $tplElCicdDefs $template.baseObjName $template.objName) }}
     {{- include "elcicd-renderer.preProcessFilesAndConfig" (list $ $tplElCicdDefs) }}
     {{- include "elcicd-renderer.mergeElCicdDefs" (list $ $template $tplElCicdDefs $template.baseObjName $template.objName) }}
-
+    
     {{- $_ := set $tplElCicdDefs "EL_CICD_DEPLOYMENT_TIME_NUM" $.Values.EL_CICD_DEPLOYMENT_TIME_NUM }}
     {{- $_ := set $tplElCicdDefs "EL_CICD_DEPLOYMENT_TIME" $.Values.EL_CICD_DEPLOYMENT_TIME }}
 
@@ -237,6 +241,22 @@
     {{- include "elcicd-renderer.deepCopyDict" (list $.Values.elCicdDefaults $template.elCicdDefaults) }}
 
     {{- include "elcicd-renderer.replaceVarRefsInMap" (list $ $template $tplElCicdDefs list dict) }}
+    
+    {{- $_ := set $template "tplElCicdDefs" $tplElCicdDefs }}
+  {{- end }}
+{{- end }}
+
+{{- define "elcicd-renderer.preProcessTemplatesElCicdDefs" }}
+  {{- $ := index . 0 }}
+  {{- $elCicdDefsMap := index . 1 }}
+  {{- $elCicdDefs := index . 2 }}
+
+  {{- $resultDict := dict }}
+  {{- $resultKey := uuidv4 }}
+  {{ range $key, $value := $elCicdDefsMap }}
+    {{- if hasPrefix "elCicdDefs" $key }}
+      {{- include "elcicd-renderer.replaceRefsInMapKey" (list $ $elCicdDefsMap $key $elCicdDefs $resultDict $resultKey) }}
+    {{- end }}
   {{- end }}
 {{- end }}
 
