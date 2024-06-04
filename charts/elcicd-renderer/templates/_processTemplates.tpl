@@ -38,7 +38,7 @@
   {{- $_ := set $.Values "namespaceTemplates" list }}
   {{- range $template := $templates }}
     {{- if $template.objName }}
-      {{- if eq $template.objName "${OBJ_NAME}" }}
+      {{- if eq $template.objName "$<OBJ_NAME>" }}
         {{- $failMsgTpl := "templateName %s objName: $<OBJ_NAME>: OBJ_NAME IS RESERVED; use different variable name or elCicdDefaults.objName" }}
         {{- fail (printf $failMsgTpl $template.templateName) }}
       {{- end }}
@@ -51,7 +51,7 @@
     {{- end }}
 
     {{- if $template.namespaces }}
-      {{- include "elcicd-renderer.procesNamespacesMatrix" (list $ $template $.Values.elCicdDefs) }}
+      {{- include "elcicd-renderer.processNamespacesMatrix" (list $ $template $.Values.elCicdDefs) }}
     {{- end }}
 
     {{- if not (or $template.objNames $template.namespaces) }}
@@ -62,42 +62,6 @@
   {{- $_ := set $.Values "allTemplates" (concat $allTemplates $.Values.objNameTemplates $.Values.namespaceTemplates) }}
 {{- end }}
 
-
-
-{{/*
-  ======================================
-  elcicd-renderer.processTemplateMatrixValue
-  ======================================
-
-  Checks matrixKey (e.g. namespaces or objNames) on the el-CICD template.  If it's a variable,
-  it dereferences it.  If not a variable, verifies it's a list (slice).
-*/}}
-{{- define "elcicd-renderer.processTemplateMatrixValue" }}
-  {{- $ := index . 0 }}
-  {{- $template := index . 1 }}
-  {{- $matrixKey := index . 2 }}
-
-  {{- $generatorVal := get $template $matrixKey  }}
-  {{- if kindIs "string" $generatorVal }}
-    {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $generatorVal -1 }}
-    {{- range $elCicdRef := $matches }}
-      {{- $elCicdVarName := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
-
-      {{- $varValue := get $.Values.elCicdDefs $elCicdVarName }}
-      {{- if not $varValue }}
-        {{- fail (printf "%s cannot be empty [undefined variable reference]: %s" $matrixKey $elCicdVarName) }}
-      {{- end }}
-      {{- $generatorVal = $varValue }}
-    {{- end }}
-
-    {{- $_ := set $template $matrixKey $generatorVal }}
-    {{- if $matches }}
-      {{- include "elcicd-renderer.processTemplateMatrixValue" (list $ $template $matrixKey) }}
-    {{- end }}
-  {{- else if not (kindIs "slice" $generatorVal) }}
-    {{- fail (printf "%s must be either a variable or a list: %s" $matrixKey $generatorVal )}}
-  {{- end }}
-{{- end }}
 
 {{/*
   ======================================
@@ -146,7 +110,7 @@
 
 {{/*
   ======================================
-  elcicd-renderer.procesNamespacesMatrix
+  elcicd-renderer.processNamespacesMatrix
   ======================================
 
   If a namespaces key is defined on an el-CICD template, generate a copy of the template per value
@@ -160,7 +124,7 @@
     namespace values will replace the pattern `$<>` with the baseNamespace
     namespace values will replace the pattern `$<#>` index of the baseNamespace in the matrix
 */}}
-{{- define "elcicd-renderer.procesNamespacesMatrix" }}
+{{- define "elcicd-renderer.processNamespacesMatrix" }}
   {{- $ := index . 0 }}
   {{- $template := index . 1 }}
   {{- $elCicdDefs := index . 2 }}
@@ -188,6 +152,35 @@
   {{- end }}
 
   {{- $_ := set $.Values "namespaceTemplates" (concat $.Values.namespaceTemplates $namespaceTemplates) }}
+{{- end }}
+
+{{/*
+  ======================================
+  elcicd-renderer.processTemplateMatrixValue
+  ======================================
+
+  Checks matrixKey (e.g. namespaces or objNames) on the el-CICD template.  If it's a variable,
+  it dereferences it.  Verifies end result is a string.
+*/}}
+{{- define "elcicd-renderer.processTemplateMatrixValue" }}
+  {{- $ := index . 0 }}
+  {{- $template := index . 1 }}
+  {{- $matrixKey := index . 2 }}
+
+  {{- $generatorVal := get $template $matrixKey }}
+  
+  {{- $resultDict := dict }}
+  {{- $resultKey := uuidv4 }}
+  {{- include "elcicd-renderer.processValue" (list $ $generatorVal $.Values.elCicdDefs list $resultDict $resultKey) }}
+  
+  {{- $generatorVal := (get $resultDict $resultKey) | default list }}
+  {{- if $generatorVal }}
+    {{- if not (kindIs "slice" $generatorVal) }}
+      {{- fail (printf "%s must evaluate to nil or a list: %s" $matrixKey (get $template $matrixKey)) }}
+    {{- end }}
+  {{- end }}
+
+  {{- $_ := set $template $matrixKey $generatorVal }}
 {{- end }}
 
 {{/*

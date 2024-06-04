@@ -105,16 +105,16 @@
 
   {{- include "elcicd-renderer.mergeElCicdDefs" (list $ $.Values $.Values.elCicdDefs "" "") }}
 
-  {{- include "elcicd-renderer.generateAllTemplates" (list $ $.Values.elCicdTemplates) }}
+  {{- include "elcicd-renderer.filterTemplates" (list $ $.Values.elCicdTemplates) }}
+
+  {{- include "elcicd-renderer.generateAllTemplates" (list $ $.Values.renderingTemplates) }}
 
   {{- include "elcicd-renderer.processTemplates" (list $ $.Values.allTemplates) }}
-
-  {{- include "elcicd-renderer.filterTemplates" (list $ $.Values.allTemplates) }}
 
   {{- if (or $.Values.valuesYamlToStdOut $.Values.global.valuesYamlToStdOut) }}
     {{ $.Values | toYaml }}
   {{- else }}
-    {{- range $template := $.Values.renderingTemplates }}
+    {{- range $template := $.Values.allTemplates }}
       {{- $templateName := $template.templateName }}
       {{- if not (contains "." $templateName) }}
         {{- if eq $templateName "copyResource" }}

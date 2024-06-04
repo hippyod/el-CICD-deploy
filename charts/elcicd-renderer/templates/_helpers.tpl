@@ -143,11 +143,28 @@
 
   {{- $renderList := list }}
   {{- $skippedList := list }}
+  {{- $resultDict := dict }}
+  {{- $resultKey := uuidv4 }}
   {{- range $template := $templates }}
     {{- $_ := set $template "mustHaveAnyProfile" ($template.mustHaveAnyProfile | default list) }}
+    {{- include "elcicd-renderer.replaceVarRefsInSlice" (list $ $template.mustHaveAnyProfile $.Values.elCicdDefs list $resultDict $resultKey) }}
+    {{- $_ := set $template "mustHaveAnyProfile" (get $resultDict $resultKey) }}
+    {{- $_ := unset $resultDict $resultKey }}
+    
     {{- $_ := set $template "mustNotHaveAnyProfile" ($template.mustNotHaveAnyProfile | default list) }}
+    {{- include "elcicd-renderer.replaceVarRefsInSlice" (list $ $template.mustNotHaveAnyProfile $.Values.elCicdDefs list $resultDict $resultKey) }}
+    {{- $_ := set $template "mustNotHaveAnyProfile" (get $resultDict $resultKey) }}
+    {{- $_ := unset $resultDict $resultKey }}
+    
     {{- $_ := set $template "mustHaveEveryProfile" ($template.mustHaveEveryProfile | default list) }}
+    {{- include "elcicd-renderer.replaceVarRefsInSlice" (list $ $template.mustHaveEveryProfile $.Values.elCicdDefs list $resultDict $resultKey) }}
+    {{- $_ := set $template "mustHaveEveryProfile" (get $resultDict $resultKey) }}
+    {{- $_ := unset $resultDict $resultKey }}
+    
     {{- $_ := set $template "mustNotHaveEveryProfile" ($template.mustNotHaveEveryProfile | default list) }}
+    {{- include "elcicd-renderer.replaceVarRefsInSlice" (list $ $template.mustNotHaveEveryProfile $.Values.elCicdDefs list $resultDict $resultKey) }}
+    {{- $_ := set $template "mustNotHaveEveryProfile" (get $resultDict $resultKey) }}
+    {{- $_ := unset $resultDict $resultKey }}
 
     {{- $hasMatchingProfile := not $template.mustHaveAnyProfile }}
     {{- range $profile := $template.mustHaveAnyProfile }}
@@ -174,7 +191,8 @@
     {{- if and $hasMatchingProfile $hasNoProhibitedProfiles $hasAllRequiredProfiles $doesNotHaveAllProhibitedProfiles  }}
       {{- $renderList = append $renderList $template }}
     {{- else }}
-      {{- $skippedList = append $skippedList (list $template.templateName $template.objName) }}
+      {{- $objName := (empty $template.objNames | ternary (print "objName: " $template.objName) (print "objNames: " $template.objNames)) }}
+      {{- $skippedList = append $skippedList (list $template.templateName $objName) }}
     {{- end }}
   {{- end }}
 
