@@ -105,9 +105,9 @@
 
   {{- include "elcicd-renderer.mergeElCicdDefs" (list $ $.Values $.Values.elCicdDefs "" "") }}
 
-  {{- include "elcicd-renderer.processTemplates" (list $ $.Values.elCicdTemplates) }}
-
   {{- include "elcicd-renderer.generateAllTemplates" (list $ $.Values.elCicdTemplates) }}
+
+  {{- include "elcicd-renderer.processTemplates" (list $ $.Values.allTemplates) }}
 
   {{- include "elcicd-renderer.filterTemplates" (list $ $.Values.allTemplates) }}
 
