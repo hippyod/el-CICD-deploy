@@ -72,7 +72,6 @@
   
   {{- $resultDict := dict }}
   {{- $resultKey := uuidv4 }}
-# projectedVolume: {{ $projectedVolume }}
   
   {{- if or $projectedVolume.configMapLabels $projectedVolume.labels }}
     {{- $resources := ((lookup "v1" "ConfigMap" $podValues.namespace "").items | default list) }}
@@ -81,15 +80,12 @@
     {{- $_ := set $projectedVolume "configMaps" (merge ($projectedVolume.configMaps | default dict) (get $resultDict $resultKey)) }}
   {{- end }}
   
-# projectedVolume1: {{ $projectedVolume }}
   {{- if or $projectedVolume.secretLabels $projectedVolume.labels }}
     {{- $resources := concat $resources ((lookup "v1" "Secret" $podValues.namespace "").items | default list) }}
     {{- $resourceLabels := merge ($projectedVolume.secretLabels | default dict) ($projectedVolume.labels | default dict) }}
     {{- include  "elcicd-kubernetes.getResourcesByLabel" (list $ $resources $resourceLabels $resultDict $resultKey) }}
     {{- $_ := set $projectedVolume "secrets" (merge ($projectedVolume.secrets | default dict) (get $resultDict $resultKey)) }}
   {{- end }}
-  
-# projectedVolume2: {{ $projectedVolume }}
 {{- end }}
 
 {{- define "elcicd-kubernetes.getResourcesByLabel" }}
@@ -104,7 +100,7 @@
     {{- if $resource.metadata.labels  }}
       {{- range $resourceLabel, $resourceVolDef := $resourceLabels }}
         {{- if hasKey $resource.metadata.labels $resourceLabel }}
-          {{- $_ := set $labelResources $resource.metadata.name $resourceVolDef }}
+          {{- $_ := set $labelResources $resource.metadata.name (deepCopy $resourceVolDef) }}
         {{- end }}
       {{- end }}
     {{- end }}
