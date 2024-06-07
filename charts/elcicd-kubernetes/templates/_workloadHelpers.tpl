@@ -226,12 +226,13 @@ Container definition
   {{- else }}
   securityContext:
     allowPrivilegeEscalation: false
+    fsGroup: 0
     capabilities:
       drop:
       - ALL
   {{- end }}
-  {{- if $containerVals.projectedVolumeLabels }}
-    {{- include "elcicd-kubernetes.createProjectedVolumesAndMountsByLabels" (list $ $podValues $containerVals)}}
+  {{- if $containerVals.projectedVolumes }}
+    {{- include "elcicd-kubernetes.projectedVolumes" (list $ $podValues $containerVals) }}
   {{- end }}
   {{- include "elcicd-common.outputToYaml" (list $ $containerVals $whiteList) }}
 {{- end }}

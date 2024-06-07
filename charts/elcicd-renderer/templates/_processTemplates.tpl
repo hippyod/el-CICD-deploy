@@ -234,6 +234,7 @@
     {{- $_ := set $tplElCicdDefs "BASE_OBJ_NAME" ($template.baseObjName | default $template.objName) }}
     {{- $_ := set $tplElCicdDefs "OBJ_NAME" $template.objName }}
 
+    {{- $_ := set $template "namespace" ($template.namespace | default $.Release.Namespace) }}
     {{- $_ := set $tplElCicdDefs "BASE_NAME_SPACE" ($template.baseNamespace | default $template.namespace) }}
     {{- $_ := set $tplElCicdDefs "NAME_SPACE" $template.namespace }}
 
@@ -283,22 +284,16 @@
 
   {{- $resultKey := uuidv4 }}
   {{- range $key, $value := $map }}
-    {{- if $value }}
-      {{- include "elcicd-renderer.processValue" (list $ $value $elCicdDefs $processedVarsList $resultDict $resultKey) }}
-      {{- $newValue := get $resultDict $resultKey }}
-      {{- $_ := unset $resultDict $resultKey }}
-
-      {{- if $newValue }}
-        {{- $_ := set $map $key $newValue }}
-        {{- if (eq (toString $newValue) $.Values__NULL) }}
-          {{- $_ := unset $map $key }}
-        {{- end }}
-      {{- else }}
-        {{- $_ := unset $map $key }}
-      {{- end }}
+    {{- include "elcicd-renderer.processValue" (list $ $value $elCicdDefs $processedVarsList $resultDict $resultKey) }}
+    {{- $newValue := get $resultDict $resultKey }}
+    {{- $_ := unset $resultDict $resultKey }}
+    
+    {{ if or $newValue (kindIs "map" $newValue) (kindIs "slice" $newValue) }}
+      {{- $_ := set $map $key $newValue }}
+      {{- include "elcicd-renderer.replaceRefsInMapKey" (list $ $map $key $elCicdDefs $resultDict $resultKey) }}
+    {{- else }}
+      {{- $_ := unset $map $key }}
     {{- end }}
-
-    {{- include "elcicd-renderer.replaceRefsInMapKey" (list $ $map $key $elCicdDefs $resultDict $resultKey) }}
   {{- end }}
 {{- end }}
 
@@ -311,16 +306,14 @@
   {{- $resultKey := index . 5 }}
 
   {{- $value := get $map $key }}
-  {{- $_ := unset $map $key }}
-  {{- if $value }}
-    {{- include "elcicd-renderer.processValue" (list $ $key $elCicdDefs list $resultDict $resultKey) }}
-    {{- $newKey := get $resultDict $resultKey }}
-    {{- $_ := unset $resultDict $resultKey }}
+  
+  {{- include "elcicd-renderer.processValue" (list $ $key $elCicdDefs list $resultDict $resultKey) }}
+  {{- $newKey := get $resultDict $resultKey }}
+  {{- $_ := unset $resultDict $resultKey }}
 
-    {{- $_ := unset $map $key }}
-    {{- if (ne (toString $newKey) $.Values__NULL) }}
-      {{- $_ := set $map $newKey $value }}
-    {{- end }}
+  {{- $_ := unset $map $key }}
+  {{- if $newKey }}
+    {{- $_ := set $map $newKey $value }}
   {{- end }}
 {{- end }}
 
@@ -339,9 +332,7 @@
     {{- $newElement := get $resultDict $resultKey }}
     {{- $_ := unset $resultDict $resultKey }}
 
-    {{- if (ne (toString $newElement) $.Values__NULL) }}
-      {{ $newSlice = append $newSlice $newElement }}
-    {{- end }}
+    {{ $newSlice = append $newSlice $newElement }}
   {{- end }}
 
   {{- $_ := set $resultDict $parentResultKey $newSlice }}
