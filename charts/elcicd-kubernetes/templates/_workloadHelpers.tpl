@@ -226,7 +226,6 @@ Container definition
   {{- else }}
   securityContext:
     allowPrivilegeEscalation: false
-    fsGroup: 0
     capabilities:
       drop:
       - ALL
