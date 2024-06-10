@@ -4,14 +4,21 @@
   ======================================
   elcicd-renderer.render
   ======================================
+  
+  PARAMETERS LIST:
+    . -> should be root of chart
+  
+  ======================================
 
-  ENTRY POINT for el-CICD Charts.
-
-  To use el-CICD Charts create a Helm chart with a single .tpl file.  See the sibling elcicd-chart
-  or usable example:
-
-  # elcicd-render.tpl
-  {{- include "elcicd-renderer.render" . }}
+  ENTRY POINT for el-CICD Charts.  To use el-CICD Charts create a Helm chart with a single .tpl file.
+  See the sibling elcicd-chart or usable example:
+  
+  {{- if eq .Values.outputMergedValuesYaml true }}
+    {{- $_ := unset .Values "outputMergedValuesYaml" }}
+    {{- .Values | toYaml }}
+  {{- else }}
+    {{- include "elcicd-renderer.render" . }}
+  {{- end }}
 
   Chart.yaml should have the following dependencies:
 
@@ -27,15 +34,16 @@
     version: 0.1.0
     repository: file://../elcicd-common
 
-  The elcicd-kubernetes and elcicd-common library charts are optional but most common to also add.
-  Both of the those charts support el-CICD templates for common application deployment Kubernetes resources.
+  The elcicd-kubernetes and elcicd-common library charts are technically optional, but should be added if
+  deploying to Kubernetes.  Both of the those charts support el-CICD templates for common application 
+  deployment Kubernetes resources.
 
   =====================================
 
   Supported values of el-CICD Chart:
 
   elCicdProfiles
-    List of active profiles for rendering, Usually entered only on the command line
+    List of active profiles for rendering. Usually entered only on the command line
     when rendering.
 
   elCicdDefs
@@ -48,12 +56,19 @@
     Variables may reference other variables, may be any type of valid YAML data,
     and order is not important.  elCicdDefs with named profiles or objNames will
     only be used when the profile is active or a template using that objName is being rendered.
+    The order of precedence is defined as above, with the more specific the variable definition
+    relative to the profile and then the objName.
 
-    Variables are referenced in templates in the following manner:
+    Variables are defined and referenced in templates in the following manner:
+      
+    elCicdDefs:
+      FIRST_VAR: a string
+      SECOND_VAR:
+      - a list
+      THIRD_VAR:
+        a: map
 
-      $<variableName>
-
-    Use a backslash to escape:
+    Use a backslash for escaping:
 
       \$<variableName> # NOTE: backslashes will be removed post-rendering
 
@@ -61,49 +76,84 @@
     List of el-CICD chart template to render.  Order is not important.  Basic form is as follows:
 
     - templateName: <template name>
-      resName: <resource name to be rendered>
+      objName: <resource name to be rendered>
       objNames: <list of resource names to be rendered>
+      namespace: <optional list of namespace(s)to deploy resource to>
       namespaces: <optional list of namespace(s)to deploy resource to>
       elCicdDefs: <list of variables only applicable to this template>
       elCicdDefs-<profile>: <list of variables only applicable to this template when profile is active>
       elCicdDefs-<objectName>-<profile>: <list of variables only applicable to a template with objName when profile is active>
       <template values to set>
 
-    objName and objNames are mutually exclusive.  Namespaces is optional and only needed
-    if the resource is to be rendered outside the chart's namepsace.  Variables can be used
-    in lieu of static text when defining specific template elCicdDefs.
+      objName and objNames are mutually exclusive, with objNames given precedence.  One or the other MUST be defined.
+      namespace and namespaces are mutually exclusive and optional, with namespaces given precedence.  They only needed 
+      if the resource is to be rendered outside the chart's namespace.  elCicdVariables can be used for either.  namespaces
+      and objNames are defined as lists.
+      
+      elCicdDefs defined in the specific template are given precedence.  Note the optional use objName when defining elCicdDefs,
+      since the list of objNames implies multiple different objNames.
+      
+      Special objName namespace references for inserting for generating an objName or namespace values:
+      $<> - insert the baseObjName/baseNamespaceName from the objNames/namespaces list
+      $<#> - index of current baseObjName/baseNamespaceName in the objNames/namespaces list
+      For example:
+      
+      namespaces:
+      - foo
+      - bar
+      namespace: $<>-$<#>
+      
+      Will be rendered as:
+      metadata:
+        namespace: foo-1
+        
+      metadata:
+        namespace: bar-2
+      
+      If objNames and owere used in the above:
+      objNames:
+      - foo
+      - bar
+      objeName: $<>-$<#>
+      
+      Would produce:
+      metadata:
+        name: foo-1
+        
+      metadata:
+        name: bar-2
+    
     
   valuesYamlToStdOut
-    If set to true, will render processed values object for debugging purposes.
+    If set to true, will NOT render the chart, but instead render the el-CICD processed Values object for debugging purposes.
 
   =====================================
 
   General rendering process:
 
   1. Intialization of data for chart (elcicd-renderer.initElCicdRenderer)
-  2. If necessary, creates extra namespace (elcicd-renderer.createNamespaces)
-  3. Merge all elCicdDefs(-*) directly attached to the built-in Values object (elcicd-renderer.mergeElCicdDefs)
-  4. If templates include a list of names or namespaces, creates a copy for
-     each one in the overall template list to be rendered.  Also filters out any
-     templates not matching the profile(s) (elcicd-renderer.generateAllTemplates)
-  5. Processing the templates means overriding the global variables with template specific ones,
-     replacing variable references with values, and then rendering the templates.
-  6. If the calculated values file is to be rendered for debugging purposes or resuse in a pre-rendered
-     deployment strategy, do so.  The values are NOT commented out.
-  7. Add comments describing which templates were rendered and which were skipped due to profile filtering.
-
-  See the named Helm templates for more information.
+  2. Evaluate chart-level elCicdDefs* to get final list of variable definitions.
+  3. Collect all template lists from all included values.yaml files.
+  3. Filter the list of templates to be rendered based on the current list of active profiles.
+  4. Realize the complete list of templates to be rendered based on any objNames or namespaces matrices per template.
+  5. Process all templates, replacing el-CICD variable references with their values.
+  5. Add comments describing which templates were rendered and which were skipped due to profile filtering.
+  
+  NOTE: if valuesYamlToStdOut or global.valuesYamlToStdOut is true, then only the processed Values values will
+        be output.
 */}}
 {{- define "elcicd-renderer.render" }}
   {{- $ := . }}
 
-  {{- $_ := set $.Values "EL_CICD_DEPLOYMENT_TIME" (now | date "Mon Jan 2 15:04:05 MST 2006") }}
+  {{- $_ := set $.Values "__EL_CICD_DEPLOYMENT_TIME" (now | date "Mon Jan 2 15:04:05 MST 2006") }}
 
-  {{- $_ := set $.Values "EL_CICD_DEPLOYMENT_TIME_NUM" (now | date "2006_01_02_15_04_05") }}
+  {{- $_ := set $.Values "__EL_CICD_DEPLOYMENT_TIME_NUM" (now | date "2006_01_02_15_04_05") }}
 
   {{- include "elcicd-renderer.initElCicdRenderer" . }}
 
   {{- include "elcicd-renderer.mergeElCicdDefs" (list $ $.Values $.Values.elCicdDefs "" "") }}
+
+  {{- include "elcicd-renderer.gatherElCicdTemplates" $ }}
 
   {{- include "elcicd-renderer.filterTemplates" (list $ $.Values.elCicdTemplates) }}
 

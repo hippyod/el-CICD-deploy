@@ -41,8 +41,6 @@
     {{- end }}
   {{- end }}
 
-  {{- include "elcicd-renderer.gatherElCicdTemplates" $ }}
-
   {{- include "elcicd-renderer.gatherElCicdDefaults" $ }}
 
   {{- range $dep := $.Chart.Dependencies }}
@@ -51,19 +49,16 @@
     {{- end }}
   {{- end }}
 
-  {{- $_ := set $.Values "__DEPTH" "__DEPTH" }}
-  {{- $_ := set $.Values "__MAX_DEPTH" 15 }}
-  {{- $_ := set $.Values "__ORIG_VALUE_KEY" "__ORIG_VALUE" }}
+  {{- $_ := set $.Values "__EL_CICD_DEPTH" "__EL_CICD_DEPTH" }}
+  {{- $_ := set $.Values "__EL_CICD_MAX_DEPTH" 15 }}
+  {{- $_ := set $.Values "__EL_CICD_ORIG_VALUE_KEY" "__ORIG_VALUE" }}
 
-  {{- $_ := set $.Values "FILE_PREFIX" "$<FILE|" }}
-  {{- $_ := set $.Values "CONFIG_PREFIX" "$<CONFIG|" }}
+  {{- $_ := set $.Values "__EL_CICD_FILE_PREFIX" "$<FILE|" }}
+  {{- $_ := set $.Values "__EL_CICD_CONFIG_PREFIX" "$<CONFIG|" }}
 
-  {{- $_ := set $.Values "ELCICD_ESCAPED_REGEX" "[\\\\][\\$][<]" }}
-  {{- $_ := set $.Values "ELCICD_UNESCAPED_REGEX" "$<" }}
-  {{- $_ := set $.Values "ELCICD_PARAM_REGEX" "(?:^|[^\\\\])\\$<([\\w]+?(?:[-][\\w]+?)*)>" }}
-
-  {{- $_ := set $.Values.elCicdDefs "HELM_RELEASE_NAME" $.Release.Name }}
-  {{- $_ := set $.Values.elCicdDefs "HELM_RELEASE_NAMESPACE" $.Release.Namespace }}
+  {{- $_ := set $.Values "__EL_CICD_ESCAPED_REGEX" "[\\\\][\\$][<]" }}
+  {{- $_ := set $.Values "__EL_CICD_UNESCAPED_REGEX" "$<" }}
+  {{- $_ := set $.Values "__EL_CICD_PARAM_REGEX" "(?:^|[^\\\\])\\$<([\\w]+?(?:[-][\\w]+?)*)>" }}
 {{- end }}
 
 {{/*

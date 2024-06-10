@@ -8,13 +8,13 @@
       {{- if or (kindIs "map" $value) }}
         {{- include "elcicd-renderer.preProcessFilesAndConfig" (list $ $value) }}
       {{- else if (kindIs "string" $value) }}
-        {{- if or (hasPrefix $.Values.FILE_PREFIX $value) }}
-          {{- $filePath := ( $value | trimPrefix $.Values.FILE_PREFIX | trimSuffix ">") }}
+        {{- if (hasPrefix $.Values.__EL_CICD_FILE_PREFIX $value) }}
+          {{- $filePath := ( $value | trimPrefix $.Values.__EL_CICD_FILE_PREFIX | trimSuffix ">") }}
           {{- $value = $.Files.Get $filePath }}
           {{- $_ := set $tplElCicdDefs $param (toString $value) }}
         {{- end }}
   
-        {{- if (hasPrefix $.Values.CONFIG_PREFIX $param) }}
+        {{- if (hasPrefix $.Values.__EL_CICD_CONFIG_PREFIX $param) }}
           {{- include "elcicd-renderer.asConfig" (list $ $param $value $tplElCicdDefs) }}
         {{- end }}
       {{- end }}
@@ -29,7 +29,7 @@
   {{- $tplElCicdDefs := index . 3 }}
   
   {{- $_ := unset $tplElCicdDefs $param }}
-  {{- $param = ( $param | trimPrefix $.Values.CONFIG_PREFIX | trimSuffix ">") }}
+  {{- $param = ( $param | trimPrefix $.Values.__EL_CICD_CONFIG_PREFIX | trimSuffix ">") }}
   {{- $newValue := dict }}
   {{- range $configLine := (regexSplit "\n" $value -1) }}
     {{- $keyValue := (regexSplit "\\s*=\\s*" $configLine -1) }}

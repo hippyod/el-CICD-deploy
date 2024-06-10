@@ -5,29 +5,16 @@
   elcicd-renderer.generateAllTemplates
   ======================================
 
-  Merges all elCicdDefs dictionaries based on profiles and object names to create a
-  dictionary of variables that will be used before finally rendering the el-CICD template.
+  PARAMETERS LIST:
+    $ -> root of chart
+    $templates -> list of elCicdTemplates defined in *values.yaml
 
-  Order of precedence in ascending order is as follows dictionaries:
+  ======================================
 
-    1. elCicdDefsMap
-      i. Source map submitted for merging.
-          a. If merging variable definitions a the top level, this will be a copy of Values.elCicdDefs
-          b. If merging variable definitions for a template, this will be a copy of the fully merged, top level elCicdDefs map.
-    2. elCicdDefs-<profile>
-      i. Following Helm standard, in order of listed profiles
-    3. elCicdDefs-<baseObjName>
-      i. baseObjName is the raw name of the object to be created before modification
-      ii. Use this form if all permutations of a template should recieve the values defined in this map
-    4. elCicdDefs-<objName>
-      i. objName is the final name of the resource being generated from the el-CICD template
-      ii. Use this form if only a specific permutation of a template should recieve the values defined in this map
-    5. elCicdDefs-<profile>-<baseObjName>
-      i. Same as elCicdDefs-<baseObjName>, but only for a specific profile
-    6. elCicdDefs-<profile>-<objName>
-      i. Same as elCicdDefs-<objName>, but only for a specific profile
+  Generates the complete list of el-CICD templates to be rendered based on each template's optional objNames
+  and namespaces lists.  objNames are processed first, and namespaces afterwards.
 
-    Merged results are returned in destElCicdDefs.
+  The final list of templates to be rendered is set to $.Values.allTemplates
 */}}
 {{- define "elcicd-renderer.generateAllTemplates" }}
   {{- $ := index . 0 }}
@@ -68,16 +55,19 @@
   elcicd-renderer.processObjNamesMatrix
   ======================================
 
-  If a objNames key is defined on an el-CICD template, generate a copy of the template per value
-  in the objName list and append and add to the list of templates to render. The baseObjName will
-  be equivalent to the value in the list.  objName will will by default be equal to the baseObjName
-  unless otherwise templated with text.
+  PARAMETERS LIST:
+    $ -> root of chart
+    $template -> template defined in *values.yaml to be processed
+    $elCicdDefs -> final chart level elCicdDefs
 
-  Example objName template:
-    objName: <text>-$<>-<more text>-$<#>
+  ======================================
 
-    objName values will replace the pattern `$<>` with the baseObjName
-    objName values will replace the pattern `$<#>` index of the baseObjName in the matrix
+
+  First evaluate the objNames value for any el-CICD variables and dereference them.  Only chart-level variable definitions will be
+  considered.  Next, generate a copy of the template per value in the list and append and add to the list of templates to render.
+
+  If the objName key has a value with $<> in it, it will be replaced with the baseObjName (i.e the value in the objNames list).
+  If the objName key has a value with $<#> in it, it will be replaced with the index of baseObjName in the objNames list.
 */}}
 {{- define "elcicd-renderer.processObjNamesMatrix" }}
   {{- $ := index . 0 }}
@@ -113,16 +103,19 @@
   elcicd-renderer.processNamespacesMatrix
   ======================================
 
-  If a namespaces key is defined on an el-CICD template, generate a copy of the template per value
-  in the namespace list and append and add to the list of templates to render.  The baseNamespace will
-  be equivalent to the value in the list.  namespace for the template will by default be equal to the
-  baseNamespace unless otherwise templated with text.
+  PARAMETERS LIST:
+    $ -> root of chart
+    $template -> template defined in *values.yaml to be processed
+    $elCicdDefs -> final chart level elCicdDefs
 
-  Example objName template:
-    namespace: <text>-$<>-<more text>-$<#>
+  ======================================
 
-    namespace values will replace the pattern `$<>` with the baseNamespace
-    namespace values will replace the pattern `$<#>` index of the baseNamespace in the matrix
+
+  First evaluate the namespaces value for any el-CICD variables and dereference them.  Only chart-level variable definitions will be
+  considered.  Next, generate a copy of the template per value in the list and append and add to the list of templates to render.
+
+  If the namespace key has a value with $<> in it, it will be replaced with the baseObjName (i.e the value in the namespaces list).
+  If the namespace key has a value with $<#> in it, it will be replaced with the index of baseObjName in the namespaces list.
 */}}
 {{- define "elcicd-renderer.processNamespacesMatrix" }}
   {{- $ := index . 0 }}
@@ -159,8 +152,14 @@
   elcicd-renderer.processTemplateMatrixValue
   ======================================
 
-  Checks matrixKey (e.g. namespaces or objNames) on the el-CICD template.  If it's a variable,
-  it dereferences it.  Verifies end result is a string.
+  PARAMETERS LIST:
+    $ -> root of chart
+    $template -> template to operate on.
+    $matrixKey -> currently only "namespaces" or "objNames" is supported
+
+  ======================================
+
+  Dereferences any el-CICD variables references in a matrices list; e.g. the objNames or namespaces list.
 */}}
 {{- define "elcicd-renderer.processTemplateMatrixValue" }}
   {{- $ := index . 0 }}
@@ -168,11 +167,11 @@
   {{- $matrixKey := index . 2 }}
 
   {{- $generatorVal := get $template $matrixKey }}
-  
+
   {{- $resultDict := dict }}
   {{- $resultKey := uuidv4 }}
   {{- include "elcicd-renderer.processValue" (list $ $generatorVal $.Values.elCicdDefs list $resultDict $resultKey) }}
-  
+
   {{- $generatorVal := (get $resultDict $resultKey) | default list }}
   {{- if $generatorVal }}
     {{- if not (kindIs "slice" $generatorVal) }}
@@ -188,48 +187,70 @@
   elcicd-renderer.processTemplates
   ======================================
 
-  Process all el-CICD templates in the template list before rendering.  This means building the template
-  specific dictionary of el-CICD Chart variables, and then adding or replacing all variable references in
-  el-CICD Chart template with values.
+  PARAMETERS LIST:
+    $ -> root of chart
+    $templates -> list of elCicdTemplates defined in *values.yaml
+
+  ======================================
+
+  Process all el-CICD templates in the template list before rendering.  This means realizing the final
+  elCicdDefs for ht
 
   Process a template has the following steps:
 
-  1. Create a copy of the globally defined dictionary of el-CICD variables
-  2. Copy the template specific, general (elCicdDefs) el-CICD variables into the copy of the global variable dictionary
-    i. This dictionary represents the sum total of non-profile or object name specific variables
-  3. Merge globally defined baseObjName and objName specific variables into the template variable dictionary
-  4. Merge template defined baseObjName and objName specific variables into the template variable dictionary
-  5. Add key/values pairs from config files (donoted as $<FILE|path>) into the dictionary
-  6. Inject default el-CICD variables into final dictionary
-    i. EL_CICD_DEPLOYMENT_TIME_NUM: deployment time in milliseconds
-    ii. EL_CICD_DEPLOYMENT_TIME: human readable deployment time
-  iii. BASE_OBJ_NAME: baseObjName of template
-    iv. OBJ_NAME: objName of template
-    v. BASE_NAME_SPACE: base name of namespace final resource will be deployed to
-    vi. NAME_SPACE: namespace the final resource will be deployed to
-  7. Copy the elCicdDefaults dictionary onto the template
-  8. Replace all el-CICD variable references in the template with values in the final
-     el-CICD template variable dictionary (elcicd-renderer.replaceVarRefsInMap)
+  1. Process all **chart's** el-CICD variable definition maps of the form elCicdDefs-*  (i.e. all .Values.elCicdDefs-*)
+     for el-CICD variables using the **chart's** elCicdDefs map (i.e. .Values.elCicdDefs).
+     (elcicd-renderer.preProcessElCicdDefsMapNames)
+     
+  For each template to be rendered:
+  
+  1. Copy the .Values.elCicdDefs into $tplElCicdDefs (template specific variable defintions). (elcicd-renderer.deepCopyDict)
+  2. Copy the $template.elCicdDefs onto $tplElCicdDefs (elcicd-renderer.deepCopyDict)
+  3. Process all **template's** el-CICD variable definition maps of the form elCicdDefs-*  (i.e. all $template.elCicdDefs-*)
+     for el-CICD variables using the **template's** elCicdDefs map (i.e. $template.elCicdDefs). 
+     (elcicd-renderer.preProcessElCicdDefsMapNames)
+  4. Merge the different **chart's** elCicdDefs-<baseObjName>-<profile> maps into the $tplElCicdDefs. (elcicd-renderer.mergeElCicdDefs)
+  5. Merge the different **templates's** elCicdDefs-<baseObjName>-<profile> maps into the $tplElCicdDefs. (elcicd-renderer.mergeElCicdDefs)
+  6. Load any file variable references into the variable values (elcicd-renderer.preProcessFilesAndConfig); e.g.
+     elCicdDefs:
+      SOME_VAR: $<FILE|file-to-be-loaded.ext> -> loads file-to-be-loaded.ext as text into as the value of SOME_VAR
+      SOME_VAR: $<CONFIG|file-to-be-loaded> -> loads an env/properties/conf line delimited file of key/values pairs
+                defined by key=value as a map and assigns to the variable SOME_VAR
+  7. Sets default/el-CICD built-in values to the template elCicdDefs including:
+     - EL_CICD_DEPLOYMENT_TIME_NUM - time of deployment in nanoseconds
+     - EL_CICD_DEPLOYMENT_TIME - human readable date and time 
+     - BASE_OBJ_NAME - value the objName was derived from if defined
+     - OBJ_NAME - name of template; typically translates to metadata.name
+     - BASE_NAME_SPACE - value the namespace was derived from if defined
+     - NAME_SPACE - namespace the template is being deployed to
+     - HELM_RELEASE_NAME - .Release.Name
+     - HELM_RELEASE_NAMESPACE - .Release.Namespace
+     NOTE: templates that do not have or use namespaces can safely ignore those values.
+  8. Adds the el-CICD defaults to the template.
+  9. Recursively walks the template realizing the values of all el-CICD variable references in
+     keys or values.
+     NOTE: variables that realized as empty keys or empty **string** values will be removed from
+           the template.
+ 10. For debugging/documentation purposes, $tplElCicdDefs is added to the template.    
 */}}
 {{- define "elcicd-renderer.processTemplates" }}
   {{- $ := index . 0 }}
   {{- $templates := index . 1 }}
 
-  {{- include "elcicd-renderer.preProcessTemplatesElCicdDefs" (list $ $.Values $.Values.elCicdDefs) }}  
+  {{- include "elcicd-renderer.preProcessElCicdDefsMapNames" (list $ $.Values $.Values.elCicdDefs) }}
   {{- range $template := $templates }}
-    {{- $tplElCicdDefs := dict }}    
+    {{- $tplElCicdDefs := dict }}
     {{- include "elcicd-renderer.deepCopyDict" (list $.Values.elCicdDefs $tplElCicdDefs) }}
     {{- include "elcicd-renderer.deepCopyDict" (list $template.elCicdDefs $tplElCicdDefs) }}
-    
-    {{- include "elcicd-renderer.preProcessTemplatesElCicdDefs" (list $ $template $tplElCicdDefs) }}  
-    
+
+    {{- include "elcicd-renderer.preProcessElCicdDefsMapNames" (list $ $template $tplElCicdDefs) }}
+
     {{- include "elcicd-renderer.mergeElCicdDefs" (list $ $.Values $tplElCicdDefs $template.baseObjName $template.objName) }}
     {{- include "elcicd-renderer.mergeElCicdDefs" (list $ $template $tplElCicdDefs $template.baseObjName $template.objName) }}
     {{- include "elcicd-renderer.preProcessFilesAndConfig" (list $ $tplElCicdDefs) }}
-    {{- include "elcicd-renderer.mergeElCicdDefs" (list $ $template $tplElCicdDefs $template.baseObjName $template.objName) }}
-    
-    {{- $_ := set $tplElCicdDefs "EL_CICD_DEPLOYMENT_TIME_NUM" $.Values.EL_CICD_DEPLOYMENT_TIME_NUM }}
-    {{- $_ := set $tplElCicdDefs "EL_CICD_DEPLOYMENT_TIME" $.Values.EL_CICD_DEPLOYMENT_TIME }}
+
+    {{- $_ := set $tplElCicdDefs "EL_CICD_DEPLOYMENT_TIME_NUM" $.Values.__EL_CICD_DEPLOYMENT_TIME_NUM }}
+    {{- $_ := set $tplElCicdDefs "EL_CICD_DEPLOYMENT_TIME" $.Values.__EL_CICD_DEPLOYMENT_TIME }}
 
     {{- $_ := set $tplElCicdDefs "BASE_OBJ_NAME" ($template.baseObjName | default $template.objName) }}
     {{- $_ := set $tplElCicdDefs "OBJ_NAME" $template.objName }}
@@ -238,25 +259,55 @@
     {{- $_ := set $tplElCicdDefs "BASE_NAME_SPACE" ($template.baseNamespace | default $template.namespace) }}
     {{- $_ := set $tplElCicdDefs "NAME_SPACE" $template.namespace }}
 
+    {{- $_ := set $tplElCicdDefs "HELM_RELEASE_NAME" $.Release.Name }}
+    {{- $_ := set $tplElCicdDefs "HELM_RELEASE_NAMESPACE" $.Release.Namespace }}
+
     {{- $_ := set $template "elCicdDefaults" dict }}
     {{- include "elcicd-renderer.deepCopyDict" (list $.Values.elCicdDefaults $template.elCicdDefaults) }}
 
     {{- include "elcicd-renderer.replaceVarRefsInMap" (list $ $template $tplElCicdDefs list dict) }}
-    
+
     {{- $_ := set $template "tplElCicdDefs" $tplElCicdDefs }}
   {{- end }}
 {{- end }}
 
-{{- define "elcicd-renderer.preProcessTemplatesElCicdDefs" }}
-  {{- $ := index . 0 }}
-  {{- $elCicdDefsMap := index . 1 }}
-  {{- $elCicdDefs := index . 2 }}
+{{/*
+  ======================================
+  elcicd-renderer.processTemplates
+  ======================================
+
+  PARAMETERS LIST:
+    $parentMap -> map containing all elCicdDefs
+    $elCicdDefs -> el-CICD variable defintiions
+
+  ======================================
+  
+  Preprocess all elCicdDefs-* maps for el-CICD variables; e.g.:
+  
+    elCicdDefs:
+      SOME_VAR: some-obj-name
+      
+    elCicdDefs-$<SOME_VAR>:
+      VAR_DEF: var-def
+    
+  result in:
+    
+    elCicdDefs-some-obj-name:
+      VAR_DEF: var-def
+  
+  And VAR_DEF will be defined for use for any template with the objName "some-obj-name".  Chart level el-CICD maps will
+  only use the base elCicdDefs map for processing.  Each template will be evaluated will a map derived from all el-CICD
+  variable definitions NOT of the form elCicdDefs-* ATTACHED DIRECTLY TO THE TEMPLATE.
+  */}}
+{{- define "elcicd-renderer.preProcessElCicdDefsMapNames" }}
+  {{- $parentMap := index . 0 }}
+  {{- $elCicdDefs := index . 1 }}
 
   {{- $resultDict := dict }}
   {{- $resultKey := uuidv4 }}
-  {{ range $key, $value := $elCicdDefsMap }}
-    {{- if hasPrefix "elCicdDefs" $key }}
-      {{- include "elcicd-renderer.replaceRefsInMapKey" (list $ $elCicdDefsMap $key $elCicdDefs $resultDict $resultKey) }}
+  {{ range $key, $value := $parentMap }}
+    {{- if hasPrefix "elCicdDefs-" $key }}
+      {{- include "elcicd-renderer.replaceRefsInMapKey" (list $ $parentMap $key $elCicdDefs $resultDict $resultKey) }}
     {{- end }}
   {{- end }}
 {{- end }}
@@ -266,14 +317,17 @@
   elcicd-renderer.replaceVarRefsInMap
   ======================================
 
-  Walk the dictionary and replace any el-CICD variable references with their values.  Depending on
-  the type and location of the variable reference, another Helm template will be called.  In particular,
-  if a dict value is of type:
-  - map -> elcicd-renderer.replaceVarRefsInMap (i.e. recursive call)
-  - slice -> elcicd-renderer.replaceVarRefsInSlice
-  - string -> elcicd-renderer.replaceVarRefsInMapValue
+  PARAMETERS LIST:
+    $map -> the map to process for el-CICD variable references.
+    $elCicdDefs -> el-CICD variable defintiions
+    $processedVarsList -> list of variables for tracking recursive depth of processing
+    $resultDict -> dctionary for retrieving values from other Helm templates called in this Helm template
 
-  And if a key in the map is a variable reference, call elcicd-renderer.replaceVarRefsInMapKey.
+  ======================================
+
+  Walk the given dictionary and replace any el-CICD variable references with their values.  Each value will be processed. 
+  If the value is an non-empty string, map, or slice then process the key for el-CICD variables; otherwise, remove the 
+  key/value pair.
 */}}
 {{- define "elcicd-renderer.replaceVarRefsInMap" }}
   {{- $ := index . 0 }}
@@ -287,7 +341,7 @@
     {{- include "elcicd-renderer.processValue" (list $ $value $elCicdDefs $processedVarsList $resultDict $resultKey) }}
     {{- $newValue := get $resultDict $resultKey }}
     {{- $_ := unset $resultDict $resultKey }}
-    
+
     {{ if or $newValue (kindIs "map" $newValue) (kindIs "slice" $newValue) }}
       {{- $_ := set $map $key $newValue }}
       {{- include "elcicd-renderer.replaceRefsInMapKey" (list $ $map $key $elCicdDefs $resultDict $resultKey) }}
@@ -297,6 +351,24 @@
   {{- end }}
 {{- end }}
 
+{{/*
+  ======================================
+  elcicd-renderer.replaceRefsInMapKey
+  ======================================
+
+  PARAMETERS LIST:
+    $map -> the map being processed for el-CICD variable references.
+    $key -> the key to evaluate for el-CICD variable references.
+    $elCicdDefs -> el-CICD variable definitions
+    $resultDict -> dctionary for retrieving values from other Helm templates called in this Helm template
+    $resultKey -> key used to store and retrieve results from the result dictionary
+
+  ======================================
+
+  Walk the given dictionary and replace any el-CICD variable references with their values.  Each value will be processed. 
+  If the value is an empty string, remove the key/value pair; otherwise, process the key for el-CICD variables.  If the key
+  is an empty string, remove the key/value pair.  Note that keys MUST resolve to strings, or an error will be raised by Helm.
+*/}}
 {{- define "elcicd-renderer.replaceRefsInMapKey" }}
   {{- $ := index . 0 }}
   {{- $map := index . 1 }}
@@ -306,7 +378,7 @@
   {{- $resultKey := index . 5 }}
 
   {{- $value := get $map $key }}
-  
+
   {{- include "elcicd-renderer.processValue" (list $ $key $elCicdDefs list $resultDict $resultKey) }}
   {{- $newKey := get $resultDict $resultKey }}
   {{- $_ := unset $resultDict $resultKey }}
@@ -346,9 +418,9 @@
   {{- $resultDict := index . 4 }}
   {{- $resultKey := index . 5 }}
 
-  {{- $depth := add1 (get $resultDict $.Values.__DEPTH | default 0) }}
+  {{- $depth := add1 (get $resultDict $.Values.__EL_CICD_DEPTH | default 0) }}
   {{- if eq $depth 1 }}
-    {{- $_ := set $resultDict $.Values.__ORIG_VALUE_KEY (substr 0 120 (toString $value)) }}
+    {{- $_ := set $resultDict $.Values.__EL_CICD_ORIG_VALUE_KEY (substr 0 120 (toString $value)) }}
   {{- end }}
 
   {{- if (kindIs "map" $value) }}
@@ -368,19 +440,19 @@
 
     {{- $newValue := get $resultDict $resultKey }}
     {{- if and $newValue (ne (toYaml $value) (toYaml $newValue)) }}
-      {{- $_ := set $resultDict $.Values.__DEPTH $depth }}
-      {{- if gt $depth $.Values.__MAX_DEPTH }}
-        {{- $origValue := get $resultDict $.Values.__ORIG_VALUE_KEY }}
-        {{- fail (print "Stack depth (" $.Values.__MAX_DEPTH ") exceeded: \nVAR STACK: " (join " -> " $processedVarsList) "\nvalues.yaml REF: " $origValue) }}
+      {{- $_ := set $resultDict $.Values.__EL_CICD_DEPTH $depth }}
+      {{- if gt $depth $.Values.__EL_CICD_MAX_DEPTH }}
+        {{- $origValue := get $resultDict $.Values.__EL_CICD_ORIG_VALUE_KEY }}
+        {{- fail (print "Stack depth (" $.Values.__EL_CICD_MAX_DEPTH ") exceeded: \nVAR STACK: " (join " -> " $processedVarsList) "\nvalues.yaml REF: " $origValue) }}
       {{- end }}
       {{- include "elcicd-renderer.processValue" (list $ $newValue $elCicdDefs $processedVarsList $resultDict $resultKey) }}
     {{- end }}
-    {{- $_ := set $resultDict $.Values.__DEPTH (sub $depth 1) }}
+    {{- $_ := set $resultDict $.Values.__EL_CICD_DEPTH (sub $depth 1) }}
   {{- end  }}
 
   {{- $value := get $resultDict $resultKey }}
   {{- if and (kindIs "string" $value) (eq $depth 1) }}
-    {{- $_ := set $resultDict $resultKey (regexReplaceAll $.Values.ELCICD_ESCAPED_REGEX $value $.Values.ELCICD_UNESCAPED_REGEX) }}
+    {{- $_ := set $resultDict $resultKey (regexReplaceAll $.Values.__EL_CICD_ESCAPED_REGEX $value $.Values.__EL_CICD_UNESCAPED_REGEX) }}
   {{- end }}
 {{- end }}
 
@@ -393,10 +465,10 @@
   {{- $resultKey := index . 5 }}
   {{- $processedVarsKey := index . 6 }}
 
-  {{- $matches := regexFindAll $.Values.ELCICD_PARAM_REGEX $value -1 }}
+  {{- $matches := regexFindAll $.Values.__EL_CICD_PARAM_REGEX $value -1 }}
   {{- $localProcessedVars := list }}
   {{- range $elCicdRef := $matches }}
-    {{- $elCicdVarName := regexReplaceAll $.Values.ELCICD_PARAM_REGEX $elCicdRef "${1}" }}
+    {{- $elCicdVarName := regexReplaceAll $.Values.__EL_CICD_PARAM_REGEX $elCicdRef "${1}" }}
     {{ if not (has $elCicdRef $localProcessedVars) }}
       {{- $localProcessedVars = append $localProcessedVars $elCicdVarName }}
       {{- $varValue := get $elCicdDefs $elCicdVarName }}

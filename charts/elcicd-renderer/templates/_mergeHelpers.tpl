@@ -6,9 +6,10 @@
   ======================================
 
   Merges all elCicdDefs dictionaries based on profiles and object names to create a
-  dictionary of variables that will be used before finally rendering the el-CICD template.
+  dictionary of variable definitions that will be used before finally rendering the el-CICD template.
+  This template is called twice for the overall chart (in case 
 
-  Order of precedence in ascending order is as follows dictionaries:
+  Order of precedence in ascending order:
 
     1. elCicdDefsMap
        i. Source map submitted for merging.
@@ -17,14 +18,12 @@
     2. elCicdDefs-<profile>
        i. Following Helm standard, in order of listed profiles
     3. elCicdDefs-<baseObjName>
-       i. baseObjName is the raw name of the object to be created before modification
-      ii. Use this form if all permutations of a template should recieve the values defined in this map
+       i. baseObjName is the raw name from the objNames list before modification
     4. elCicdDefs-<objName>
-       i. objName is the final name of the resource being generated from the el-CICD template
-      ii. Use this form if only a specific permutation of a template should recieve the values defined in this map
-    5. elCicdDefs-<profile>-<baseObjName>
+       i. objName is the final, processed name of the resource being generated from the objNames list
+    5. elCicdDefs-<baseObjName>-<profile>
        i. Same as elCicdDefs-<baseObjName>, but only for a specific profile
-    6. elCicdDefs-<profile>-<objName>
+    6. elCicdDefs-<objName>-<profile>
        i. Same as elCicdDefs-<objName>, but only for a specific profile
 
     Merged results are returned in destElCicdDefs.
