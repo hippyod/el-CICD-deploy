@@ -146,12 +146,14 @@
   {{- $ := . }}
 
   {{- $_ := set $.Values "__EL_CICD_DEPLOYMENT_TIME" (now | date "Mon Jan 2 15:04:05 MST 2006") }}
-
   {{- $_ := set $.Values "__EL_CICD_DEPLOYMENT_TIME_NUM" (now | date "2006_01_02_15_04_05") }}
 
   {{- include "elcicd-renderer.initElCicdRenderer" . }}
 
   {{- include "elcicd-renderer.mergeElCicdDefs" (list $ $.Values $.Values.elCicdDefs "" "") }}
+
+  {{- $_ := set $.Values.elCicdDefs "HELM_RELEASE_NAME" $.Release.Name }}
+  {{- $_ := set $.Values.elCicdDefs "HELM_RELEASE_NAMESPACE" $.Release.Namespace }}
 
   {{- include "elcicd-renderer.gatherElCicdTemplates" $ }}
 

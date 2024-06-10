@@ -300,8 +300,9 @@
   variable definitions NOT of the form elCicdDefs-* ATTACHED DIRECTLY TO THE TEMPLATE.
   */}}
 {{- define "elcicd-renderer.preProcessElCicdDefsMapNames" }}
-  {{- $parentMap := index . 0 }}
-  {{- $elCicdDefs := index . 1 }}
+  {{- $ := index . 0 }}
+  {{- $parentMap := index . 1 }}
+  {{- $elCicdDefs := index . 2 }}
 
   {{- $resultDict := dict }}
   {{- $resultKey := uuidv4 }}
