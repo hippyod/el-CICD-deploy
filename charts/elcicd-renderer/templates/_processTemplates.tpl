@@ -414,11 +414,11 @@
   {{- $resultKey := index . 4 }}
 
   {{- $newSlice := list }}
-  {{- $resultKey := uuidv4 }}
+  {{- $sliceResultKey := uuidv4 }}
   {{- range $element := $slice }}
-    {{- include "elcicd-renderer.processValue" (list $ $element $elCicdDefs $processedVarsList $resultKey) }}
-    {{- $newElement := get $.Values.__EC_RESULT_DICT $resultKey }}
-    {{- $_ := unset $.Values.__EC_RESULT_DICT $resultKey }}
+    {{- include "elcicd-renderer.processValue" (list $ $element $elCicdDefs $processedVarsList $sliceResultKey) }}
+    {{- $newElement := get $.Values.__EC_RESULT_DICT $sliceResultKey }}
+    {{- $_ := unset $.Values.__EC_RESULT_DICT $sliceResultKey }}
 
     {{ $newSlice = append $newSlice $newElement }}
   {{- end }}
