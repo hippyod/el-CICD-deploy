@@ -49,16 +49,18 @@
     {{- end }}
   {{- end }}
 
-  {{- $_ := set $.Values "__EL_CICD_DEPTH" "__EL_CICD_DEPTH" }}
-  {{- $_ := set $.Values "__EL_CICD_MAX_DEPTH" 15 }}
-  {{- $_ := set $.Values "__EL_CICD_ORIG_VALUE_KEY" "__ORIG_VALUE" }}
+  {{- $_ := set $.Values "__EC_RESULT_DICT" dict }}
 
-  {{- $_ := set $.Values "__EL_CICD_FILE_PREFIX" "$<FILE|" }}
-  {{- $_ := set $.Values "__EL_CICD_CONFIG_PREFIX" "$<CONFIG|" }}
+  {{- $_ := set $.Values "__EC_DEPTH" "__EC_DEPTH" }}
+  {{- $_ := set $.Values "__EC_MAX_DEPTH" 15 }}
+  {{- $_ := set $.Values "__EC_ORIG_VALUE_KEY" "__EC_ORIG_VALUE_KEY" }}
 
-  {{- $_ := set $.Values "__EL_CICD_ESCAPED_REGEX" "[\\\\][\\$][<]" }}
-  {{- $_ := set $.Values "__EL_CICD_UNESCAPED_REGEX" "$<" }}
-  {{- $_ := set $.Values "__EL_CICD_PARAM_REGEX" "(?:^|[^\\\\])\\$<([\\w]+?(?:[-][\\w]+?)*)>" }}
+  {{- $_ := set $.Values "__EC_FILE_PREFIX" "$<FILE|" }}
+  {{- $_ := set $.Values "__EC_CONFIG_PREFIX" "$<CONFIG|" }}
+
+  {{- $_ := set $.Values "__EC_ESCAPED_REGEX" "[\\\\][\\$][<]" }}
+  {{- $_ := set $.Values "__EC_UNESCAPED_REGEX" "$<" }}
+  {{- $_ := set $.Values "__EC_PARAM_REGEX" "(?:^|[^\\\\])\\$<([\\w]+?(?:[-][\\w]+?)*)>" }}
 {{- end }}
 
 {{/*
@@ -137,28 +139,27 @@
 
   {{- $renderList := list }}
   {{- $skippedList := list }}
-  {{- $resultDict := dict }}
   {{- $resultKey := uuidv4 }}
   {{- range $template := $templates }}
     {{- $_ := set $template "mustHaveAnyProfile" ($template.mustHaveAnyProfile | default list) }}
-    {{- include "elcicd-renderer.replaceVarRefsInSlice" (list $ $template.mustHaveAnyProfile $.Values.elCicdDefs list $resultDict $resultKey) }}
-    {{- $_ := set $template "mustHaveAnyProfile" (get $resultDict $resultKey) }}
-    {{- $_ := unset $resultDict $resultKey }}
+    {{- include "elcicd-renderer.replaceVarRefsInSlice" (list $ $template.mustHaveAnyProfile $.Values.elCicdDefs list $resultKey) }}
+    {{- $_ := set $template "mustHaveAnyProfile" (get $.Values.__EC_RESULT_DICT $resultKey) }}
+    {{- $_ := unset $.Values.__EC_RESULT_DICT $resultKey }}
     
     {{- $_ := set $template "mustNotHaveAnyProfile" ($template.mustNotHaveAnyProfile | default list) }}
-    {{- include "elcicd-renderer.replaceVarRefsInSlice" (list $ $template.mustNotHaveAnyProfile $.Values.elCicdDefs list $resultDict $resultKey) }}
-    {{- $_ := set $template "mustNotHaveAnyProfile" (get $resultDict $resultKey) }}
-    {{- $_ := unset $resultDict $resultKey }}
+    {{- include "elcicd-renderer.replaceVarRefsInSlice" (list $ $template.mustNotHaveAnyProfile $.Values.elCicdDefs list $resultKey) }}
+    {{- $_ := set $template "mustNotHaveAnyProfile" (get $.Values.__EC_RESULT_DICT $resultKey) }}
+    {{- $_ := unset $.Values.__EC_RESULT_DICT $resultKey }}
     
     {{- $_ := set $template "mustHaveEveryProfile" ($template.mustHaveEveryProfile | default list) }}
-    {{- include "elcicd-renderer.replaceVarRefsInSlice" (list $ $template.mustHaveEveryProfile $.Values.elCicdDefs list $resultDict $resultKey) }}
-    {{- $_ := set $template "mustHaveEveryProfile" (get $resultDict $resultKey) }}
-    {{- $_ := unset $resultDict $resultKey }}
+    {{- include "elcicd-renderer.replaceVarRefsInSlice" (list $ $template.mustHaveEveryProfile $.Values.elCicdDefs list $resultKey) }}
+    {{- $_ := set $template "mustHaveEveryProfile" (get $.Values.__EC_RESULT_DICT $resultKey) }}
+    {{- $_ := unset $.Values.__EC_RESULT_DICT $resultKey }}
     
     {{- $_ := set $template "mustNotHaveEveryProfile" ($template.mustNotHaveEveryProfile | default list) }}
-    {{- include "elcicd-renderer.replaceVarRefsInSlice" (list $ $template.mustNotHaveEveryProfile $.Values.elCicdDefs list $resultDict $resultKey) }}
-    {{- $_ := set $template "mustNotHaveEveryProfile" (get $resultDict $resultKey) }}
-    {{- $_ := unset $resultDict $resultKey }}
+    {{- include "elcicd-renderer.replaceVarRefsInSlice" (list $ $template.mustNotHaveEveryProfile $.Values.elCicdDefs list $resultKey) }}
+    {{- $_ := set $template "mustNotHaveEveryProfile" (get $.Values.__EC_RESULT_DICT $resultKey) }}
+    {{- $_ := unset $.Values.__EC_RESULT_DICT $resultKey }}
 
     {{- $hasMatchingProfile := not $template.mustHaveAnyProfile }}
     {{- range $profile := $template.mustHaveAnyProfile }}

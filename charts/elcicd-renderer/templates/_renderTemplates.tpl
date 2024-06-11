@@ -145,8 +145,8 @@
 {{- define "elcicd-renderer.render" }}
   {{- $ := . }}
 
-  {{- $_ := set $.Values "__EL_CICD_DEPLOYMENT_TIME" (now | date "Mon Jan 2 15:04:05 MST 2006") }}
-  {{- $_ := set $.Values "__EL_CICD_DEPLOYMENT_TIME_NUM" (now | date "2006_01_02_15_04_05") }}
+  {{- $_ := set $.Values "__EC_DEPLOYMENT_TIME" (now | date "Mon Jan 2 15:04:05 MST 2006") }}
+  {{- $_ := set $.Values "__EC_DEPLOYMENT_TIME_NUM" (now | date "2006_01_02_15_04_05") }}
 
   {{- include "elcicd-renderer.initElCicdRenderer" . }}
 
@@ -180,13 +180,12 @@
 # Rendered -> {{ $template.templateName }} {{ $template.objName }}
     {{- end }}
 
-    {{- $resultDict := dict }}
     {{- $resultKey := uuidv4 }}
     {{- range $yamlMapKey, $rawYamlValue := $.Values }}
       {{- if and (hasPrefix "elCicdRawYaml" $yamlMapKey) (kindIs "map" $rawYamlValue) }}
         {{- range $yamlKey, $rawYaml := $rawYamlValue }}
-          {{- include "elcicd-renderer.processValue" (list $ ($rawYaml | toString) $.Values.elCicdDefs list $resultDict $resultKey) }}
-          {{- $rawYaml = get $resultDict $resultKey }}
+          {{- include "elcicd-renderer.processValue" (list $ ($rawYaml | toString) $.Values.elCicdDefs list $resultKey) }}
+          {{- $rawYaml = get $.Values.__EC_RESULT_DICT $resultKey }}
 ---
   {{ $rawYaml }}
 # Rendered From {{ $yamlMapKey }} -> {{ $yamlKey }}

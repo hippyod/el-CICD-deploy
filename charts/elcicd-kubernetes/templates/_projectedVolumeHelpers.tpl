@@ -70,21 +70,20 @@
   {{- $podValues := index . 1 }}
   {{- $projectedVolume := index . 2 }}
   
-  {{- $resultDict := dict }}
   {{- $resultKey := uuidv4 }}
   
   {{- if or $projectedVolume.configMapLabels $projectedVolume.labels }}
     {{- $resources := ((lookup "v1" "ConfigMap" $podValues.namespace "").items | default list) }}
     {{- $resourceLabels := merge ($projectedVolume.configMapLabels | default dict) ($projectedVolume.labels | default dict) }}
-    {{- include  "elcicd-kubernetes.getResourcesByLabel" (list $ $resources $resourceLabels $resultDict $resultKey) }}
-    {{- $_ := set $projectedVolume "configMaps" (merge ($projectedVolume.configMaps | default dict) (get $resultDict $resultKey)) }}
+    {{- include  "elcicd-kubernetes.getResourcesByLabel" (list $ $resources $resourceLabels $resultKey) }}
+    {{- $_ := set $projectedVolume "configMaps" (merge ($projectedVolume.configMaps | default dict) (get $.Values.__EC_RESULT_DICT $resultKey)) }}
   {{- end }}
   
   {{- if or $projectedVolume.secretLabels $projectedVolume.labels }}
     {{- $resources := concat $resources ((lookup "v1" "Secret" $podValues.namespace "").items | default list) }}
     {{- $resourceLabels := merge ($projectedVolume.secretLabels | default dict) ($projectedVolume.labels | default dict) }}
-    {{- include  "elcicd-kubernetes.getResourcesByLabel" (list $ $resources $resourceLabels $resultDict $resultKey) }}
-    {{- $_ := set $projectedVolume "secrets" (merge ($projectedVolume.secrets | default dict) (get $resultDict $resultKey)) }}
+    {{- include  "elcicd-kubernetes.getResourcesByLabel" (list $ $resources $resourceLabels $resultKey) }}
+    {{- $_ := set $projectedVolume "secrets" (merge ($projectedVolume.secrets | default dict) (get $.Values.__EC_RESULT_DICT $resultKey)) }}
   {{- end }}
 {{- end }}
 
@@ -92,8 +91,7 @@
   {{- $ = index . 0 }}
   {{- $resources := index . 1 }}
   {{- $resourceLabels := index . 2 }}
-  {{- $resultDict := index . 3 }}
-  {{- $resultKey := index . 4 }}
+  {{- $resultKey := index . 3 }}
   
   {{- $labelResources := dict }}
   {{- range $resource := $resources }}
@@ -106,5 +104,5 @@
     {{- end }}
   {{- end }}
   
-  {{- $_ := set $resultDict $resultKey $labelResources }}
+  {{- $_ := set $.Values.__EC_RESULT_DICT $resultKey $labelResources }}
 {{- end }}
