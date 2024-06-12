@@ -68,6 +68,7 @@
 {{- $_ := set $ingressValues "kind" "Ingress" }}
 {{- $_ := set $ingressValues "apiVersion" "networking.k8s.io/v1" }}
 {{- $_ := set $ingressValues "allowHttp" ($ingressValues.allowHttp | default "false") }}
+{{- $_ := set $ingressValues "annotations" ($ingressValues.annotations | default dict) }}
 {{- $_ := set $ingressValues.annotations "kubernetes.io/ingress.allow-http" $ingressValues.allowHttp }}
 {{- include "elcicd-common.apiObjectHeader" . }}
 spec:
