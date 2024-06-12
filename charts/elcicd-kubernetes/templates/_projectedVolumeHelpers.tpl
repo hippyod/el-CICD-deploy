@@ -85,6 +85,8 @@
     {{- include  "elcicd-kubernetes.getResourcesByLabel" (list $ $resources $resourceLabels $resultKey) }}
     {{- $_ := set $projectedVolume "secrets" (merge ($projectedVolume.secrets | default dict) (get $.Values.__EC_RESULT_DICT $resultKey)) }}
   {{- end }}
+
+  {{- $_ := unset $.Values.__EC_RESULT_DICT $resultKey }}
 {{- end }}
 
 {{- define "elcicd-kubernetes.getResourcesByLabel" }}

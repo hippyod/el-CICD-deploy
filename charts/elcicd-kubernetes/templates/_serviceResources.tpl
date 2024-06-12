@@ -1,17 +1,77 @@
 {{/*
-Ingress
+  Defines templates for rendering Kubernetes workload resources, including:
+  - Ingress
+  - Service
+
+  In the following documentation:
+  - HELPER KEYS - el-CICD template specific keys keys that can be used with that are NOT part of the Kubernetes
+    resource, but rather conveniences to make defining Kubernetes resoruces less verbose or easier
+  - DEFAULT KEYS - standard keys for the the Kubernetes resource, usually located at the top of the
+    resource defintion or just under a standard catch-all key like "spec"
+  - el-CICD SUPPORTING TEMPLATES - el-CICD templates that are shared among different el-CICD templates
+    and called to render further data; e.g. every template calls "elcicd-common.apiObjectHeader", which
+    in turn renders the metadata section found in every Kubernetes resource
+*/}}
+
+{{/*
+  ======================================
+  elcicd-kubernetes.ingress
+  ======================================
+
+  PARAMETERS LIST:
+    . -> should be root of chart
+    $ingressValues -> elCicd template for Ingress
+
+  ======================================
+
+  HELPER KEYS
+  ---
+  [spec]:
+    [rules]:
+      - host -> .Values.elCicdDefaults.ingressHostDomain
+        [paths]:
+        - path -> default .Values.elCicdDefaults.ingressRulePath
+          pathType -> default .Values.elCicdDefaults.ingressRulePathType
+          [backend]:
+            [service]:
+              name -> $<OBJ_NAME>
+              [port]:
+                number -> $ingressValues.port | default $.Values.elCicdDefaults.port
+  ---
+  [spec]:
+    [tls]:
+    - secretName -> { if $ingressValues.allowHttp == false }
+
+  ======================================
+
+  DEFAULT KEYS
+  ---
+    [spec]:
+      defaultBackend
+      ingressClassName
+      rules
+      tls
+
+  ======================================
+
+  el-CICD SUPPORTING TEMPLATES:
+    "elcicd-common.apiObjectHeader"
+
+  ======================================
+
+  Defines a el-CICD template for a Kubernetes Ingress.
 */}}
 {{- define "elcicd-kubernetes.ingress" }}
 {{- $ := index . 0 }}
 {{- $ingressValues := index . 1 }}
+
 {{- $_ := set $ingressValues "kind" "Ingress" }}
 {{- $_ := set $ingressValues "apiVersion" "networking.k8s.io/v1" }}
-{{- $_ := set $ingressValues "annotations" ($ingressValues.annotations | default dict) }}
 {{- $_ := set $ingressValues "allowHttp" ($ingressValues.allowHttp | default "false") }}
 {{- $_ := set $ingressValues.annotations "kubernetes.io/ingress.allow-http" $ingressValues.allowHttp }}
 {{- include "elcicd-common.apiObjectHeader" . }}
 spec:
-  {{- $whiteList := list "defaultBackend"	
+  {{- $whiteList := list "defaultBackend"
                          "ingressClassName"	}}
   {{- include "elcicd-common.outputToYaml" (list $ $ingressValues $whiteList) }}
   {{- if $ingressValues.rules }}
@@ -45,11 +105,59 @@ spec:
 {{- end }}
 
 {{/*
-Service
+  ======================================
+  elcicd-kubernetes.service
+  ======================================
+
+  PARAMETERS LIST:
+    . -> should be root of chart
+    $svcValues -> elCicd template for Service
+
+  ======================================
+
+  HELPER KEYS
+  ---
+  [spec]:
+    selector
+    ports
+  ---
+  [spec]:
+    [ports]:
+    - name- > $<OBJ_NAME>-port
+      port -> .Values.elCicdDefaults.port
+      targetPort
+      protocol -> .Values.elCicdDefaults.protocol
+  ---
+  { if $svcValues.prometheus.port | .Values.usePrometheus }
+  [metadata]:
+    [annotations]:
+      [prometheus.io/path] -> $svcValues.prometheus.path |  .Values.elCicdDefaults.prometheusPath
+      [prometheus.io/port] -> $svcValues.prometheus.port | $svcValues.port
+      [prometheus.io/scheme] -> $svcValues.prometheus.scheme | .Values.elCicdDefaults.prometheusScheme
+      [prometheus.io/scrape] -> $svcValues.prometheus.scrape | .Values.elCicdDefaults.prometheusScrape
+  {{- end }}
+  ---
+  { if $svcValues.prometheus.port | .Values.usePrometheus }
+  [spec]:
+    [ports]:
+    - [name]: prometheus-port
+      [port]: $svcValues.prometheus.port | .Values.elCicdDefaults.prometheusPort
+      [protocol]: $svcValues.prometheus.protocol | .Values.elCicdDefaults.prometheusProtocol
+
+  ======================================
+
+  el-CICD SUPPORTING TEMPLATES:
+    "elcicd-common.apiObjectHeader"
+    "elcicd-kubernetes.prometheusAnnotations" 
+
+  ======================================
+
+  Defines a el-CICD template for a Kubernetes Service.
 */}}
 {{- define "elcicd-kubernetes.service" }}
 {{- $ := index . 0 }}
 {{- $svcValues := index . 1 }}
+
 {{- if or ($svcValues.prometheus).port $.Values.usePrometheus }}
   {{- include "elcicd-kubernetes.prometheusAnnotations" . }}
 {{- end }}

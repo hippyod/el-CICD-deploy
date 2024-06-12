@@ -175,6 +175,7 @@
       {{- fail (printf "%s must evaluate to nil or a list: %s" $matrixKey (get $template $matrixKey)) }}
     {{- end }}
   {{- end }}
+  {{- $_ := unset $.Values.__EC_RESULT_DICT $resultKey }}
 
   {{- $_ := set $template $matrixKey $generatorVal }}
 {{- end }}

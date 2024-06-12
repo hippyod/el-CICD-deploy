@@ -1,25 +1,107 @@
 {{/*
-ConfigMap
+  Defines templates for rendering Kubernetes workload resources, including:
+  - ConfigMap
+  - Secret
+    - Image Registry (Docker) Secret
+    - Service Account Token Secret
+  - PersistentVolume
+  - PersistentVolumeClaim
+
+  In the following documentation:
+  - HELPER KEYS - el-CICD template specific keys keys that can be used with that are NOT part of the Kubernetes
+    resource, but rather conveniences to make defining Kubernetes resoruces less verbose or easier
+  - DEFAULT KEYS - standard keys for the the Kubernetes resource, usually located at the top of the
+    resource defintion or just under a standard catch-all key like "spec"
+  - el-CICD SUPPORTING TEMPLATES - el-CICD templates that are shared among different el-CICD templates
+    and called to render further data; e.g. every template calls "elcicd-common.apiObjectHeader", which
+    in turn renders the metadata section found in every Kubernetes resource
+*/}}
+
+{{/*
+  ======================================
+  elcicd-kubernetes.configMap
+  ======================================
+
+  PARAMETERS LIST:
+    . -> should be root of chart
+    $cmValues -> elCicd template for ConfigMap
+
+  ======================================
+
+  DEFAULT KEYS
+  ---
+    binaryData
+    data
+    immutable
+
+  ======================================
+
+  el-CICD SUPPORTING TEMPLATES:
+    "elcicd-common.apiObjectHeader"
+
+  ======================================
+
+  Defines a el-CICD template for a Kubernetes ConfigMap.
 */}}
 {{- define "elcicd-kubernetes.configMap" }}
 {{- $ := index . 0 }}
 {{- $cmValues := index . 1 }}
+
 {{- $_ := set $cmValues "kind" "ConfigMap" }}
 {{- $_ := set $cmValues "apiVersion" "v1" }}
 {{- include "elcicd-common.apiObjectHeader" . }}
-{{- if $cmValues.binaryData }}
-binaryData: {{ $cmValues.binaryData | toYaml | nindent 2}}
-{{- end }}
-{{- if $cmValues.data }}
-data: {{ $cmValues.data | toYaml | nindent 2}}
-{{- end }}
-{{- if $cmValues.immutable }}
-immutable: {{ $cmValues.immutable }}
-{{- end }}
+{{- $whiteList := list "binaryData"
+                       "data"
+                       "immutable"	}}
+{{- include "elcicd-common.outputToYaml" (list $ $cmValues $whiteList 0) }}
 {{- end }}
 
 {{/*
-Secret
+  ======================================
+  elcicd-kubernetes.secret
+  ======================================
+
+  PARAMETERS LIST:
+    . -> should be root of chart
+    $secretValues -> elCicd template for Secret
+
+  ======================================
+
+  HELPER KEYS
+  --
+  {{ if $secretValues.type == "dockerconfigjson" }}
+  [data]:
+    [.dockercfgjson]:
+  [stringData]:
+    username:
+    password:
+  --
+  {{ if $secretValues.type == "service-account-token" }}
+  [metadata]:
+    [annotations]:
+      [kubernetes.io/service-account.name]: $secretValues.serviceAccount
+  [stringData]:
+    username:
+    password:
+
+  ======================================
+
+  DEFAULT KEYS
+  ---
+    [spec]:
+      data
+      immutable
+      stringData
+      type
+
+  ======================================
+
+  el-CICD SUPPORTING TEMPLATES:
+    "elcicd-common.apiObjectHeader"
+
+  ======================================
+
+  Defines a el-CICD template for a Kubernetes Secret.
 */}}
 {{- define "elcicd-kubernetes.secret" }}
 {{- $ := index . 0 }}
@@ -27,45 +109,28 @@ Secret
 {{- $_ := set $secretValues "kind" "Secret" }}
 {{- $_ := set $secretValues "apiVersion" "v1" }}
 {{- include "elcicd-common.apiObjectHeader" . }}
-{{- if $secretValues.type }}
-type: {{ $secretValues.type }}
-{{- end }}
-{{- if $secretValues.data }}
-data: {{ $secretValues.data | toYaml | nindent 2}}
-{{- end }}
-{{- if $secretValues.stringData }}
-stringData: {{ $secretValues.stringData | toYaml | nindent 2}}
-{{- end }}
-{{- if $secretValues.immutable }}
-immutable: {{ $secretValues.immutable }}
-{{- end }}
-{{- end }}
+{{- if eq ($secretValues.type | default "") "dockerconfigjson" }}
+  {{- $_ := set  $secretValues.type "kubernetes.io/dockerconfigjson" $secretValues.serviceAccount }}
+  {{- $dockerconfigjson := "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"auth\":\"%s\"}}}" }}
+  {{- $base64Auths := (printf "%s:%s" $secretValues.username $secretValues.password | b64enc) }}
+  {{- $dockerconfigjson = (printf $dockerconfigjson $secretValues.server $secretValues.username $secretValues.password $base64Auths | b64enc) }}
 
-{{/*
-Image Registry Secret
-*/}}
-{{- define "elcicd-kubernetes.docker-registry-secret" }}
-{{- $ := index . 0 }}
-{{- $secretValues := index . 1 }}
-{{- $dockerconfigjson := "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"auth\":\"%s\"}}}" }}
-{{- $base64Auths := (printf "%s:%s" $secretValues.username $secretValues.password | b64enc) }}
-{{- $dockerconfigjson = (printf $dockerconfigjson $secretValues.server $secretValues.username $secretValues.password $base64Auths | b64enc) }}
-{{- $_ := set  $secretValues "data"  ($secretValues.data | default dict) }}
-{{- $_ := set  $secretValues.data ".dockerconfigjson" $dockerconfigjson }}
-{{- $_ := set  $secretValues "type"  "kubernetes.io/dockerconfigjson" }}
-{{- include "elcicd-kubernetes.secret" (list $ $secretValues) }}
-{{- end }}
+  {{- $_ := set  $secretValues "data"  ($secretValues.data | default dict) }}
+  {{- $_ := set  $secretValues.data ".dockerconfigjson" $dockerconfigjson }}
 
-{{/*
-Image Registry Secret
-*/}}
-{{- define "elcicd-kubernetes.service-account-token-secret" }}
-{{- $ := index . 0 }}
-{{- $secretValues := index . 1 }}
-{{- $_ := set  $secretValues "annotations"  ($secretValues.annotations | default dict) }}
-{{- $_ := set  $secretValues.annotations "kubernetes.io/service-account.name" $secretValues.serviceAccount }}
-{{- $_ := set  $secretValues "type"  "kubernetes.io/service-account-token" }}
-{{- include "elcicd-kubernetes.secret" (list $ $secretValues) }}
+  {{- $_ := set  $secretValues "stringData" ($secretValues.stringData | default dict) }}
+  {{- $_ := set  $secretValues.stringData "username" $secretValues.username }}
+  {{- $_ := set  $secretValues.stringData "password" $secretValues.password }}
+{{- else if and (eq ($secretValues.type | default "") "service-account-token") $secretValues.serviceAccount }}
+  {{- $_ := set  $secretValues.type "kubernetes.io/service-account-token" $secretValues.serviceAccount }}
+  {{- $_ := set  $secretValues "annotations"  ($secretValues.annotations | default dict) }}
+  {{- $_ := set  $secretValues.annotations "kubernetes.io/service-account.name" $secretValues.serviceAccount }}
+{{- end }}
+{{- $whiteList := list "data"
+                       "immutable"
+                       "stringData"
+                       "type"	}}
+{{- include "elcicd-common.outputToYaml" (list $ $secretValues $whiteList 0) }}
 {{- end }}
 
 {{/*

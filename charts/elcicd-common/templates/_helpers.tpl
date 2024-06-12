@@ -83,8 +83,9 @@ Checks the template values for each resource's whitelist, and if it exists rende
   {{- $ := index . 0 }}
   {{- $templateVals := index . 1 }}
   {{- $whiteList := index . 2 }}
-  {{- $checkIndent := append . 2 }}
-  {{- $indent := index $checkIndent 3 | int }} 
+
+  {{- $defaultIndent := append . 2 }}
+  {{- $indent := index $defaultIndent 3 | int }}
   
   {{- include "elcicd-common.setTemplateDefaultValue" . }}
   

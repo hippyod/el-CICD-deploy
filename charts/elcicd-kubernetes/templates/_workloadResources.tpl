@@ -5,6 +5,15 @@
   - HorizontalPodAutoscaler
   - Job
   - StatefulSet
+
+  In the following documentation:
+  - HELPER KEYS - el-CICD template specific keys keys that can be used with that are NOT part of the Kubernetes
+    resource, but rather conveniences to make defining Kubernetes resoruces less verbose or easier
+  - DEFAULT KEYS - standard keys for the the Kubernetes resource, usually located at the top of the
+    resource defintion or just under a standard catch-all key like "spec"
+  - el-CICD SUPPORTING TEMPLATES - el-CICD templates that are shared among different el-CICD templates
+    and called to render further data; e.g. every template calls "elcicd-common.apiObjectHeader", which
+    in turn renders the metadata section found in every Kubernetes resource
 */}}
 
 {{/*
@@ -18,11 +27,11 @@
 
   ======================================
 
-  HELPER KEYS:
+  DEFAULT KEYS
     [spec]:
-      schedule
       concurrencyPolicy
       failedJobsHistoryLimit
+      schedule
       startingDeadlineSeconds
       successfulJobsHistoryLimit
       parallelism
@@ -78,14 +87,14 @@ spec:
   [spec]:
     [strategy]:
       [type]: strategyType
-      [rollingUpdate -> strategyType == "RollingUpdate"]:
+      [rollingUpdate { if $deployValues.strategyType == "RollingUpdate" } ]:
         rollingUpdateMaxSurge -> .Values.elCicdDefaults.rollingUpdateMaxSurge
         rollingUpdateMaxUnavailable -> .Values.elCicdDefaults.rollingUpdateMaxUnavailable
 
   ======================================
 
   DEFAULT KEYS
-  ---  
+  ---
     [spec]:
       minReadySeconds
       progressDeadlineSeconds
@@ -170,17 +179,17 @@ spec:
   ======================================
 
   Defines a el-CICD template for a Kubernetes HorizontalPodAutoscaler.
-  
+
   Defining hpa metrics in the el-CICD template:
-  
+
     metrics:
     - type: <type>
       name: <name>
       target:
         <target def per hpa>
-  
+
   Will generate in the final YAML:
-  
+
   spec:
     metrics:
     - type: <Type> # note the title case
@@ -188,9 +197,9 @@ spec:
         name: <name>
         target:
           <target def per hpa>
-        
+
   The el-CICD template only require defining hpa the type, and el-CICD template will generate the correct
-  YAML structure.        
+  YAML structure.
 */}}
 {{- define "elcicd-kubernetes.horizontalPodAutoscaler" }}
 {{- $ := index . 0 }}
