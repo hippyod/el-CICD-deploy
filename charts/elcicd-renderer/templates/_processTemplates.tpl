@@ -198,13 +198,13 @@
   1. Process all **chart's** el-CICD variable definition maps of the form elCicdDefs-*  (i.e. all .Values.elCicdDefs-*)
      for el-CICD variables using the **chart's** elCicdDefs map (i.e. .Values.elCicdDefs).
      (elcicd-renderer.preProcessElCicdDefsMapNames)
-     
+
   For each template to be rendered:
-  
+
   1. Copy the .Values.elCicdDefs into $tplElCicdDefs (template specific variable defintions). (elcicd-renderer.deepCopyDict)
   2. Copy the $template.elCicdDefs onto $tplElCicdDefs (elcicd-renderer.deepCopyDict)
   3. Process all **template's** el-CICD variable definition maps of the form elCicdDefs-*  (i.e. all $template.elCicdDefs-*)
-     for el-CICD variables using the **template's** elCicdDefs map (i.e. $template.elCicdDefs). 
+     for el-CICD variables using the **template's** elCicdDefs map (i.e. $template.elCicdDefs).
      (elcicd-renderer.preProcessElCicdDefsMapNames)
   4. Merge the different **chart's** elCicdDefs-<baseObjName>-<profile> maps into the $tplElCicdDefs. (elcicd-renderer.mergeElCicdDefs)
   5. Merge the different **templates's** elCicdDefs-<baseObjName>-<profile> maps into the $tplElCicdDefs. (elcicd-renderer.mergeElCicdDefs)
@@ -215,7 +215,7 @@
                 defined by key=value as a map and assigns to the variable SOME_VAR
   7. Sets default/el-CICD built-in values to the template elCicdDefs including:
      - EL_CICD_DEPLOYMENT_TIME_NUM - time of deployment in nanoseconds
-     - EL_CICD_DEPLOYMENT_TIME - human readable date and time 
+     - EL_CICD_DEPLOYMENT_TIME - human readable date and time
      - BASE_OBJ_NAME - value the objName was derived from if defined
      - OBJ_NAME - name of template; typically translates to metadata.name
      - BASE_NAME_SPACE - value the namespace was derived from if defined
@@ -228,7 +228,7 @@
      keys or values.
      NOTE: variables that realized as empty keys or empty **string** values will be removed from
            the template.
- 10. For debugging/documentation purposes, $tplElCicdDefs is added to the template.    
+ 10. For debugging/documentation purposes, $tplElCicdDefs is added to the template.
 */}}
 {{- define "elcicd-renderer.processTemplates" }}
   {{- $ := index . 0 }}
@@ -279,20 +279,20 @@
     $elCicdDefs -> el-CICD variable defintiions
 
   ======================================
-  
+
   Preprocess all elCicdDefs-* maps for el-CICD variables; e.g.:
-  
+
     elCicdDefs:
       SOME_VAR: some-obj-name
-      
+
     elCicdDefs-$<SOME_VAR>:
       VAR_DEF: var-def
-    
+
   result in:
-    
+
     elCicdDefs-some-obj-name:
       VAR_DEF: var-def
-  
+
   And VAR_DEF will be defined for use for any template with the objName "some-obj-name".  Chart level el-CICD maps will
   only use the base elCicdDefs map for processing.  Each template will be evaluated will a map derived from all el-CICD
   variable definitions NOT of the form elCicdDefs-* ATTACHED DIRECTLY TO THE TEMPLATE.
@@ -323,10 +323,10 @@
 
   ======================================
 
-  Walk the given dictionary and replace any el-CICD variable references with their values.  Each value will be processed. 
-  If the value is an non-empty string, map, or slice then process the key for el-CICD variables; otherwise, remove the 
+  Walk the given dictionary and replace any el-CICD variable references with their values.  Each value will be processed.
+  If the value is an non-empty string, map, or slice then process the key for el-CICD variables; otherwise, remove the
   key/value pair.
-  
+
   This template is always the start of processing for an el-CICD template.  All el-CICD templates are defined as a map in
   a list of el-CICD templates.
 */}}
@@ -365,7 +365,7 @@
 
   ======================================
 
-  Walk the given dictionary and replace any el-CICD variable references with their values.  Each value will be processed. 
+  Walk the given dictionary and replace any el-CICD variable references with their values.  Each value will be processed.
   If the value is an empty string, remove the key/value pair; otherwise, process the key for el-CICD variables.  If the key
   is an empty string, remove the key/value pair.  Note that keys MUST resolve to strings, or an error will be raised by Helm.
 */}}
@@ -401,7 +401,7 @@
     $resultKey -> key used to store and retrieve results from the el-CICD Chart result dictionary
 
   ======================================
-  
+
   Walk the given slice (list) and replace any el-CICD variable references with their values.  Each value will be processed, and
   if the value is an empty string, remove the value from the list.  Because lists are immutable in Helm, a new list is set in the
   el-CICD Chart result dictionary with the given key, and retrieved by the caller of this template.
@@ -439,9 +439,9 @@
     $resultKey -> key used to store and retrieve results from the el-CICD Chart result dictionary
 
   ======================================
-  
+
   This is entry point for testing a value for possible el-CICD variable references.  The process is as follows:
-  
+
   1. Add one to the recursive depth of this method
   2. Test whether the value is a
      - map (dictionary) - call "elcicd-renderer.replaceVarRefsInMap"
@@ -458,7 +458,7 @@
         result dictionary to be replaced by the calling template.
   3. Before completion, check if the depth is 1 (i.e. the beginning of processing the original value), and if so remove
      the backslash, '\', from any escaped el-CICD variable references (e.g. \$<ESCAPED_REF> -> $<ESCAPED_REF>).
-  
+
 */}}
 {{- define "elcicd-renderer.processValue" }}
   {{- $ := index . 0 }}
@@ -519,14 +519,14 @@
     processedVarsKey -> key of where the processedVarsList is stored in the el-CICD Chart result dictionary
 
   ======================================
-  
+
   Process a string for el-CICD variable references.  Eventually, maps (dictionaries) and slices (lists) will have values
   that resolve to strings.  These are where the references to el-CICD variables are replaced.
-  
+
   el-CICD variables can resolve to other strings, in which case the containing value may have mutliple el-CICD references
   embedded in it.  el-CICD variables can also resolve to complex types such as maps and slices, in which case only a single
   match for an el-CICD reference is allowed.
-  
+
   The result is returned in the el-CICD Chart result dictionary.  All variable references resolved are appended
   to the processed vars list.
 */}}

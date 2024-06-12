@@ -5,20 +5,21 @@
   elcicd-renderer.initElCicdRenderer
   ======================================
 
+  PARAMETERS LIST:
+    $ -> root of chart
+
+  ======================================
+
   Initializes the el-CICD Renderer.
 
-  1. Ensures all lists and dictionaries are non-null.
-    a. Helm global dictionary
-    b. elCicdDefaults: contains all default values for rendering
-       i. Default ojbName will be the release name unless otherwise defined.
-      ii. Default chart for full templateNames; e.g. elcicd-kubernetes is the default, so
-          a templateName `foo` will be searched as `elcicd-kubernetes.foo`, whereas `other-chart.foo`
-          remain untouched.
-    c. elCicdDefs: el-CICD Chart user-defined values files variable definitions
-    d. elCicdTemplates: list of el-CICD Chart style Helm templates to render
-       i. Must not be empty; exception will occur if empty
-  2. Initilizes default key/value pairs (elcicd-renderer.gatherElCicdDefaults)
-  3. Initializes el-CICD Kubernetes resources, if included as a library chart dependency. (elcicd-kubernetes.init)
+  1. Ensures all lists and dictionaries el-CICD Chart uses are non-null with default, empty collections.
+  2. Merges global profiles ($.Values.global.elCicdProfiles) into the currently rendered chart's active profiles
+     i. The chart will fail if elCicdProfiles is not a list type
+  3. Gathers all defaults used in processing the chart.
+  2. Initilizes some el-CICD chart internal data for processing purposes (elcicd-renderer.gatherElCicdDefaults)
+  3. Sets the default, el-CICD template prefix.
+    i. If not defined by the end user, assumes "elcicd-kubernetes"; i.e. if the templateName
+       of a template is "bar", el-CICD Chart will assume the Helm template to call is "elcicd-kubernetes.bar"
   4. Defines internal el-CICD Chart values for parsing.
 */}}
 {{- define "elcicd-renderer.initElCicdRenderer" }}
@@ -68,8 +69,15 @@
   elcicd-renderer.gatherElCicdDefaults
   ======================================
 
+  PARAMETERS LIST:
+    $ -> root of chart
+
+  ======================================
+
   Collects the defaults el-CICD Chart will use when rendering.  Merges active profile
-  specific defaults in.
+  specific defaults in.  Active profile maps of default are defined by
+    
+    elCicdDefaults-<profile>
 */}}
 {{- define "elcicd-renderer.gatherElCicdDefaults" }}
   {{- $ := . }}
@@ -89,7 +97,13 @@
   elcicd-renderer.gatherElCicdTemplates
   ======================================
 
-  Ensures elCicdTemplates is note empty.  Appends templates from lists with prefixes of `elCicdTemplates-`
+  PARAMETERS LIST:
+    $ -> root of chart
+
+  ======================================
+
+  Collects all lists of the form "elCicdTemplates-*" from .Values and appends them to the elCicdTemplates list, and
+  then confirms the elCicdTemplates list is not empty.  The chart will be failed if the elCicdTemplates list is empty.
 */}}
 {{- define "elcicd-renderer.gatherElCicdTemplates" }}
   {{- $ := . }}

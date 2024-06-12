@@ -1,3 +1,29 @@
+
+{{/*
+  ======================================
+  elcicd-renderer.gatherElCicdTemplates
+  ======================================
+
+  PARAMETERS LIST:
+    $ -> root of chart
+    $template -> an el-Cicd copyResource template
+
+  ======================================
+
+  el-CICD TEMPLATE KEYS:
+    ignoreLabels -> do not copy source resource labels when copying
+    labels -> add/overwrite labels on source resource with given labels
+    ignoreAnnotations -> do not copy source resource annotations when copying
+    annotations -> add/overwrite annotations on source resource with given labels
+    
+
+  ======================================
+
+  Looks up the specified resource in the fromNamespace by kind and metadata.name, copies it,
+  and then deploys it to the toNamespace.  If the resource cannot be found, it will check 
+  .Values.templateCommandRunning and $template.optional.  If either is true, it will simply log
+  the resource cannot be found; otherwise, the chart will be failed.
+*/}}
 {{- define "elcicd-renderer.copyResource" }}
   {{- $ := index . 0 }}
   {{- $template := index . 1 }}
@@ -21,7 +47,7 @@
     
     {{- if $template.labels }}
       {{- $labels := ($newResource.metadata.labels | default dict) }}
-      {{- $_ := set $newResource.metadata "labels" (mergeOverwrite $labels  $template.labels) }}
+      {{- $_ := set $newResource.metadata "labels" (mergeOverwrite $labels $template.labels) }}
     {{- end }}
     
     {{- if and (not $template.ignoreAnnotations) $resource.metadata.annotations }}
