@@ -110,7 +110,7 @@
 {{- $_ := set $secretValues "apiVersion" "v1" }}
 {{- include "elcicd-common.apiObjectHeader" . }}
 {{- if eq ($secretValues.type | default "") "dockerconfigjson" }}
-  {{- $_ := set  $secretValues.type "kubernetes.io/dockerconfigjson" $secretValues.serviceAccount }}
+  {{- $_ := set  $secretValues "type" "kubernetes.io/dockerconfigjson" }}
   {{- $dockerconfigjson := "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"auth\":\"%s\"}}}" }}
   {{- $base64Auths := (printf "%s:%s" $secretValues.username $secretValues.password | b64enc) }}
   {{- $dockerconfigjson = (printf $dockerconfigjson $secretValues.server $secretValues.username $secretValues.password $base64Auths | b64enc) }}
@@ -122,7 +122,7 @@
   {{- $_ := set  $secretValues.stringData "username" $secretValues.username }}
   {{- $_ := set  $secretValues.stringData "password" $secretValues.password }}
 {{- else if and (eq ($secretValues.type | default "") "service-account-token") $secretValues.serviceAccount }}
-  {{- $_ := set  $secretValues.type "kubernetes.io/service-account-token" $secretValues.serviceAccount }}
+  {{- $_ := set  $secretValues "type" "kubernetes.io/service-account-token" }}
   {{- $_ := set  $secretValues "annotations"  ($secretValues.annotations | default dict) }}
   {{- $_ := set  $secretValues.annotations "kubernetes.io/service-account.name" $secretValues.serviceAccount }}
 {{- end }}
