@@ -108,7 +108,6 @@
 {{- $secretValues := index . 1 }}
 {{- $_ := set $secretValues "kind" "Secret" }}
 {{- $_ := set $secretValues "apiVersion" "v1" }}
-{{- include "elcicd-common.apiObjectHeader" . }}
 {{- if eq ($secretValues.type | default "") "dockerconfigjson" }}
   {{- $_ := set  $secretValues "type" "kubernetes.io/dockerconfigjson" }}
   {{- $dockerconfigjson := "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"auth\":\"%s\"}}}" }}
@@ -126,6 +125,7 @@
   {{- $_ := set  $secretValues "annotations"  ($secretValues.annotations | default dict) }}
   {{- $_ := set  $secretValues.annotations "kubernetes.io/service-account.name" $secretValues.serviceAccount }}
 {{- end }}
+{{- include "elcicd-common.apiObjectHeader" . }}
 {{- $whiteList := list "data"
                        "immutable"
                        "stringData"
