@@ -1,19 +1,63 @@
 {{/*
-  Initialize elcicd-common
-*/}}
+  ======================================
+  elcicd-kubernetes.apiObjectHeader
+  ======================================
 
-{{/*
-General Metadata Template
+  PARAMETERS LIST:
+    . -> should always be root of chart
+    $template -> elCicd template
+
+  ======================================
+
+  DEFAULT KEYS
+    apiVersion
+    kind
+  
+  ======================================
+
+  el-CICD SUPPORTING TEMPLATES:
+  "elcicd-common.metadata"
+  
+  ======================================
+  
+  General header for a Kubernetes compliant resource.
 */}}
 {{- define "elcicd-common.apiObjectHeader" }}
 {{- $ := index . 0 }}
 {{- $template := index . 1 }}
 apiVersion: {{ $template.apiVersion }}
 kind: {{ $template.kind }}
-{{- include "elcicd-common.apiMetadata" . }}
+{{- include "elcicd-common.metadata" . }}
 {{- end }}
 
-{{- define "elcicd-common.apiMetadata" }}
+{{/*
+  ======================================
+  elcicd-kubernetes.apiMetadata
+  ======================================
+
+  PARAMETERS LIST:
+    . -> should always be root of chart
+    $template -> elCicd template
+
+  ======================================
+
+  DEFAULT KEYS
+    [metadata]:
+      annotations
+      labels
+      name
+      namespace
+  
+  ======================================
+
+  el-CICD SUPPORTING TEMPLATES:
+    "elcicd-common.labels"
+  
+  ======================================
+  
+  General header for a Kubernetes compliant resource metadata.
+*/}}
+{{- define "elcicd-common.metadata" }}
 {{- $ := index . 0 }}
 {{- $metadataValues := index . 1 }}
 metadata:
@@ -34,29 +78,71 @@ metadata:
 {{- end }}
 
 {{/*
-Common labels
+  ======================================
+  elcicd-kubernetes.labels
+  ======================================
+
+  PARAMETERS LIST:
+    . -> should always be root of chart
+    $template -> elCicd template
+
+  ======================================
+
+  HELPER KEYS
+  ---
+    helm.sh/chart -> .Chart.Name-.Chart.Version
+    app.kubernetes.io/instance -> .Release.Name
+    app.kubernetes.io/managed-by -> .Release.Service
+    app.kubernetes.io/version -> .Chart.AppVersion
+    elcicdSelector -> $template.objName
+  
+  ======================================
+
+  el-CICD SUPPORTING TEMPLATES:
+    "elcicd-common.elcicdLabels"
+  
+  ======================================
+  
+  Generates some default labels for a Kubernetes compliant resource based on the values in Chart.yaml.
 */}}
-{{- define "elcicd-common.labels" -}}
+{{- define "elcicd-common.labels" }}
 {{- $ := index . 0 }}
 {{- $metadataValues := index . 1 }}
-helm.sh/chart: {{ include "elcicd-common.chart" $ }}
+app.kubernetes.io/instance: {{ $.Release.Name }}
+app.kubernetes.io/managed-by: {{ $.Release.Service }}
 {{- if $.Chart.AppVersion }}
 app.kubernetes.io/version: {{ $.Chart.AppVersion | quote }}
 {{- end }}
-app.kubernetes.io/managed-by: {{ $.Release.Service }}
-app.kubernetes.io/instance: {{ $.Release.Name }}
-{{- include "elcicd-common.elcicdLabels" . -}}
+helm.sh/chart: {{- printf "%s-%s" $.Chart.Name $.Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- include "elcicd-common.elcicdLabels" . }}
 {{- if $metadataValues.labels }}
 {{ $metadataValues.labels | toYaml }}
 {{- end }}
 {{- end }}
 
 {{/*
-el-CICD label
+  ======================================
+  elcicd-kubernetes.elcicdLabels
+  ======================================
+
+  PARAMETERS LIST:
+    . -> should always be root of chart
+    $template -> elCicd template
+
+  ======================================
+
+  HELPER KEYS
+  ---
+    elcicdSelector -> $template.objName
+  
+  ======================================
+  
+  Generates a selector label, elcicd.io/selector.
 */}}
-{{- define "elcicd-common.elcicdLabels" -}}
+{{- define "elcicd-common.elcicdLabels" }}
 {{- $ := index . 0 }}
 {{- $template := index . 1 }}
+
 {{- $selector := $template.elcicdSelector | default (regexReplaceAll "[^\\w-.]" $template.objName "-") }}
 {{- if (gt (len $selector) 63 ) }}
   {{- $selector = $selector | trunc 48 | trimSuffix "-"}}
@@ -69,14 +155,7 @@ elcicd.io/selector: {{ $selector }}
 {{- end }}
 
 {{/*
-Create chart name and version as used by the chart label.
-*/}}
-{{- define "elcicd-common.chart" -}}
-{{- printf "%s-%s" $.Chart.Name $.Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
-{{- end }}
-
-{{/*
-This is a catch-all that renders all extraneous resource values that don't have helper structures.
+This is a catch-all that renders all extraneous key/values pairs that don't have helper keys or structures.
 Checks the template values for each resource's whitelist, and if it exists renders it properly.
 */}}
 {{- define "elcicd-common.outputToYaml" }}
@@ -108,7 +187,7 @@ Checks the template values for each resource's whitelist, and if it exists rende
 
 {{/*
 Support function for the outputToYaml function.  Assigns a value for anything in the whitelist 
-that is empty and a default value has been defined.
+that is empty and has n elCicdDefault value defined.
 */}}
 {{- define "elcicd-common.setTemplateDefaultValue" }}
   {{- $ := index . 0 }}

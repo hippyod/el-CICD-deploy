@@ -1,28 +1,27 @@
-
 {{/*
   ======================================
-  elcicd-kubernetes.init
+  elcicd-kubernetes.initElCicdDefaults
   ======================================
   
-  Initialize elcicd-kubernetes chart.  Sets the following defaults:
+  Initialize elCicdDefaults for elcicd-kubernetes.  Sets the following defaults if they aren't already set in a *values.yaml:
   
-  - deploymentRevisionHistoryLimit: 0
-  - port: 0
-  - protocol: 0
-  - ingressRulePath: 0
-  - ingressRulePathType: 0
+  - deploymentRevisionHistoryLimit -> 0
+  - port -> "8080"
+  - protocol -> "TCP"
+  - ingressRulePath -> "/"
+  - ingressRulePathType -> "Prefix"
   
   Prometheus and 3Scale defaults are provided:
   
-  - prometheusPort: 0
-  - prometheusPath: 0
-  - prometheusScheme: 0
-  - prometheusScrape: 0
-  - prometheusProtocol: 0
+  - prometheusPort -> "9090"
+  - prometheusPath -> "/metrics"
+  - prometheusScheme -> "https"
+  - prometheusScrape -> "false"
+  - prometheusProtocol -> "TCP"
   
-  - 3ScaleScheme: 0
+  - 3ScaleScheme -> "https"
 */}}
-{{- define "elcicd-kubernetes.init" }}
+{{- define "elcicd-kubernetes.initElCicdDefaults" }}
   {{- $ := . }}
   
   {{- $_ := set $.Values.elCicdDefaults "annotations" ($.Values.elCicdDefaults.annotations | default dict) }}
@@ -48,7 +47,12 @@
 {{- end }}
 
 {{/*
-Service Prometheus Annotations definition
+Service Prometheus Annotations definition.  Add the following annotations:
+
+  prometheus.io/path -> .Values.elCicdDefaults.prometheusPath
+  prometheus.io/port -> .Values.elCicdDefaults.port
+  prometheus.io/scheme -> .Values.elCicdDefaults.scheme
+  prometheus.io/scrape -> .Values.elCicdDefaults.scrape
 */}}
 {{- define "elcicd-kubernetes.prometheusAnnotations" }}
   {{- $ := index . 0 }}
@@ -73,7 +77,11 @@ Service Prometheus Annotations definition
 {{- end }}
 
 {{/*
-Service Prometheus 3Scale definition
+Service Prometheus 3Scale definition.  Adds the following annotations:
+
+  discovery.3scale.net/path -> .Values.elCicdDefaults.port
+  discovery.3scale.net/port -> .Values.elCicdDefaults.3ScalePath
+  discovery.3scale.net/scheme -> .Values.elCicdDefaults.3ScalePath
 */}}
 {{- define "elcicd-kubernetes.3ScaleAnnotations" }}
   {{- $ := index . 0 }}

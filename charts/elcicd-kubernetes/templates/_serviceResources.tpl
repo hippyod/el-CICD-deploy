@@ -19,7 +19,7 @@
   ======================================
 
   PARAMETERS LIST:
-    . -> should be root of chart
+    . -> should always be root of chart
     $ingressValues -> elCicd template for Ingress
 
   ======================================
@@ -111,7 +111,7 @@ spec:
   ======================================
 
   PARAMETERS LIST:
-    . -> should be root of chart
+    . -> should always be root of chart
     $svcValues -> elCicd template for Service
 
   ======================================

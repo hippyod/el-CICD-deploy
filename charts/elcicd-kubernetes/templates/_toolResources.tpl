@@ -1,16 +1,5 @@
 {{/*
-Kustomization
-*/}}
-{{- define "elcicd-kubernetes.values-yaml" }}
-  {{- $ := index . 0 }}
-  {{- $yamlValues := index . 1 }}
-  {{- range $field, $fieldValue := ($yamlValues.valuesYaml | default dict) }}
-{{ $field }}: {{ $fieldValue | toYaml | nindent 2 }}
-  {{- end }}
-{{- end }}
-
-{{/*
-Kustomization
+el-CIDC support for templating an a kustomization.  No expectation of known keys is given.
 */}}
 {{- define "elcicd-kubernetes.kustomization" }}
   {{- $ := index . 0 }}
@@ -24,6 +13,9 @@ Kustomization
   {{- end }}
 {{- end }}
 
+{{/*
+el-CIDC support for templating an a Chart.yaml for generating a Helm Chart.
+*/}}
 {{- define "elcicd-kubernetes.chart-yaml" }}
   {{- $ := index . 0 }}
   {{- $chartValues := index . 1 }}

@@ -22,7 +22,7 @@
   ======================================
 
   PARAMETERS LIST:
-    . -> should be root of chart
+    . -> should always be root of chart
     $cjValues -> elCicd template
 
   ======================================
@@ -74,7 +74,7 @@ spec:
   ======================================
 
   PARAMETERS LIST:
-    . -> should be root of chart
+    . -> should always be root of chart
     $deployValues -> elCicd template for Deployment
 
   ======================================
@@ -144,7 +144,7 @@ spec:
   ======================================
 
   PARAMETERS LIST:
-    . -> should be root of chart
+    . -> should always be root of chart
     $hpaValues -> elCicd template for HorizontalPodAutoscaler
 
   ======================================
@@ -238,7 +238,7 @@ spec:
   ======================================
 
   PARAMETERS LIST:
-    . -> should be root of chart
+    . -> should always be root of chart
     $jobValues -> elCicd template for Job
 
   ======================================
@@ -267,7 +267,7 @@ spec:
   ======================================
 
   PARAMETERS LIST:
-    . -> should be root of chart
+    . -> should always be root of chart
     $deployValues -> elCicd template for StatefulSet
 
   ======================================

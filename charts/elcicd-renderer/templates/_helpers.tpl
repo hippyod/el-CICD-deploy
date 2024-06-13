@@ -46,7 +46,7 @@
 
   {{- range $dep := $.Chart.Dependencies }}
     {{- if (eq $dep.Name "elcicd-kubernetes") }}
-      {{- include "elcicd-kubernetes.init" $ }}
+      {{- include "elcicd-kubernetes.initElCicdDefaults" $ }}
     {{- end }}
   {{- end }}
 

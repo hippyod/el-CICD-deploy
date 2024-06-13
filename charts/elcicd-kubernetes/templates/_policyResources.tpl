@@ -19,7 +19,7 @@
   ======================================
 
   PARAMETERS LIST:
-    . -> should be root of chart
+    . -> should always be root of chart
     $quotaValues -> elCicd template for ResourceQuota
 
   ======================================
@@ -59,7 +59,7 @@ spec:
   ======================================
 
   PARAMETERS LIST:
-    . -> should be root of chart
+    . -> should always be root of chart
     $limitValues -> elCicd template for LimitRange
 
   ======================================

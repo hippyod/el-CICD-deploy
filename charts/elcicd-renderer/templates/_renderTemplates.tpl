@@ -6,7 +6,7 @@
   ======================================
   
   PARAMETERS LIST:
-    . -> should be root of chart
+    . -> should always be root of chart
   
   ======================================
 

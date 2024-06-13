@@ -23,7 +23,7 @@
   ======================================
 
   PARAMETERS LIST:
-    . -> should be root of chart
+    . -> should always be root of chart
     $cmValues -> elCicd template for ConfigMap
 
   ======================================
@@ -62,7 +62,7 @@
   ======================================
 
   PARAMETERS LIST:
-    . -> should be root of chart
+    . -> should always be root of chart
     $secretValues -> elCicd template for Secret
 
   ======================================
@@ -134,7 +134,71 @@
 {{- end }}
 
 {{/*
-PersistentVolume
+  ======================================
+  elcicd-kubernetes.persistentVolume
+  ======================================
+
+  PARAMETERS LIST:
+    . -> should always be root of chart
+    $pvValues -> elCicd template for PersistentVolume
+
+  ======================================
+
+  HELPER KEYS
+  ---
+  [spec]:
+    [accessMode]:
+      accessModes
+  ---
+  [spec]:
+    [accessMode]:
+    - accessMode
+  ---
+  [spec]:
+    [capacity]:
+      [storage]: $pvValues.storageCapacity
+
+  ======================================
+
+  DEFAULT KEYS
+  ---
+    [spec]:
+      awsElasticBlockStore
+      azureDisk
+      azureFile
+      cephfs
+      cinder
+      claimRef
+      csi
+      fc
+      flexVolume
+      flocker
+      gcePersistentDisk
+      glusterfs
+      hostPath
+      iscsi
+      local
+      mountOptions
+      nfs
+      nodeAffinity
+      persistentVolumeReclaimPolicy
+      portworxVolume
+      quobyte
+      rbd
+      scaleIO
+      storageClassName
+      storageos
+      vsphereVolume
+      volumeMode
+
+  ======================================
+
+  el-CICD SUPPORTING TEMPLATES:
+    "elcicd-common.apiObjectHeader"
+
+  ======================================
+
+  Defines a el-CICD template for a Kubernetes PersistentVolume.
 */}}
 {{- define "elcicd-kubernetes.persistentVolume" }}
 {{- $ := index . 0 }}
@@ -167,7 +231,7 @@ spec:
                          "rbd"
                          "scaleIO"
                          "storageClassName"
-                         "storageos	"
+                         "storageos"
                          "vsphereVolume"
                          "volumeMode"	}}
   {{- include "elcicd-common.outputToYaml" (list $ $pvValues $whiteList) }}
@@ -181,8 +245,53 @@ spec:
     storage: {{ required "PV's must specify storageCapacity" $pvValues.storageCapacity }}
 {{- end }}
 
+
 {{/*
-PersistentVolumeClaim
+  ======================================
+  elcicd-kubernetes.persistentVolumeClaim
+  ======================================
+
+  PARAMETERS LIST:
+    . -> should always be root of chart
+    $pvcValues -> elCicd template for PersistentVolumeClaim
+
+  ======================================
+
+  HELPER KEYS
+  ---
+  [spec]:
+    [accessMode]:
+      accessModes
+  ---
+  [spec]:
+    [accessMode]:
+    - accessMode
+  ---
+  [spec]:
+    [resources]:
+      [requests]: $pvcValues.storageRequest
+      [limits]: $pvcValues.storageLimit
+
+  ======================================
+
+  DEFAULT KEYS
+  ---
+    [spec]:
+      dataSource
+      dataSourceRef
+      selector
+      storageClassName
+      volumeMode
+      volumeName
+
+  ======================================
+
+  el-CICD SUPPORTING TEMPLATES:
+    "elcicd-common.apiObjectHeader"
+
+  ======================================
+
+  Defines a el-CICD template for a Kubernetes PersistentVolumeClaim.
 */}}
 {{- define "elcicd-kubernetes.persistentVolumeClaim" }}
 {{- $ := index . 0 }}

@@ -18,7 +18,7 @@
   ======================================
 
   PARAMETERS LIST:
-    . -> should be root of chart
+    . -> should always be root of chart
     $nsValues -> elCicd template for Namespace
 
   ======================================

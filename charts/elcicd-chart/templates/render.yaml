@@ -1,3 +1,7 @@
+{{/*
+Default YAML file for using el-CICD Chart.  Calls the entry point template for el-CICD Chart, "elcicd-renderer.render".
+*/}}
+
 {{- if eq .Values.outputMergedValuesYaml true }}
   {{- $_ := unset .Values "outputMergedValuesYaml" }}
   {{- .Values | toYaml }}
