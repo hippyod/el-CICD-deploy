@@ -200,26 +200,30 @@ Container definition
         {{- range $limit, $value := ($containerVals.resources).limits }}
       {{ $limit }}: {{ $value }}
         {{- end }}
-      {{- else }}
+      {{- else if or $containerVals.limitsCpu $containerVals.limitsMemory }}
         {{- if $containerVals.limitsCpu }}
       cpu: {{ $containerVals.limitsCpu }}
         {{- end }}
         {{- if $containerVals.limitsMemory }}
       memory: {{ $containerVals.limitsMemory }}
         {{- end }}
+      {{- else }}
+        {{- print " {}" }}
       {{- end }}
     requests:
       {{- if ($containerVals.resources).requests }}
         {{- range $request, $value := ($containerVals.resources).requests }}
       {{ $request }}: {{ $value }}
         {{- end }}
-      {{- else }}
+      {{- else if or $containerVals.requestsCpu $containerVals.requestsMemory }}
         {{- if $containerVals.requestsCpu }}
       cpu: {{ $containerVals.requestsCpu }}
         {{- end }}
         {{- if $containerVals.requestsMemory }}
       memory: {{ $containerVals.requestsMemory }}
         {{- end }}
+      {{- else }}
+        {{- print " {}" }}
       {{- end }}
   {{- if $containerVals.securityContext }}
   securityContext: {{ $containerVals.securityContext | toYaml | nindent 4 }}

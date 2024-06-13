@@ -84,7 +84,7 @@
     {{- $_ := set $newTemplate "baseObjName" $objName }}
 
     {{- $objName = replace "$<>" $objName $newTemplate.objName }}
-    {{- $objName = replace "$<#>" (add $index 1 | toString) $objName }}
+    {{- $objName = replace "$<#>" (add1 $index | toString) $objName }}
 
     {{- include "elcicd-renderer.processValue" (list $ $objName $elCicdDefs list $resultKey) }}
     {{- $objName := get $.Values.__EC_RESULT_DICT $resultKey }}
@@ -132,7 +132,7 @@
     {{- $_ := set $template "elCicdDefs" ($newTemplate.elCicdDefs | default dict) }}
 
     {{- $namespace = replace "$<>" $namespace $newTemplate.namespace }}
-    {{- $namespace = replace "$<#>" (add $index 1 | toString) $namespace }}
+    {{- $namespace = replace "$<#>" (add1 $index | toString) $namespace }}
 
     {{- include "elcicd-renderer.processValue" (list $ $namespace $elCicdDefs list $resultKey) }}
     {{- $namespace := get $.Values.__EC_RESULT_DICT $resultKey }}
