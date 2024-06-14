@@ -11,7 +11,7 @@ aggregationRule: {{ $roleValues.aggregationRule | toYaml | nindent 2 }}
 {{- end }}
 {{- if $roleValues.rules }}
 rules:
-{{- $roleValues.rules | toYaml | indent 2}}
+{{ $roleValues.rules | toYaml }}
 {{- end }}
 {{- end }}
 
@@ -25,5 +25,5 @@ genericRoleBindingDefinition: all ClusterRoleBindings and RoleBindings have this
 {{- include "elcicd-common.apiObjectHeader" . }}
 roleRef: {{ $roleBindingValues.roleRef | toYaml | nindent 2 }}
 subjects:
-{{- $roleBindingValues.subjects | toYaml | indent 2}}
+{{ $roleBindingValues.subjects | toYaml}}
 {{- end }}
