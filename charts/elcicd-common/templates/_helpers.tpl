@@ -12,14 +12,14 @@
   DEFAULT KEYS
     apiVersion
     kind
-  
+
   ======================================
 
   el-CICD SUPPORTING TEMPLATES:
   "elcicd-common.metadata"
-  
+
   ======================================
-  
+
   General header for a Kubernetes compliant resource.
 */}}
 {{- define "elcicd-common.apiObjectHeader" }}
@@ -47,14 +47,14 @@ kind: {{ $template.kind }}
       labels
       name
       namespace
-  
+
   ======================================
 
   el-CICD SUPPORTING TEMPLATES:
     "elcicd-common.labels"
-  
+
   ======================================
-  
+
   General header for a Kubernetes compliant resource metadata.
 */}}
 {{- define "elcicd-common.metadata" }}
@@ -95,14 +95,14 @@ metadata:
     app.kubernetes.io/managed-by -> .Release.Service
     app.kubernetes.io/version -> .Chart.AppVersion
     elcicdSelector -> $template.objName
-  
+
   ======================================
 
   el-CICD SUPPORTING TEMPLATES:
     "elcicd-common.elcicdLabels"
-  
+
   ======================================
-  
+
   Generates some default labels for a Kubernetes compliant resource based on the values in Chart.yaml.
 */}}
 {{- define "elcicd-common.labels" }}
@@ -113,7 +113,7 @@ app.kubernetes.io/managed-by: {{ $.Release.Service }}
 {{- if $.Chart.AppVersion }}
 app.kubernetes.io/version: {{ $.Chart.AppVersion | quote }}
 {{- end }}
-helm.sh/chart: {{- printf "%s-%s" $.Chart.Name $.Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+helm.sh/chart: {{ printf "%s-%s" $.Chart.Name $.Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- include "elcicd-common.elcicdLabels" . }}
 {{- if $metadataValues.labels }}
 {{ $metadataValues.labels | toYaml }}
@@ -134,9 +134,9 @@ helm.sh/chart: {{- printf "%s-%s" $.Chart.Name $.Chart.Version | replace "+" "_"
   HELPER KEYS
   ---
     elcicdSelector -> $template.objName
-  
+
   ======================================
-  
+
   Generates a selector label, elcicd.io/selector.
 */}}
 {{- define "elcicd-common.elcicdLabels" }}
@@ -165,9 +165,9 @@ Checks the template values for each resource's whitelist, and if it exists rende
 
   {{- $defaultIndent := append . 2 }}
   {{- $indent := index $defaultIndent 3 | int }}
-  
+
   {{- include "elcicd-common.setTemplateDefaultValue" . }}
-  
+
   {{- range $key, $value := $templateVals }}
     {{- if or (has $key $whiteList) (empty $whiteList) }}
       {{- if (kindIs "map" $value) }}
@@ -186,14 +186,14 @@ Checks the template values for each resource's whitelist, and if it exists rende
 {{- end }}
 
 {{/*
-Support function for the outputToYaml function.  Assigns a value for anything in the whitelist 
+Support function for the outputToYaml function.  Assigns a value for anything in the whitelist
 that is empty and has n elCicdDefault value defined.
 */}}
 {{- define "elcicd-common.setTemplateDefaultValue" }}
   {{- $ := index . 0 }}
   {{- $templateVals := index . 1 }}
   {{- $whiteList := index . 2 }}
-  
+
   {{- range $key := $whiteList }}
     {{- if not (get $templateVals $key) }}
       {{- $defaultValue := get $.Values.elCicdDefaults $key }}

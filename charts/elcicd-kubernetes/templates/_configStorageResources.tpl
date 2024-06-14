@@ -203,6 +203,7 @@
 {{- define "elcicd-kubernetes.persistentVolume" }}
 {{- $ := index . 0 }}
 {{- $pvValues := index . 1 }}
+
 {{- $_ := set $pvValues "kind" "PersistentVolume" }}
 {{- $_ := set $pvValues "apiVersion" "v1" }}
 {{- include "elcicd-common.apiObjectHeader" . }}

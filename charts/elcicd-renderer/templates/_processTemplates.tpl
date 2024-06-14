@@ -304,7 +304,7 @@
   {{- $elCicdDefs := index . 2 }}
 
   {{- $resultKey := uuidv4 }}
-  {{ range $key, $value := $parentMap }}
+  {{- range $key, $value := $parentMap }}
     {{- if hasPrefix "elCicdDefs-" $key }}
       {{- include "elcicd-renderer.replaceRefsInMapKey" (list $ $parentMap $key $elCicdDefs $resultKey) }}
     {{- end }}
@@ -343,7 +343,7 @@
     {{- $newValue := get $.Values.__EC_RESULT_DICT $resultKey }}
     {{- $_ := unset $.Values.__EC_RESULT_DICT $resultKey }}
 
-    {{ if or $newValue (kindIs "map" $newValue) (kindIs "slice" $newValue) }}
+    {{- if or $newValue (kindIs "map" $newValue) (kindIs "slice" $newValue) }}
       {{- $_ := set $map $key $newValue }}
       {{- include "elcicd-renderer.replaceRefsInMapKey" (list $ $map $key $elCicdDefs $resultKey) }}
     {{- else }}
@@ -421,7 +421,7 @@
     {{- $newElement := get $.Values.__EC_RESULT_DICT $sliceResultKey }}
     {{- $_ := unset $.Values.__EC_RESULT_DICT $sliceResultKey }}
 
-    {{ $newSlice = append $newSlice $newElement }}
+    {{- $newSlice = append $newSlice $newElement }}
   {{- end }}
 
   {{- $_ := set $.Values.__EC_RESULT_DICT $resultKey $newSlice }}
@@ -543,7 +543,7 @@
   {{- $localProcessedVars := list }}
   {{- range $elCicdRef := $matches }}
     {{- $elCicdVarName := regexReplaceAll $.Values.__EC_PARAM_REGEX $elCicdRef "${1}" }}
-    {{ if not (has $elCicdRef $localProcessedVars) }}
+    {{- if not (has $elCicdRef $localProcessedVars) }}
       {{- $localProcessedVars = append $localProcessedVars $elCicdVarName }}
       {{- $varValue := get $elCicdDefs $elCicdVarName }}
 
