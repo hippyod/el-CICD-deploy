@@ -13,9 +13,13 @@
     - name
       mountPath
       configMaps:
-      - <configMap.metadata.name>
+        <configMap.metadata.name>:
+          items: {} # optional, will import all data to files if missing
       secrets:
-      - <secret.metadata.name>
+      - <secret.metadata.name>:
+          items: {} # optional, will import all data to files if missing
+      <other projected volume types>:
+        <other projected volume keys>
       configMapLabels:
       - <labelKey>
       secretMapLabels:
@@ -25,7 +29,7 @@
       
   Produces:
   
-    conatainers:
+    containers:
       volumeMounts:
       - name
         mountPath

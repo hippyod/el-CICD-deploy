@@ -31,75 +31,24 @@
       {{- end }}
     {{- end }}
 
-    {{- if $template.objNames }}
-      {{- include "elcicd-renderer.processObjNamesMatrix" (list $ $template $.Values.elCicdDefs) }}
-    {{- else }}
-      {{- $_ := set $template "objName" ($template.objName | default $.Values.elCicdDefaults.objName) }}
-    {{- end }}
-
-    {{- if $template.namespaces }}
-      {{- include "elcicd-renderer.processNamespacesMatrix" (list $ $template $.Values.elCicdDefs) }}
-    {{- end }}
-
-    {{- if not (or $template.objNames $template.namespaces) }}
-      {{- $allTemplates = append $allTemplates $template }}
-    {{- end }}
-  {{- end }}
-
-  {{- $_ := set $.Values "allTemplates" (concat $allTemplates $.Values.objNameTemplates $.Values.namespaceTemplates) }}
-{{- end }}
-
-
-{{/*
-  ======================================
-  elcicd-renderer.processObjNamesMatrix
-  ======================================
-
-  PARAMETERS LIST:
-    $ -> root of chart
-    $template -> template defined in *values.yaml to be processed
-    $elCicdDefs -> final chart level elCicdDefs
-
-  ======================================
-
-
-  First evaluate the objNames value for any el-CICD variables and dereference them.  Only chart-level variable definitions will be
-  considered.  Next, generate a copy of the template per value in the list and append and add to the list of templates to render.
-
-  If the objName key has a value with $<> in it, it will be replaced with the baseObjName (i.e the value in the objNames list).
-  If the objName key has a value with $<#> in it, it will be replaced with the index of baseObjName in the objNames list.
-*/}}
-{{- define "elcicd-renderer.processObjNamesMatrix" }}
-  {{- $ := index . 0 }}
-  {{- $template := index . 1 }}
-  {{- $elCicdDefs := index . 2 }}
-
-  {{- include "elcicd-renderer.processTemplateMatrixValue" (list $ $template "objNames") }}
-
-  {{- $resultKey := uuidv4 }}
-  {{- $objNameTemplates := list }}
-  {{- range $index, $objName := $template.objNames }}
-    {{- $newTemplate := deepCopy $template }}
-    {{- $_ := set $newTemplate "objName" ($newTemplate.objName | default $objName) }}
-    {{- $_ := set $newTemplate "baseObjName" $objName }}
-
-    {{- $objName = replace "$<>" $objName $newTemplate.objName }}
-    {{- $objName = replace "$<#>" (add1 $index | toString) $objName }}
-
-    {{- include "elcicd-renderer.processValue" (list $ $objName $elCicdDefs list $resultKey) }}
-    {{- $objName := get $.Values.__EC_RESULT_DICT $resultKey }}
+    {{- $resultKey := uuidv4 }} 
+    {{- include "elcicd-renderer.processMatrixKey" (list $ $template "objNames" "objName" $.Values.elCicdDefs $resultKey) }}
+    {{- $objNameTemplates := get $.Values.__EC_RESULT_DICT $resultKey }}
     {{- $_ := unset $.Values.__EC_RESULT_DICT $resultKey }}
 
-    {{- $_ := set $newTemplate "objName" ($objName | toString) }}
-    {{- $objNameTemplates = append $objNameTemplates $newTemplate }}
+    {{- range $nsTemplate := $objNameTemplates }}
+      {{- include "elcicd-renderer.processMatrixKey" (list $ $nsTemplate "namespaces" "namespace" $.Values.elCicdDefs $resultKey) }}
+      {{- $allTemplates = concat $allTemplates (get $.Values.__EC_RESULT_DICT $resultKey) }}
+      {{- $_ := unset $.Values.__EC_RESULT_DICT $resultKey }}
+    {{- end }}
   {{- end }}
 
-  {{- $_ := set $.Values "objNameTemplates" (concat $.Values.objNameTemplates $objNameTemplates) }}
+  {{- $_ := set $.Values "allTemplates" $allTemplates }}
 {{- end }}
 
 {{/*
   ======================================
-  elcicd-renderer.processNamespacesMatrix
+  elcicd-renderer.processMatrixKey
   ======================================
 
   PARAMETERS LIST:
@@ -116,33 +65,37 @@
   If the namespace key has a value with $<> in it, it will be replaced with the baseObjName (i.e the value in the namespaces list).
   If the namespace key has a value with $<#> in it, it will be replaced with the index of baseObjName in the namespaces list.
 */}}
-{{- define "elcicd-renderer.processNamespacesMatrix" }}
+{{- define "elcicd-renderer.processMatrixKey" }}
   {{- $ := index . 0 }}
   {{- $template := index . 1 }}
-  {{- $elCicdDefs := index . 2 }}
+  {{- $matrixKey := index . 2 }}
+  {{- $templateKey := index . 3 }}
+  {{- $elCicdDefs := index . 4 }}
+  {{- $resultKey := index . 5 }}
 
-  {{- include "elcicd-renderer.processTemplateMatrixValue" (list $ $template "namespaces") }}
+  {{- $matrixTemplates := list }}
+  {{- $matrix := get $template $matrixKey }}
+  {{- if $matrix }}
+    {{- include "elcicd-renderer.processTemplateMatrixValue" (list $ $template $matrixKey) }}
 
-  {{- $resultKey := uuidv4 }}
-  {{- $namespaceTemplates := list }}
-  {{- range $index, $namespace := $template.namespaces }}
-    {{- $newTemplate := deepCopy $template }}
-    {{- $_ := set $newTemplate "namespace" ($newTemplate.namespace | default $namespace) }}
-    {{- $_ := set $newTemplate "baseNamespace" $newTemplate.namespace }}
-    {{- $_ := set $template "elCicdDefs" ($newTemplate.elCicdDefs | default dict) }}
+    {{- range $index, $matrixValue := $matrix }}
+      {{- $baseMatrixValue := $matrixValue }}
+            
+      {{- $matrixValue = replace "$<>" $matrixValue (get $template $templateKey | default $baseMatrixValue) }}
+      {{- $matrixValue = replace "$<#>" (add1 $index | toString) $matrixValue }}
 
-    {{- $namespace = replace "$<>" $namespace $newTemplate.namespace }}
-    {{- $namespace = replace "$<#>" (add1 $index | toString) $namespace }}
+      {{- $newTemplate := deepCopy $template }}
+      {{- $_ := set $newTemplate $templateKey $matrixValue }}
+      {{- $baseTemplateKey := printf "base%s" (title $templateKey) }}
+      {{- $_ := set $newTemplate $baseTemplateKey $baseMatrixValue }}
 
-    {{- include "elcicd-renderer.processValue" (list $ $namespace $elCicdDefs list $resultKey) }}
-    {{- $namespace := get $.Values.__EC_RESULT_DICT $resultKey }}
-    {{- $_ := unset $.Values.__EC_RESULT_DICT $resultKey }}
-
-    {{- $_ := set $newTemplate "namespace" $namespace }}
-    {{- $namespaceTemplates = append $namespaceTemplates $newTemplate }}
+      {{- $matrixTemplates = append $matrixTemplates $newTemplate }}
+    {{- end }}
+  {{- else }}
+    {{- $matrixTemplates = list $template }}
   {{- end }}
 
-  {{- $_ := set $.Values "namespaceTemplates" (concat $.Values.namespaceTemplates $namespaceTemplates) }}
+  {{- $_ := set $.Values.__EC_RESULT_DICT $resultKey $matrixTemplates }}
 {{- end }}
 
 {{/*
