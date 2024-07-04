@@ -17,29 +17,7 @@
 */}}
 
 {{/*
-el-CICD convenience template for creating a Deployment and Service.
-*/}}
-{{- define "elcicd-kubernetes.deploymentService" }}
-  {{- include "elcicd-kubernetes.deployment" . }}
----
-  {{- include "elcicd-kubernetes.service" . }}
-{{- end }}
-
-{{/*
-el-CICD convenience template for creating a Deployment, Service, and Ingress.
-*/}}
-{{- define "elcicd-kubernetes.deploymentServiceIngress" }}
-  {{- include "elcicd-kubernetes.deployment" . }}
----
-  {{- include "elcicd-kubernetes.service" . }}
----
-  {{- include "elcicd-kubernetes.ingress" . }}
-{{- end }}
-
-{{/*
 General k8s selector definition.
-
-  
 */}}
 {{- define "elcicd-kubernetes.podSelector" }}
 {{- $ := index . 0 }}

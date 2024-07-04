@@ -21,8 +21,6 @@
   {{- $templates := index . 1 }}
 
   {{- $allTemplates := list }}
-  {{- $_ := set $.Values "objNameTemplates" list }}
-  {{- $_ := set $.Values "namespaceTemplates" list }}
   {{- range $template := $templates }}
     {{- if $template.objName }}
       {{- if eq $template.objName "$<OBJ_NAME>" }}
@@ -30,14 +28,24 @@
         {{- fail (printf $failMsgTpl $template.templateName) }}
       {{- end }}
     {{- end }}
+    
+    {{- $resultKey := uuidv4 }}
 
-    {{- $resultKey := uuidv4 }} 
-    {{- include "elcicd-renderer.processMatrixKey" (list $ $template "objNames" "objName" $.Values.elCicdDefs $resultKey) }}
-    {{- $objNameTemplates := get $.Values.__EC_RESULT_DICT $resultKey }}
+    {{- include "elcicd-renderer.processModularTemplate" (list $ $template $resultKey) }}
+    {{- $modularTemplates := get $.Values.__EC_RESULT_DICT $resultKey }}
     {{- $_ := unset $.Values.__EC_RESULT_DICT $resultKey }}
+      
+    {{- $objNameTemplates := list }}
+    {{- range $modularTemplate := $modularTemplates }}
+      {{- include "elcicd-renderer.processMatrixKey" (list $ $modularTemplate "objNames" "objName" $.Values.elCicdDefs $resultKey) }}
+      {{- $objNameTemplates = concat $objNameTemplates (get $.Values.__EC_RESULT_DICT $resultKey) }}
+      {{- $_ := unset $.Values.__EC_RESULT_DICT $resultKey }}
+    {{- end }}
 
-    {{- range $nsTemplate := $objNameTemplates }}
-      {{- include "elcicd-renderer.processMatrixKey" (list $ $nsTemplate "namespaces" "namespace" $.Values.elCicdDefs $resultKey) }}
+    {{- range $objNameTemplate := $objNameTemplates }}
+      {{- $_ := set $objNameTemplate "objName" ($template.objName | default $.Values.elCicdDefaults.objName) }}
+
+      {{- include "elcicd-renderer.processMatrixKey" (list $ $objNameTemplate "namespaces" "namespace" $.Values.elCicdDefs $resultKey) }}
       {{- $allTemplates = concat $allTemplates (get $.Values.__EC_RESULT_DICT $resultKey) }}
       {{- $_ := unset $.Values.__EC_RESULT_DICT $resultKey }}
     {{- end }}
@@ -48,13 +56,50 @@
 
 {{/*
   ======================================
+  elcicd-renderer.processModularTemplate
+  ======================================
+
+  PARAMETERS LIST:
+    $ -> root of chart
+    $template -> template defined in *values.yaml to be processed
+    $resultKey -> key used to store and retrieve results from the el-CICD Chart result dictionary
+
+  ======================================
+  
+  If a templateName is delimited by '|' (pipe character), splits the string by the delimiter into a list
+  and creates a new template for each entry in the copy from a copy of the original template.
+  */}}
+{{ define "elcicd-renderer.processModularTemplate" }}
+  {{- $ := index . 0 }}
+  {{- $template := index . 1 }}
+  {{- $resultKey := index . 2 }}
+    
+  {{- $modularTemplates := list }}
+  {{- if contains "|" $template.templateName }}
+    {{- range $newTemplateName := regexSplit "[|]" $template.templateName -1 }}
+      {{- $newTemplate := deepCopy $template }}
+      {{- $_ := set $newTemplate "templateName" $newTemplateName }}
+      {{- $modularTemplates = append $modularTemplates $newTemplate }}
+    {{- end }}
+  {{- else }}
+    {{- $modularTemplates = append $modularTemplates $template }}
+  {{- end }}
+  
+  {{- $_ := set $.Values.__EC_RESULT_DICT $resultKey $modularTemplates }}
+{{- end }}
+
+{{/*
+  ======================================
   elcicd-renderer.processMatrixKey
   ======================================
 
   PARAMETERS LIST:
     $ -> root of chart
     $template -> template defined in *values.yaml to be processed
+    $matrixKey -> list of values to process
+    $templateKey -> key of new template processed value will be placed
     $elCicdDefs -> final chart level elCicdDefs
+    $resultKey -> key used to store and retrieve results from the el-CICD Chart result dictionary
 
   ======================================
 
