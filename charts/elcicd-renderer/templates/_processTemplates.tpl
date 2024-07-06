@@ -345,7 +345,7 @@
     {{- if or $newValue (kindIs "map" $newValue) (kindIs "slice" $newValue) }}
       {{- $_ := set $map $key $newValue }}
       {{- include "elcicd-renderer.replaceRefsInMapKey" (list $ $map $key $elCicdDefs $resultKey) }}
-    {{- else }}
+    {{- else if or (kindIs "string" $newValue) (eq (typeOf $newValue) "<nil>") }}
       {{- $_ := unset $map $key }}
     {{- end }}
   {{- end }}
