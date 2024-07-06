@@ -172,7 +172,7 @@ spec:
 {{- include "elcicd-common.apiObjectHeader" . }}
 spec:
   selector:
-    {{- include "elcicd-common.elcicdLabels" . | indent 4 }}
+    elcicd.io/selector: {{ include "elcicd-common.elcicdLabels" . }}
     {{- range $key, $value := $svcValues.selector }}
     {{ $key }}: {{ $value }}
     {{- end }}

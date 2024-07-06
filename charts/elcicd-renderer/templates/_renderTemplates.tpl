@@ -167,30 +167,7 @@
     {{ $.Values | toYaml }}
   {{- else }}
     {{- range $template := $.Values.allTemplates }}
-      {{- $templateName := $template.templateName }}
-      {{- if not (contains "." $templateName) }}
-        {{- if eq $templateName "copyResource" }}
-          {{- $templateName = "elcicd-renderer.copyResource" }}
-        {{- else }}
-          {{- $templateName = printf "%s.%s" $.Values.elCicdDefaults.templatesChart $template.templateName }}
-        {{- end }}
-      {{- end }}
----
-      {{- include $templateName (list $ $template) }}
-# Rendered -> {{ $template.templateName }} {{ $template.objName }}
-    {{- end }}
-
-    {{- $resultKey := uuidv4 }}
-    {{- range $yamlMapKey, $rawYamlValue := $.Values }}
-      {{- if and (hasPrefix "elCicdRawYaml" $yamlMapKey) (kindIs "map" $rawYamlValue) }}
-        {{- range $yamlKey, $rawYaml := $rawYamlValue }}
-          {{- include "elcicd-renderer.processValue" (list $ ($rawYaml | toString) $.Values.elCicdDefs list $resultKey) }}
-          {{- $rawYaml = get $.Values.__EC_RESULT_DICT $resultKey }}
----
-  {{ $rawYaml }}
-# Rendered From {{ $yamlMapKey }} -> {{ $yamlKey }}
-        {{- end }}
-      {{- end }}
+      {{- include "elcicd-renderer.renderTemplate" (list $ $template) }}
     {{- end }}
 ---
 # Profiles: {{ $.Values.elCicdProfiles }}
@@ -198,4 +175,44 @@
 # EXCLUDED BY PROFILES: {{ index $skippedTemplate 0 }} -> {{ index $skippedTemplate 1 }}
     {{- end }}
   {{- end }}
+{{- end }}
+
+{{- define "elcicd-renderer.renderTemplate" }}
+  {{- $ := index . 0 }}
+  {{- $template := index . 1 }}
+  
+  {{- $templateName := $template.templateName | default "elcicd-renderer.__render-default" }}
+  {{- if not (contains "." $templateName) }}
+    {{- if eq $templateName "copyResource" }}
+      {{- $templateName = "elcicd-renderer.copyResource" }}
+    {{- else }}
+      {{- $templateName = printf "%s.%s" $.Values.elCicdDefaults.templatesChart $template.templateName }}
+    {{- end }}
+  {{- end }}
+---
+  {{- include $templateName . }}
+
+  {{- if $template.templateName }}
+# Rendered el-CICD Chart Template -> "{{ $template.templateName }}" {{ $template.objName | default ($template.metadata).name }}
+  {{- end }}
+{{- end }}
+
+{{- define "elcicd-renderer.__render-default" }}
+  {{- $ := index . 0 }}
+  {{- $template := index . 1 }}
+  
+  {{- $_ := required "template or templateName must be defined for an el-CICD Chart template" $template.template }}
+  {{- if not $template.rawYaml }}
+    {{- $metadata := $template.template.metadata | default dict }}
+    {{- $_ := set $template.template "metadata" $metadata }}
+    {{- $_ := set $metadata "labels" ($metadata.labels | default dict) }}
+  
+    {{- include "elcicd-common.labels" (list $ $metadata.labels)  }}
+    {{- $_ := set $metadata.labels "elcicd.io/selector" (include "elcicd-common.elcicdLabels" .) }}
+    {{- $_ := set $metadata "name" ($metadata.name | default $template.objName) }}
+    {{- $_ := set $metadata "namespace" ($metadata.namespace | default $template.namespace | default $.Release.Namespace) }}
+  {{- end }}
+  
+  {{- toYaml $template.template }}
+# Rendered YAML Template -> kind: "{{ $template.template.kind }}" name: "{{ (($template.template).metadata).name }}"
 {{- end }}

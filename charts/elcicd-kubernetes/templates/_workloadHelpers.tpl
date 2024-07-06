@@ -22,7 +22,6 @@ General k8s selector definition.
 {{- define "elcicd-kubernetes.podSelector" }}
 {{- $ := index . 0 }}
 {{- $template := index . 1 }}
-
 selector:
   matchExpressions:
   - key: elcicd.io/selector
@@ -31,7 +30,7 @@ selector:
     {{- $template.selector.matchExpressions | toYaml | indent 2 }}
   {{- end }}
   matchLabels:
-  {{- include "elcicd-common.elcicdLabels" . | indent 4 }}
+    elcicd.io/selector: {{ include "elcicd-common.elcicdLabels" . }}
   {{- if ($template.selector).matchLabels }}
     {{- $template.selector.matchLabels | toYaml | indent 4 }}
   {{- end }}

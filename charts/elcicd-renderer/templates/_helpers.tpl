@@ -43,12 +43,25 @@
   {{- end }}
 
   {{- include "elcicd-renderer.gatherElCicdDefaults" $ }}
+      {{- include "elcicd-kubernetes.initElCicdDefaults" $ }}
 
   {{- range $dep := $.Chart.Dependencies }}
     {{- if (eq $dep.Name "elcicd-kubernetes") }}
       {{- include "elcicd-kubernetes.initElCicdDefaults" $ }}
     {{- end }}
   {{- end }}
+
+  {{- include "elcicd-renderer.setInternalConstants" $ }}
+{{- end }}
+
+{{/*
+  ======================================
+  elcicd-renderer.setECvalues
+  ======================================
+*/}}
+{{- define "elcicd-renderer.setInternalConstants" }}
+  {{- $_ := set $.Values "__EC_EMPTY_LIST" list }}
+  {{- $_ := set $.Values "__EC_EMPTY_DICT" list }}
 
   {{- $_ := set $.Values "__EC_RESULT_DICT" dict }}
 
@@ -76,7 +89,7 @@
 
   Collects the defaults el-CICD Chart will use when rendering.  Merges active profile
   specific defaults in.  Active profile maps of default are defined by
-    
+
     elCicdDefaults-<profile>
 */}}
 {{- define "elcicd-renderer.gatherElCicdDefaults" }}
@@ -159,17 +172,17 @@
     {{- include "elcicd-renderer.replaceVarRefsInSlice" (list $ $template.mustHaveAnyProfile $.Values.elCicdDefs list $resultKey) }}
     {{- $_ := set $template "mustHaveAnyProfile" (get $.Values.__EC_RESULT_DICT $resultKey) }}
     {{- $_ := unset $.Values.__EC_RESULT_DICT $resultKey }}
-    
+
     {{- $_ := set $template "mustNotHaveAnyProfile" ($template.mustNotHaveAnyProfile | default list) }}
     {{- include "elcicd-renderer.replaceVarRefsInSlice" (list $ $template.mustNotHaveAnyProfile $.Values.elCicdDefs list $resultKey) }}
     {{- $_ := set $template "mustNotHaveAnyProfile" (get $.Values.__EC_RESULT_DICT $resultKey) }}
     {{- $_ := unset $.Values.__EC_RESULT_DICT $resultKey }}
-    
+
     {{- $_ := set $template "mustHaveEveryProfile" ($template.mustHaveEveryProfile | default list) }}
     {{- include "elcicd-renderer.replaceVarRefsInSlice" (list $ $template.mustHaveEveryProfile $.Values.elCicdDefs list $resultKey) }}
     {{- $_ := set $template "mustHaveEveryProfile" (get $.Values.__EC_RESULT_DICT $resultKey) }}
     {{- $_ := unset $.Values.__EC_RESULT_DICT $resultKey }}
-    
+
     {{- $_ := set $template "mustNotHaveEveryProfile" ($template.mustNotHaveEveryProfile | default list) }}
     {{- include "elcicd-renderer.replaceVarRefsInSlice" (list $ $template.mustNotHaveEveryProfile $.Values.elCicdDefs list $resultKey) }}
     {{- $_ := set $template "mustNotHaveEveryProfile" (get $.Values.__EC_RESULT_DICT $resultKey) }}

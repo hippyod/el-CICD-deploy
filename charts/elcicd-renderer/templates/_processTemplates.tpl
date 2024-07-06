@@ -43,7 +43,7 @@
     {{- end }}
 
     {{- range $objNameTemplate := $objNameTemplates }}
-      {{- $_ := set $objNameTemplate "objName" ($template.objName | default $.Values.elCicdDefaults.objName) }}
+      {{- $_ := set $objNameTemplate "objName" ($objNameTemplate.objName | default $.Values.elCicdDefaults.objName) }}
 
       {{- include "elcicd-renderer.processMatrixKey" (list $ $objNameTemplate "namespaces" "namespace" $.Values.elCicdDefs $resultKey) }}
       {{- $allTemplates = concat $allTemplates (get $.Values.__EC_RESULT_DICT $resultKey) }}
@@ -75,7 +75,8 @@
   {{- $resultKey := index . 2 }}
     
   {{- $modularTemplates := list }}
-  {{- if contains "|" $template.templateName }}
+  {{- $templateName := $template.templateName | default "" }}
+  {{- if contains "|" $templateName }}
     {{- range $newTemplateName := regexSplit "[|]" $template.templateName -1 }}
       {{- $newTemplate := deepCopy $template }}
       {{- $_ := set $newTemplate "templateName" $newTemplateName }}
@@ -251,9 +252,8 @@
     {{- $_ := set $tplElCicdDefs "BASE_OBJ_NAME" ($template.baseObjName | default $template.objName) }}
     {{- $_ := set $tplElCicdDefs "OBJ_NAME" $template.objName }}
 
-    {{- $_ := set $template "namespace" ($template.namespace | default $.Release.Namespace) }}
-    {{- $_ := set $tplElCicdDefs "BASE_NAME_SPACE" ($template.baseNamespace | default $template.namespace) }}
-    {{- $_ := set $tplElCicdDefs "NAME_SPACE" $template.namespace }}
+    {{- $_ := set $tplElCicdDefs "NAME_SPACE" ($template.namespace| default $.Release.Namespace) }}
+    {{- $_ := set $tplElCicdDefs "BASE_NAME_SPACE" ($template.baseNamespace | default $tplElCicdDefs.NAME_SPACE) }}
 
     {{- $_ := set $tplElCicdDefs "HELM_RELEASE_NAME" $.Release.Name }}
     {{- $_ := set $tplElCicdDefs "HELM_RELEASE_NAMESPACE" $.Release.Namespace }}
