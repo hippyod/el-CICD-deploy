@@ -123,6 +123,7 @@
   {{- $matrix := get $template $matrixKey }}
   {{- if $matrix }}
     {{- include "elcicd-renderer.processTemplateMatrixValue" (list $ $template $matrixKey) }}
+    {{- $matrix := get $template $matrixKey }}
 
     {{- range $index, $matrixValue := $matrix }}
       {{- $baseMatrixValue := $matrixValue }}
