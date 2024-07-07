@@ -31,10 +31,6 @@
 
     {{- $resultKey := uuidv4 }}
 
-    {{- if note $template.namespaces }}
-      {{- $_ := set $template "namespace" ($template.namespace | default $.Release.Namespace) }}
-    {{- end }}
-
     {{- include "elcicd-renderer.processModularTemplate" (list $ $template $resultKey) }}
     {{- $modularTemplates := get $.Values.__EC_RESULT_DICT $resultKey }}
     {{- $_ := unset $.Values.__EC_RESULT_DICT $resultKey }}
