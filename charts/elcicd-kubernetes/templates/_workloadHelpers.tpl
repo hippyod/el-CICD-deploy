@@ -368,14 +368,8 @@ spec:
       {{- else }}
         {{- print " {}" }}
       {{- end }}
-  {{- if $containerVals.securityContext }}
-  securityContext: {{ $containerVals.securityContext | toYaml | nindent 4 }}
-  {{- else }}
-  securityContext:
-    allowPrivilegeEscalation: false
-    capabilities:
-      drop:
-      - ALL
+  {{- if $containerVals.containerSecurityContext }}
+  securityContext: {{ $containerVals.containerSecurityContext | toYaml | nindent 4 }}
   {{- end }}
   {{- if $containerVals.projectedVolumes }}
     {{- include "elcicd-kubernetes.projectedVolumes" (list $ $podValues $containerVals) }}
