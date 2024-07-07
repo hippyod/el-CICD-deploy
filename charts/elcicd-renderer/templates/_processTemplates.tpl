@@ -342,10 +342,10 @@
     {{- $newValue := get $.Values.__EC_RESULT_DICT $resultKey }}
     {{- $_ := unset $.Values.__EC_RESULT_DICT $resultKey }}
 
-    {{- if or $newValue (kindIs "map" $newValue) (kindIs "slice" $newValue) }}
+    {{- if and (not (and (kindIs "string" $newValue) (empty $newValue))) (not (eq (typeOf $newValue) "<nil>")) }}
       {{- $_ := set $map $key $newValue }}
       {{- include "elcicd-renderer.replaceRefsInMapKey" (list $ $map $key $elCicdDefs $resultKey) }}
-    {{- else if or (kindIs "string" $newValue) (eq (typeOf $newValue) "<nil>") }}
+    {{- else }}
       {{- $_ := unset $map $key }}
     {{- end }}
   {{- end }}
@@ -420,7 +420,9 @@
     {{- $newElement := get $.Values.__EC_RESULT_DICT $sliceResultKey }}
     {{- $_ := unset $.Values.__EC_RESULT_DICT $sliceResultKey }}
 
-    {{- $newSlice = append $newSlice $newElement }}
+    {{- if and (not (and (kindIs "string" $newElement) (empty $newElement))) (not (eq (typeOf $newElement) "<nil>")) }}
+      {{- $newSlice = append $newSlice $newElement }}
+    {{- end }}
   {{- end }}
 
   {{- $_ := set $.Values.__EC_RESULT_DICT $resultKey $newSlice }}
