@@ -232,6 +232,7 @@ spec:
   securityContext: {{ $podValues.securityContext | toYaml | nindent 4 }}
   {{- else }}
   securityContext:
+    fsGroup: 0
     runAsNonRoot: true
     {{- if not $.Values.useLegacyPodSecurityContextDefault }}
     seccompProfile:
