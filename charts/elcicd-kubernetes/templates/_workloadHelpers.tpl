@@ -234,10 +234,6 @@ spec:
   securityContext:
     fsGroup: 0
     runAsNonRoot: true
-    {{- if not $.Values.useLegacyPodSecurityContextDefault }}
-    seccompProfile:
-      type: RuntimeDefault
-    {{- end }}
   {{- end }}
   {{- include "elcicd-common.outputToYaml" (list $ $podValues $whiteList) }}
 {{- end }}
