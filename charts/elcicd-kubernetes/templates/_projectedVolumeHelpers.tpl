@@ -114,7 +114,7 @@
   {{- $projectedVolume := index . 2 }}
   
   {{- $resultKey := uuidv4 }}
-  
+
   {{- if or $projectedVolume.configMapLabels $projectedVolume.labels }}
     {{- $resources := ((lookup "v1" "ConfigMap" $podValues.namespace "").items | default list) }}
     {{- $resourceLabels := merge ($projectedVolume.configMapLabels | default dict) ($projectedVolume.labels | default dict) }}

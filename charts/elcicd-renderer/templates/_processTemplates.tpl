@@ -28,13 +28,17 @@
         {{- fail (printf $failMsgTpl $template.templateName) }}
       {{- end }}
     {{- end }}
-    
+
     {{- $resultKey := uuidv4 }}
+
+    {{- if note $template.namespaces }}
+      {{- $_ := set $template "namespace" ($template.namespace | default $.Release.Namespace) }}
+    {{- end }}
 
     {{- include "elcicd-renderer.processModularTemplate" (list $ $template $resultKey) }}
     {{- $modularTemplates := get $.Values.__EC_RESULT_DICT $resultKey }}
     {{- $_ := unset $.Values.__EC_RESULT_DICT $resultKey }}
-      
+
     {{- $objNameTemplates := list }}
     {{- range $modularTemplate := $modularTemplates }}
       {{- include "elcicd-renderer.processMatrixKey" (list $ $modularTemplate "objNames" "objName" $.Values.elCicdDefs $resultKey) }}
@@ -51,6 +55,10 @@
     {{- end }}
   {{- end }}
 
+  {{- range $template := $allTemplates }}
+    {{- $_ := set $template "namespace" ($template.namespace | default $.Release.Namespace) }}
+  {{- end }}
+
   {{- $_ := set $.Values "allTemplates" $allTemplates }}
 {{- end }}
 
@@ -65,7 +73,7 @@
     $resultKey -> key used to store and retrieve results from the el-CICD Chart result dictionary
 
   ======================================
-  
+
   If a templateName is delimited by '|' (pipe character), splits the string by the delimiter into a list
   and creates a new template for each entry in the copy from a copy of the original template.
   */}}
@@ -73,7 +81,7 @@
   {{- $ := index . 0 }}
   {{- $template := index . 1 }}
   {{- $resultKey := index . 2 }}
-    
+
   {{- $modularTemplates := list }}
   {{- $templateName := $template.templateName | default "" }}
   {{- if contains "|" $templateName }}
@@ -85,7 +93,7 @@
   {{- else }}
     {{- $modularTemplates = append $modularTemplates $template }}
   {{- end }}
-  
+
   {{- $_ := set $.Values.__EC_RESULT_DICT $resultKey $modularTemplates }}
 {{- end }}
 
@@ -127,7 +135,7 @@
 
     {{- range $index, $matrixValue := $matrix }}
       {{- $baseMatrixValue := $matrixValue }}
-            
+
       {{- $matrixValue = replace "$<>" $matrixValue (get $template $templateKey | default $baseMatrixValue) }}
       {{- $matrixValue = replace "$<#>" (add1 $index | toString) $matrixValue }}
 
@@ -140,6 +148,8 @@
     {{- end }}
   {{- else }}
     {{- $matrixTemplates = list $template }}
+
+    {{- $_ := set $objNameTemplate "objName" ($objNameTemplate.objName | default $.Values.elCicdDefaults.objName) }}
   {{- end }}
 
   {{- $_ := set $.Values.__EC_RESULT_DICT $resultKey $matrixTemplates }}

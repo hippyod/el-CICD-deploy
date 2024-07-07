@@ -209,7 +209,7 @@
   
     {{- include "elcicd-common.labels" (list $ $metadata.labels)  }}
     {{- $_ := set $metadata.labels "elcicd.io/selector" (include "elcicd-common.elcicdLabels" .) }}
-    {{- $_ := set $metadata "name" ($metadata.name | default $template.objName) }}
+    {{- $_ := set $metadata "name" ($metadata.name | default $template.objName | default $.Values.elCicdDefaults.objName) }}
     {{- $_ := set $metadata "namespace" ($metadata.namespace | default $template.namespace | default $.Release.Namespace) }}
   {{- end }}
   
