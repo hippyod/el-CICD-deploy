@@ -37,22 +37,18 @@
 
     {{- $objNameTemplates := list }}
     {{- range $modularTemplate := $modularTemplates }}
-      {{- include "elcicd-renderer.processMatrixKey" (list $ $modularTemplate "objNames" "objName" $.Values.elCicdDefs $resultKey) }}
+      {{- include "elcicd-renderer.processMatrixKey"
+                  (list $ $modularTemplate "objNames" "objName" $.Values.elCicdDefaults.objName $.Values.elCicdDefs $resultKey) }}
       {{- $objNameTemplates = concat $objNameTemplates (get $.Values.__EC_RESULT_DICT $resultKey) }}
       {{- $_ := unset $.Values.__EC_RESULT_DICT $resultKey }}
     {{- end }}
 
     {{- range $objNameTemplate := $objNameTemplates }}
-      {{- $_ := set $objNameTemplate "objName" ($objNameTemplate.objName | default $.Values.elCicdDefaults.objName) }}
-
-      {{- include "elcicd-renderer.processMatrixKey" (list $ $objNameTemplate "namespaces" "namespace" $.Values.elCicdDefs $resultKey) }}
+      {{- include "elcicd-renderer.processMatrixKey" 
+                  (list $ $objNameTemplate "namespaces" "namespace" $.Release.Namespace $.Values.elCicdDefs $resultKey) }}
       {{- $allTemplates = concat $allTemplates (get $.Values.__EC_RESULT_DICT $resultKey) }}
       {{- $_ := unset $.Values.__EC_RESULT_DICT $resultKey }}
     {{- end }}
-  {{- end }}
-
-  {{- range $template := $allTemplates }}
-    {{- $_ := set $template "namespace" ($template.namespace | default $.Release.Namespace) }}
   {{- end }}
 
   {{- $_ := set $.Values "allTemplates" $allTemplates }}
@@ -120,8 +116,9 @@
   {{- $template := index . 1 }}
   {{- $matrixKey := index . 2 }}
   {{- $templateKey := index . 3 }}
-  {{- $elCicdDefs := index . 4 }}
-  {{- $resultKey := index . 5 }}
+  {{- $defaultValue := index .4 }}
+  {{- $elCicdDefs := index . 5 }}
+  {{- $resultKey := index . 6 }}
 
   {{- $matrixTemplates := list }}
   {{- $matrix := get $template $matrixKey }}
@@ -143,9 +140,9 @@
       {{- $matrixTemplates = append $matrixTemplates $newTemplate }}
     {{- end }}
   {{- else }}
+    {{- $_ := set $template "templateKey" ((get $template "templateKey") | default $defaultValue) }}
+    
     {{- $matrixTemplates = list $template }}
-
-    {{- $_ := set $objNameTemplate "objName" ($objNameTemplate.objName | default $.Values.elCicdDefaults.objName) }}
   {{- end }}
 
   {{- $_ := set $.Values.__EC_RESULT_DICT $resultKey $matrixTemplates }}
