@@ -116,7 +116,7 @@
   {{- $template := index . 1 }}
   {{- $matrixKey := index . 2 }}
   {{- $templateKey := index . 3 }}
-  {{- $defaultValue := index .4 }}
+  {{- $defaultValue := index . 4 }}
   {{- $elCicdDefs := index . 5 }}
   {{- $resultKey := index . 6 }}
 
@@ -140,7 +140,7 @@
       {{- $matrixTemplates = append $matrixTemplates $newTemplate }}
     {{- end }}
   {{- else }}
-    {{- $_ := set $template "templateKey" ((get $template "templateKey") | default $defaultValue) }}
+    {{- $_ := set $template $templateKey ((get $template $templateKey) | default $defaultValue) }}
     
     {{- $matrixTemplates = list $template }}
   {{- end }}
