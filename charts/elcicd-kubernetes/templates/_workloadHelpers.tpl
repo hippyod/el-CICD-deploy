@@ -232,7 +232,6 @@ spec:
   securityContext: {{ $podValues.securityContext | toYaml | nindent 4 }}
   {{- else }}
   securityContext:
-    fsGroup: 0
     runAsNonRoot: true
     seccompProfile:
       type: RuntimeDefault
