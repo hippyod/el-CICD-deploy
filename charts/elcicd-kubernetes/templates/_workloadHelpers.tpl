@@ -234,6 +234,8 @@ spec:
   securityContext:
     fsGroup: 0
     runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
   {{- end }}
   {{- include "elcicd-common.outputToYaml" (list $ $podValues $whiteList) }}
 {{- end }}
@@ -367,6 +369,12 @@ spec:
       {{- end }}
   {{- if $containerVals.containerSecurityContext }}
   securityContext: {{ $containerVals.containerSecurityContext | toYaml | nindent 4 }}
+  {{- else }}
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+      - ALL
   {{- end }}
   {{- if $containerVals.projectedVolumes }}
     {{- include "elcicd-kubernetes.projectedVolumes" (list $ $podValues $containerVals) }}
