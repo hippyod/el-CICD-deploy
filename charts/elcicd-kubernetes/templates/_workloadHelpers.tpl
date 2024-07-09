@@ -214,10 +214,7 @@ spec:
   {{- $_ := set $podValues "imagePullSecrets" ($podValues.imagePullSecrets | default $.Values.elCicdDefaults.imagePullSecrets) }}
   {{- $_ := set $podValues "imagePullSecret" ($podValues.imagePullSecret | default $.Values.elCicdDefaults.imagePullSecret) }}
   {{- if $podValues.imagePullSecrets }}
-  imagePullSecrets:
-    {{- range $secretName := $podValues.imagePullSecrets }}
-  - name: {{ $secretName }}
-    {{- end }}
+  imagePullSecrets: {{ $podValues.imagePullSecrets | toYaml | nindent 2 }}
   {{- else if $podValues.imagePullSecret }}
   imagePullSecrets:
   - name: {{ $podValues.imagePullSecret }}
