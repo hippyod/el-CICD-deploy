@@ -323,7 +323,7 @@ spec:
       {{- $containerVals.ports | toYaml | nindent 2 }}
     {{- else if or $containerVals.port $.Values.elCicdDefaults.port }}
   - name: default-port
-    containerPort: {{ $containerVals.port | default $.Values.elCicdDefaults.port }}
+    containerPort: {{ $containerVals.containerPort | default $containerVals.targetPort | default $containerVals.port | default $.Values.elCicdDefaults.port }}
     protocol: {{ $containerVals.protocol | default $.Values.elCicdDefaults.protocol }}
     {{- end }}
     {{- if or ($containerVals.prometheus).port (and $containerVals.usePrometheus $.Values.elCicdDefaults.prometheusPort) }}

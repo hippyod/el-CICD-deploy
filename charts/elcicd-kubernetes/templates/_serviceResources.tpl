@@ -185,8 +185,8 @@ spec:
   {{- else }}
   - name: {{ $svcValues.objName }}-port
     port: {{ $svcValues.port | default $.Values.elCicdDefaults.port }}
-    {{- if $svcValues.targetPort }}
-    targetPort: {{ $svcValues.targetPort }}
+    {{- if or $svcValues.targetPort $svcValues.containerPort }}
+    targetPort: {{ $svcValues.targetPort | default $svcValues.containerPort }}
     {{- end }}
     {{- if or $svcValues.protocol $.Values.elCicdDefaults.protocol }}
     protocol: {{ $svcValues.protocol | default $.Values.elCicdDefaults.protocol }}
