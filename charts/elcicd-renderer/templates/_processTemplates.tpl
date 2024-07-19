@@ -126,6 +126,9 @@
     {{- include "elcicd-renderer.processTemplateMatrixValue" (list $ $template $matrixKey) }}
     {{- $matrix := get $template $matrixKey }}
 
+    {{- include "elcicd-renderer.generateTemplateMatrixValues" (list $ $template $matrixKey) }}
+    {{- $matrix := get $template $matrixKey }}
+
     {{- range $index, $matrixValue := $matrix }}
       {{- $baseMatrixValue := $matrixValue }}
 
@@ -171,7 +174,6 @@
 
   {{- $resultKey := uuidv4 }}
   {{- include "elcicd-renderer.processValue" (list $ $generatorVal $.Values.elCicdDefs list $resultKey) }}
-
   {{- $generatorVal := (get $.Values.__EC_RESULT_DICT $resultKey) | default list }}
   {{- if $generatorVal }}
     {{- if not (kindIs "slice" $generatorVal) }}
@@ -181,6 +183,51 @@
   {{- $_ := unset $.Values.__EC_RESULT_DICT $resultKey }}
 
   {{- $_ := set $template $matrixKey $generatorVal }}
+{{- end }}
+
+{{/*
+  ======================================
+  elcicd-renderer.generateTemplateMatrixValues
+  ======================================
+
+  PARAMETERS LIST:
+    $ -> root of chart
+    $template -> template to operate on.
+    $matrixKey -> currently only "namespaces" or "objNames" is supported
+
+  ======================================
+
+  Generates multiple entries if specified.
+*/}}
+{{- define "elcicd-renderer.generateTemplateMatrixValues" }}
+  {{- $ := index . 0 }}
+  {{- $template := index . 1 }}
+  {{- $matrixKey := index . 2 }}
+
+  {{- $matrix := get $template $matrixKey }}
+
+  {{- $fullMatrix := list }}
+  {{- range $index, $matrixValue := $matrix }}
+    {{- if $matrixValue }}
+      {{- if (kindIs "map" $matrixValue) }}
+        {{- $pattern := (get $matrixValue "pattern") }}
+        {{- $matrixValue = unset $matrixValue "pattern" }}
+        {{- $key := (first (keys $matrixValue)) | default "" }}
+        {{ range $index := until (int (get $matrixValue $key | default 0)) }}
+          {{- $newKey := $key }}
+          {{- if $pattern }}
+            {{- $newKey = replace "$<>" $key $pattern }}
+            {{- $newKey = replace "$<#>" (add1 $index | toString) $newKey }}
+          {{- end }}
+          {{- $fullMatrix = append $fullMatrix $newKey }}
+        {{- end }}
+      {{- else }}
+        {{- $fullMatrix = append $fullMatrix $matrixValue }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+
+  {{- $_ := set $template $matrixKey $fullMatrix }}
 {{- end }}
 
 {{/*
