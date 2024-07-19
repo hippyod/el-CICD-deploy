@@ -75,14 +75,13 @@
   {{- $resultKey := index . 2 }}
 
   {{- $modularTemplates := list }}
-  {{- $templateName := $template.templateName | default "" }}
-  {{- if contains "|" $templateName }}
-    {{- range $newTemplateName := regexSplit "[|]" $template.templateName -1 }}
-      {{- $newTemplate := deepCopy $template }}
-      {{- $_ := set $newTemplate "templateName" $newTemplateName }}
-      {{- $modularTemplates = append $modularTemplates $newTemplate }}
-    {{- end }}
-  {{- else }}
+  {{- range $newTemplateName := $template.templateNames }}
+    {{- $newTemplate := deepCopy $template }}
+    {{- $_ := set $newTemplate "templateName" $newTemplateName }}
+    {{- $modularTemplates = append $modularTemplates $newTemplate }}
+  {{- end }}
+  
+  {{- if not $modularTemplates }}
     {{- $modularTemplates = append $modularTemplates $template }}
   {{- end }}
 
