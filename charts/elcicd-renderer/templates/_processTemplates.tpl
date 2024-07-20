@@ -82,7 +82,11 @@
   {{- end }}
   
   {{- if not $modularTemplates }}
-    {{- $modularTemplates = append $modularTemplates $template }}
+    {{- if or (not $template.templateName) (kindIs "string" $template.templateName) }}
+      {{- $modularTemplates = append $modularTemplates $template }}
+    {{- else }}
+      {{- fail (printf "Bad templateName value { %s }: must be empty or string" $template.templateName) }}
+    {{- end }}
   {{- end }}
 
   {{- $_ := set $.Values.__EC_RESULT_DICT $resultKey $modularTemplates }}
