@@ -122,7 +122,7 @@
     {{- $_ := set $projectedVolume "configMaps" (merge ($projectedVolume.configMaps | default dict) (get $.Values.__EC_RESULT_DICT $resultKey)) }}
   {{- end }}
   
-  {{- if or $projectedVolume.secretsByLabel $projectedVolume.labels }}
+  {{- if or $projectedVolume.secretsByLabels $projectedVolume.labels }}
     {{- $resources := concat $resources ((lookup "v1" "Secret" $podValues.namespace "").items | default list) }}
     {{- $resourceLabels := merge ($projectedVolume.secretsByLabel | default dict) ($projectedVolume.labels | default dict) }}
     {{- include  "elcicd-kubernetes.getResourcesByLabel" (list $ $resources $resourceLabels $resultKey) }}
