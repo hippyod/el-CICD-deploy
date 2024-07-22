@@ -4,7 +4,7 @@
   the volumeMount on the default container is defined.
   
   The second, non-standard means of generated projected volumes and volumeMounts only applies to ConfigMaps and/or Secrets.
-  Three helper keys available to the user under the projectedVolumes key are configMapsByLabel, secretsByLabel, and labels (which
+  Three helper keys available to the user under the projectedVolumes key are configMapsByLabels, secretsByLabel, and labels (which
   does not differentiate between Secrets or ConfigMaps), and adds either configMaps and/or secrets to the list of resources of a 
   projected volume after lookup by their labels.  Resource labels are only checked whether a label in list is defined for the resource,
   and does not confirm a value.
@@ -20,7 +20,7 @@
           items: {} # optional, will import all data to files if missing
       <other projected volume types>:
         <other projected volume keys>
-      configMapsByLabel:
+      configMapsByLabels:
       - <labelKey>
       secretMapLabels:
       - <labelKey>
@@ -115,9 +115,9 @@
   
   {{- $resultKey := uuidv4 }}
 
-  {{- if or $projectedVolume.configMapsByLabel $projectedVolume.labels }}
+  {{- if or $projectedVolume.configMapsByLabels $projectedVolume.labels }}
     {{- $resources := ((lookup "v1" "ConfigMap" $podValues.namespace "").items | default list) }}
-    {{- $resourceLabels := merge ($projectedVolume.configMapsByLabel | default dict) ($projectedVolume.labels | default dict) }}
+    {{- $resourceLabels := merge ($projectedVolume.configMapsByLabels | default dict) ($projectedVolume.labels | default dict) }}
     {{- include  "elcicd-kubernetes.getResourcesByLabel" (list $ $resources $resourceLabels $resultKey) }}
     {{- $_ := set $projectedVolume "configMaps" (merge ($projectedVolume.configMaps | default dict) (get $.Values.__EC_RESULT_DICT $resultKey)) }}
   {{- end }}
