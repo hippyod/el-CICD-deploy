@@ -137,13 +137,17 @@
   {{- $resources := index . 1 }}
   {{- $resourceLabels := index . 2 }}
   {{- $resultKey := index . 3 }}
-  
+
   {{- $labelResources := dict }}
-  {{- range $resource := $resources }}
-    {{- if $resource.metadata.labels  }}
-      {{- range $resourceLabel, $resourceVolDef := $resourceLabels }}
+  {{- range $resourceLabel, $resourceVolDef := $resourceLabels }}
+    {{- $value := get $resourceVolDef "value" }}
+    {{- $resourceVolDef = unset $resourceVolDef "value" }}
+    {{- range $resource := $resources }}
+      {{- if $resource.metadata.labels  }}
         {{- if hasKey $resource.metadata.labels $resourceLabel }}
-          {{- $_ := set $labelResources $resource.metadata.name (deepCopy $resourceVolDef) }}
+          {{- if or (not $value) (eq $value (get $resource.metadata.labels $resourceLabel)) }}
+            {{- $_ := set $labelResources $resource.metadata.name (deepCopy $resourceVolDef) }}
+          {{- end }}
         {{- end }}
       {{- end }}
     {{- end }}
