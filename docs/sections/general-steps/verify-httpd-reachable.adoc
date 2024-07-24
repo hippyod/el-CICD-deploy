@@ -1,0 +1,17 @@
+Get the value of the host from the Ingress, and verify the Apache Web Server is reachable:
++
+```
+$ kubectl get ingress -n elcicd-chart-demo --no-headers -o custom-columns=:.spec.rules[*].host
+```
++
+Output::
++
+```
+httpd-elcicd-chart-demo.apps-crc.testing
+```
++
+Open your browser and go to https://httpd-elcicd-chart-demo.apps-crc.testing.
++
+NOTE: If not using CRC, you'll definitely need to run the `kubectl get` command above.
++
+image::sections/general-steps/images/{result-image}[]

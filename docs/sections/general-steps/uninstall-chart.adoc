@@ -1,0 +1,11 @@
+Uninstall the chart.
++
+```
+$ helm uninstall -n elcicd-chart-demo elcicd-chart-demo
+```
++
+Output::
++
+```
+release "elcicd-chart-demo" uninstalled
+```

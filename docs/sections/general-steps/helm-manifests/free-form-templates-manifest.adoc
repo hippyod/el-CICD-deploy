@@ -1,0 +1,267 @@
+---
+# Source: elcicd-chart/templates/render.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/instance: elcicd-chart-demo
+    app.kubernetes.io/managed-by: Helm
+    elcicd.io/selector: server-1
+    helm.sh/chart: elcicd-chart-0.1.0
+  name: server-1
+  namespace: elcicd-chart-demo
+data:
+  index.html: |-
+    <!DOCTYPE html>
+    <html>
+      <body>
+        <h1><h1>Howdy from server-1 in release elcicd-chart-demo!<h1></h1>
+      </body>
+    </html>
+# Rendered el-CICD Chart Template -> "configMap" server-1
+---
+# Source: elcicd-chart/templates/render.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/instance: elcicd-chart-demo
+    app.kubernetes.io/managed-by: Helm
+    elcicd.io/selector: server-2
+    helm.sh/chart: elcicd-chart-0.1.0
+  name: server-2
+  namespace: elcicd-chart-demo
+data:
+  index.html: |-
+    <!DOCTYPE html>
+    <html>
+      <body>
+        <h1><h1>Howdy from server-2 in release elcicd-chart-demo!<h1></h1>
+      </body>
+    </html>
+# Rendered el-CICD Chart Template -> "configMap" server-2
+---
+# Source: elcicd-chart/templates/render.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: elcicd-chart-demo
+    app.kubernetes.io/managed-by: Helm
+    elcicd.io/selector: server-1
+    helm.sh/chart: elcicd-chart-0.1.0
+  name: server-1
+  namespace: elcicd-chart-demo
+spec:
+  selector:
+    elcicd.io/selector: server-1
+  ports:
+  - name: server-1-port
+    port: 8080
+    protocol: TCP
+# Rendered el-CICD Chart Template -> "service" server-1
+---
+# Source: elcicd-chart/templates/render.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: elcicd-chart-demo
+    app.kubernetes.io/managed-by: Helm
+    elcicd.io/selector: server-2
+    helm.sh/chart: elcicd-chart-0.1.0
+  name: server-2
+  namespace: elcicd-chart-demo
+spec:
+  selector:
+    elcicd.io/selector: server-2
+  ports:
+  - name: server-2-port
+    port: 8080
+    protocol: TCP
+# Rendered el-CICD Chart Template -> "service" server-2
+---
+# Source: elcicd-chart/templates/render.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/instance: elcicd-chart-demo
+    app.kubernetes.io/managed-by: Helm
+    elcicd.io/selector: server-1
+    helm.sh/chart: elcicd-chart-0.1.0
+  name: server-1
+  namespace: elcicd-chart-demo
+spec:
+  revisionHistoryLimit: 0  
+  selector:
+    matchExpressions:
+    - key: elcicd.io/selector
+      operator: Exists
+    matchLabels:
+      elcicd.io/selector: server-1
+  template:     
+    metadata:
+      labels:
+        app.kubernetes.io/instance: elcicd-chart-demo
+        app.kubernetes.io/managed-by: Helm
+        elcicd.io/selector: server-1
+        helm.sh/chart: elcicd-chart-0.1.0
+      name: server-1
+      namespace: elcicd-chart-demo
+    spec:
+      containers:
+      - name: server-1
+        image: registry.redhat.io/rhel8/httpd-24
+        imagePullPolicy: Always
+        ports:
+        - name: default-port
+          containerPort: 8080
+          protocol: TCP
+        resources:
+          limits: {}
+          requests: {}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - mountPath: /var/www/html/
+          name: elcicd-chart-demo
+          readOnly: false
+      imagePullSecrets: []
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+      - name: elcicd-chart-demo
+        projected:
+          sources:
+          - configMap:
+              name: server-1
+# Rendered el-CICD Chart Template -> "deployment" server-1
+---
+# Source: elcicd-chart/templates/render.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/instance: elcicd-chart-demo
+    app.kubernetes.io/managed-by: Helm
+    elcicd.io/selector: server-2
+    helm.sh/chart: elcicd-chart-0.1.0
+  name: server-2
+  namespace: elcicd-chart-demo
+spec:
+  revisionHistoryLimit: 0  
+  selector:
+    matchExpressions:
+    - key: elcicd.io/selector
+      operator: Exists
+    matchLabels:
+      elcicd.io/selector: server-2
+  template:     
+    metadata:
+      labels:
+        app.kubernetes.io/instance: elcicd-chart-demo
+        app.kubernetes.io/managed-by: Helm
+        elcicd.io/selector: server-2
+        helm.sh/chart: elcicd-chart-0.1.0
+      name: server-2
+      namespace: elcicd-chart-demo
+    spec:
+      containers:
+      - name: server-2
+        image: registry.redhat.io/rhel8/httpd-24
+        imagePullPolicy: Always
+        ports:
+        - name: default-port
+          containerPort: 8080
+          protocol: TCP
+        resources:
+          limits: {}
+          requests: {}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - mountPath: /var/www/html/
+          name: elcicd-chart-demo
+          readOnly: false
+      imagePullSecrets: []
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+      - name: elcicd-chart-demo
+        projected:
+          sources:
+          - configMap:
+              name: server-2
+# Rendered el-CICD Chart Template -> "deployment" server-2
+---
+# Source: elcicd-chart/templates/render.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.allow-http: "false"
+  labels:
+    app.kubernetes.io/instance: elcicd-chart-demo
+    app.kubernetes.io/managed-by: Helm
+    elcicd.io/selector: server-1
+    helm.sh/chart: elcicd-chart-0.1.0
+  name: server-1
+  namespace: elcicd-chart-demo
+spec:
+  rules:
+  - host: httpd-elcicd-chart-demo-server-1.apps-crc.testing
+    http:
+      paths:
+      - backend:
+          service:
+            name: server-1
+            port:
+              number: 8080
+        path: /
+        pathType: Prefix
+  tls:
+  - {}
+# Rendered YAML Template -> kind: "Ingress" name: "server-1"
+---
+# Source: elcicd-chart/templates/render.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.allow-http: "false"
+  labels:
+    app.kubernetes.io/instance: elcicd-chart-demo
+    app.kubernetes.io/managed-by: Helm
+    elcicd.io/selector: server-2
+    helm.sh/chart: elcicd-chart-0.1.0
+  name: server-2
+  namespace: elcicd-chart-demo
+spec:
+  rules:
+  - host: httpd-elcicd-chart-demo-server-2.apps-crc.testing
+    http:
+      paths:
+      - backend:
+          service:
+            name: server-2
+            port:
+              number: 8080
+        path: /
+        pathType: Prefix
+  tls:
+  - {}
+# Rendered YAML Template -> kind: "Ingress" name: "server-2"
+---
+# Source: elcicd-chart/templates/render.yaml
+# Profiles: []

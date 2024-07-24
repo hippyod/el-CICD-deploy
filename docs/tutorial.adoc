@@ -1,0 +1,58 @@
+= el-CICD Chart Tutorial
+:source-highlighter: rouge
+:sectnums:
+:toc:
+
+Prerequisites::
+
+It is assumed the reader has at least a basic understanding of the following topics and technologies:
+
+* YAML
+* Docker/OCI images and containers
+* Application deployments in Kubernetes
+
+No prior knowledge of Helm is required.
+
+Software and tools required::
+
+* https://kubernetes.io/docs/tasks/tools/[`kubectl`] or other Kubernetes compatible client (e.g. https://docs.okd.io/latest/cli_reference/openshift_cli/getting-started-cli.html[`oc`]) installed locally
+* https://helm.sh/docs/intro/install/[Helm] installed locally
+* Access to a Kubernetes compatible cluster
+
+This tutorial was written and tested on https://github.com/crc-org/crc[CRC], a local OKD/OpenShift cluster provided by Red Hat for developer testing, and thus all URL's in the tutorial will use the wildcard domain `*.app-crc.testing`.  Other desktop options for development testing of Kubernetes clusters like https://github.com/kubernetes/minikube[minikube] or https://kind.sigs.k8s.io/[kind] will work equally well.  Any Kubernetes compatible cluster will suffice for running the tutorial, as long as internet access is available to pull el-CICD Chart and the test image.  You will need to adjust your endpoint URL's to your own cluster's wildcard if not using CRC.
+
+The tutorial will focus on deploying the https://httpd.apache.org/[Apache Web Server] using https://catalog.redhat.com/software/containers/ubi8/httpd-24/6065b844aee24f523c207943[Red Hat's official image] and will not deploy Secrets, so that whether you are deploying on vanilla Kubernetes or a more security conscious cluster like OpenShift this tutorial will run smoothly with only basic developer permissions required.
+
+include::sections/overview.adoc[]
+
+== Tutorial
+
+This tutorial will demonstrate how the el-CICD Chart can make defining and templating Kubernetes deployment definitions much easier and more readable, as well as directly supporting configuration management.
+
+IMPORTANT: All commands used below will refer to `kubectl`, but if on OpenShift `oc` will work just as well.
+
+include::sections/helm-repo-add-update.adoc[]
+
+include::sections/elcicd-chart-templates.adoc[]
+
+include::sections/compound-elcicd-chart-templates.adoc[]
+
+include::sections/user-defined-variables.adoc[]
+
+include::sections/deployment-profiles.adoc[]
+
+include::sections/free-form-templates.adoc[]
+
+=== Remove the el-CICD Chart repo
+
+```
+$ helm repo remove elcicd-charts
+```
+
+Output::
+
+```
+"elcicd-charts" has been removed from your repositories
+```
+
+This concludes the el-CICD Chart tutorial.

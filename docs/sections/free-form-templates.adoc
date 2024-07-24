@@ -1,0 +1,91 @@
+=== Free Form Templates
+:helm-update-command: helm upgrade --install --atomic --history-max=0 -n elcicd-chart-demo --create-namespace -f elcicd-demo-5.yaml elcicd-chart-demo elcicd-charts/elcicd-chart
+:result-image: free-form-templates-screenshot.png
+:helm-manifest-file: free-form-templates-manifest
+:kubectl-get-file: free-form-templates-kubectl-get
+
+So far this tutorial has focused on the easy deployments for applications using built-in helper el-CICD Chart templates.  Unfortunately, Kubernetes has many dozens of resources, and it is infinitely extensible with https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/#custom-resources[Custom Resource Definitions], so creating helper templates for every resource for every possible Kubernetes resource that can be deployed is not really feasible.
+
+To address this, el-CICD Chart templates allow for the complete definition of resources.  Rather than using a named helper template with `templateName(s)`, instead the full YAML of the resource is written under the `template` key.  While more verbose than their helper template counterparts, they still allow for the use of el-CICD Chart variables, deployment profiles, and matrices, and they are still simpler to define than their Helm template counterparts.
+
+For this part of the tutorial, we will mix raw templates with helper templates using the same chart definition we deployed in first part of the tutorial.  In order to further demonstrate how free form templates integrate easily into the larger el-CICD Chart, we'll deploy two httpd servers.
+
+. Open your favorite file editor, enter the following YAML, and save it as `elcicd-demo-5.yaml`:
++
+```
+elCicdDefs:
+  HOST: httpd-$<HELM_RELEASE_NAMESPACE>-$<OBJ_NAME>.apps-crc.testing
+  OBJ_NAMES:
+  - server: 2
+    pattern: $<>-$<#>
+  INDEX_HTML_NAME: index.html
+  PAGE_CONTENT: <h1>Howdy from $<OBJ_NAME> in release $<HELM_RELEASE_NAME>!<h1>
+  HTML_PAGE: |-
+    <!DOCTYPE html>
+    <html>
+      <body>
+        <h1>$<PAGE_CONTENT></h1>
+      </body>
+    </html>
+
+elCicdTemplates:
+- templateName: deployment
+  objNames: $<OBJ_NAMES>
+  image: registry.redhat.io/rhel8/httpd-24
+  projectedVolumes:
+  - name: $<HELM_RELEASE_NAME>
+    mountPath: /var/www/html/
+    configMaps:
+      $<OBJ_NAME>: {}
+
+- templateName: service
+  objNames: $<OBJ_NAMES>
+
+- templateName: configMap
+  objNames: $<OBJ_NAMES>
+  data:
+    $<INDEX_HTML_NAME>: $<HTML_PAGE>
+
+- objNames: $<OBJ_NAMES>
+  template:
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      annotations:
+        kubernetes.io/ingress.allow-http: "false"
+    spec:
+      rules:
+      - host: $<HOST>
+        http:
+          paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: $<OBJ_NAME>
+                port:
+                  number: 8080
+      tls:
+      - secretName:
+```
+
+. {empty}
+include::general-steps/upgrade-install-chart.adoc[]
+
+. {empty}
+include::general-steps/view-chart-manifests.adoc[]
+
+. {empty}
+include::general-steps/view-running-resources.adoc[]
+
+. Verify each Apache Web Server is reachable:
++
+Open your browser and go to https://httpd-elcicd-chart-demo-server-1.apps-crc.testing/, and then the second server, https://httpd-elcicd-chart-demo-server-2.apps-crc.testing/.
++
+NOTE: If not using CRC, you'll find the URL you'll need to point your browser at in the Ingress HOSTS field output
+      from the `kubectl get` command.
++
+image::sections/general-steps/images/{result-image}[]
+. {empty}
+include::general-steps/uninstall-chart.adoc[]
+

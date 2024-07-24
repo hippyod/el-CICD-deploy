@@ -1,0 +1,104 @@
+=== Deployment Profiles
+In <<User-defined Variables>>, we demonstrated how to define and reference your own variables. In this part of the tutorial you'll learn about deployment profiles, and how they can be used to redefine variables and determine what is ultimately rendered.
+
+. Open your favorite file editor, enter the following YAML, and save it as `elcicd-demo-4.yaml`:
++
+```
+elCicdDefs:
+  INDEX_HTML_NAME: index.html
+  DEFAULT_PAGE_CONTENT: <h1>Howdy from $<OBJ_NAME> in release $<HELM_RELEASE_NAME>!<h1>
+  PAGE_CONTENT: $<DEFAULT_PAGE_CONTENT>
+  HTML_PAGE: |-
+    <!DOCTYPE html>
+    <html>
+      <body>
+        $<PAGE_CONTENT>
+      </body>
+    </html>
+  HTML_PAGE_LABEL:
+    html-page
+
+elCicdDefs-multi-lingual:
+  PAGE_CONTENT:  |-
+    <h1>
+      <a href="$<ENGLISH>"> English </a><br/>
+      <a href="$<ESPANOL>"> Español  </a>
+    </h1>
+  ENGLISH: english.html
+  ESPANOL: espanol.html
+
+elCicdTemplates:
+- templateNames:
+  - deployment
+  - service
+  - ingress
+  mustHaveAnyProfile:
+  - server
+  image: registry.redhat.io/rhel8/httpd-24
+  host: httpd-$<NAME_SPACE>.apps-crc.testing
+  projectedVolumes:
+  - name: $<HELM_RELEASE_NAME>
+    mountPath: /var/www/html/
+    configMapsByLabels:
+      $<HTML_PAGE_LABEL>: {}
+
+- templateName: configMap
+  objNames:
+  - $<INDEX_HTML_NAME>
+  - $<ENGLISH>
+  - $<ESPANOL>
+  mustHaveAnyProfile:
+  - data
+  labels:
+    $<HTML_PAGE_LABEL>: "value-does-not-matter"
+  elCicdDefs-$<ENGLISH>:
+    PAGE_CONTENT:  $<DEFAULT_PAGE_CONTENT>
+  elCicdDefs-$<ESPANOL>:
+    PAGE_CONTENT: <h1>¡Hola desde $<OBJ_NAME> en el lanzamiento $<HELM_RELEASE_NAME>!<h1>
+  data:
+    $<OBJ_NAME>: $<HTML_PAGE>
+```
+
+==== Install the chart
+
+:helm-update-command: helm upgrade --install --atomic --history-max=0 -n elcicd-chart-demo --create-namespace -f elcicd-demo-4.yaml elcicd-chart-demo-data elcicd-charts/elcicd-chart
+:result-image: deployment-profiles-default-screenshot.png
+:helm-manifest-file: deployment-profiles-default-manifest
+:kubectl-get-file: deployment-profiles-default-kubectl-get
+
+. {empty}
+include::general-steps/upgrade-install-chart.adoc[]
+
+. {empty}
+include::general-steps/view-chart-manifests.adoc[]
+
+. {empty}
+include::general-steps/view-running-resources.adoc[]
+
+. {empty}
+include::general-steps/verify-httpd-reachable.adoc[]
+
+. {empty}
+include::general-steps/uninstall-chart.adoc[]
+
+==== Install the httpd server with the `multi-lingual` deployment profile
+
+:helm-update-command: helm upgrade --install --atomic --history-max=0 -n elcicd-chart-demo --create-namespace --set elCicdProfiles='{multi-lingual}' -f elcicd-demo-4.yaml elcicd-chart-demo elcicd-charts/elcicd-chart
+:result-image: deployment-profiles-multi-lingual-screenshot.png
+:helm-manifest-file: deployment-profiles-multi-lingual-manifest
+:kubectl-get-file: deployment-profiles-multi-lingual-kubectl-get
+
+. {empty}
+include::general-steps/upgrade-install-chart.adoc[]
+
+. {empty}
+include::general-steps/view-chart-manifests.adoc[]
+
+. {empty}
+include::general-steps/view-running-resources.adoc[]
+
+. {empty}
+include::general-steps/verify-httpd-reachable.adoc[]
+
+. {empty}
+include::general-steps/uninstall-chart.adoc[]
