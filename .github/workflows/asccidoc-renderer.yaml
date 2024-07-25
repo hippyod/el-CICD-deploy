@@ -6,6 +6,7 @@ on:
     - main
     paths:
     - 'docs/tutorial/**'
+
   pull_request_target:
     branches:
     - main
@@ -13,6 +14,8 @@ on:
     - 'docs/tutorial/**'
     types:
       - closed
+
+  workflow_dispatch:
 
 jobs:
   render_asciidoc:
