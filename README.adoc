@@ -9,7 +9,7 @@ While el-CICD Chart has been used extensively within the larger el-CICD project 
 
 == Reference Documentation
 
-link:https://htmlpreview.github.io/?https://github.com/elcicd/el-CICD-deploy/blob/main/docs/tutorial.html[el-CICD Chart Tutorial]::
+link:https://htmlpreview.github.io/?https://github.com/elcicd/el-CICD-deploy/blob/main/tutorial.html[el-CICD Chart Tutorial]::
 
 el-CICD Chart User Guide [**Coming Soon**]::
 
