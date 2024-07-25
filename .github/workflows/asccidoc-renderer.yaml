@@ -27,9 +27,12 @@ jobs:
         with:
           program: "asciidoctor -D . -w -t docs/tutorial/tutorial.adoc"
 
-      - name: Upload HTML Artifact
-        uses: actions/upload-artifact@v1
-        with:
-          name: HTML document
-          path: tutorial.html
-          if-no-files-found: error
+      - name: Add and commit
+        run: |
+          git add ./tutorial.html
+
+          git config --global user.email "elcicd@donotreply.org"
+          git config --global user.name "elcicd"
+
+          git commit -m "Rebuilt tutorial.html"
+          git push

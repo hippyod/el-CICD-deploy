@@ -33,8 +33,10 @@ jobs:
     steps:
     - name: Helm Installation
       uses: azure/setup-helm@v3
+
     - name: Git Checkout
       uses: actions/checkout@v2
+
     - name: Update Helm Index
       run: |
         set -ex
