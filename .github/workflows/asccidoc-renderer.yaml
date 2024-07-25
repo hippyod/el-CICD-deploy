@@ -1,0 +1,35 @@
+name:  asciidoc-tutorial-renderer
+
+on:
+  push:
+    branches:
+    - main
+    paths:
+    - 'docs/tutorial/**'
+  pull_request_target:
+    branches:
+    - main
+    paths:
+    - 'docs/tutorial/**'
+    types:
+      - closed
+
+jobs:
+  render_asciidoc:
+    runs-on: ubuntu-latest
+    name: Render Asciidoc
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build HTML
+        uses: tonynv/asciidoctor-action@master
+        with:
+          program: "asciidoctor -D . -w -t docs/tutorial/tutorial.adoc"
+
+      - name: Upload HTML Artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: HTML document
+          path: tutorial.html
+          if-no-files-found: error
