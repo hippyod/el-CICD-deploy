@@ -288,7 +288,6 @@
   {{- $ := index . 0 }}
   {{- $templates := index . 1 }}
 
-  {{- include "elcicd-renderer.preProcessElCicdDefsMapNames" (list $ $.Values $.Values.elCicdDefs) }}
   {{- range $template := $templates }}
     {{- $tplElCicdDefs := dict }}
     {{- include "elcicd-renderer.deepCopyDict" (list $.Values.elCicdDefs $tplElCicdDefs) }}

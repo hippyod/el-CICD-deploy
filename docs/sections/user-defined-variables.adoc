@@ -20,13 +20,6 @@ Both <<el-CICD Chart Templates>> and <<Compound el-CICD Chart Templates>> made u
 elCicdDefs:
   INDEX_HTML_NAME: index.html
   PAGE_CONTENT: <h1>Howdy from $<OBJ_NAME> in release $<HELM_RELEASE_NAME>!<h1>
-  HTML_PAGE: |-
-    <!DOCTYPE html>
-    <html>
-      <body>
-        <h1>$<PAGE_CONTENT></h1>
-      </body>
-    </html>
 
 elCicdTemplates:
 - templateNames: [deployment, service, ingress]
@@ -41,10 +34,10 @@ elCicdTemplates:
 - templateName: configMap
   objName: $<INDEX_HTML_NAME>
   data:
-    $<OBJ_NAME>: $<HTML_PAGE>
+    $<OBJ_NAME>: <!DOCTYPE html><html><body>$<PAGE_CONTENT></body></html>
 ----
 
-.. All el-CICD Chart variables are defined under a map called `elCicdDefs`.
+.. All el-CICD Chart variables are defined under maps starting with `elCicdDefs`.
 ... Keys in the `elCicdDefs` map are the names of the variables.
 ... By convention and similar to shell scripting, variable names are ALL CAPS snake case.
 ... Defining variables and their can be any valid YAML.

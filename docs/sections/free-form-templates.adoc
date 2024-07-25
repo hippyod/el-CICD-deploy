@@ -10,9 +10,10 @@ To address this, el-CICD Chart templates allow for the complete definition of re
 
 For this part of the tutorial, we will mix raw templates with helper templates using the same chart definition we deployed in first part of the tutorial.  In order to further demonstrate how free form templates integrate easily into the larger el-CICD Chart, we'll deploy two httpd servers.
 
-. Open your favorite file editor, enter the following YAML, and save it as `elcicd-demo-5.yaml`:
+. Create and save the following file and name it `elcicd-demo-4.yaml`:
 +
-```
+[source,YAML,linenums]
+----
 elCicdDefs:
   HOST: httpd-$<HELM_RELEASE_NAMESPACE>-$<OBJ_NAME>.apps-crc.testing
   OBJ_NAMES:
@@ -29,7 +30,7 @@ elCicdDefs:
     </html>
 
 elCicdTemplates:
-- templateName: deployment
+- templateName: [deployment,service]
   objNames: $<OBJ_NAMES>
   image: registry.redhat.io/rhel8/httpd-24
   projectedVolumes:
@@ -37,9 +38,6 @@ elCicdTemplates:
     mountPath: /var/www/html/
     configMaps:
       $<OBJ_NAME>: {}
-
-- templateName: service
-  objNames: $<OBJ_NAMES>
 
 - templateName: configMap
   objNames: $<OBJ_NAMES>
@@ -67,7 +65,7 @@ elCicdTemplates:
                   number: 8080
       tls:
       - secretName:
-```
+----
 
 . {empty}
 include::general-steps/upgrade-install-chart.adoc[]

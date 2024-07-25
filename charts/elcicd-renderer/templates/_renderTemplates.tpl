@@ -150,6 +150,7 @@
 
   {{- include "elcicd-renderer.initElCicdRenderer" . }}
 
+  {{- include "elcicd-renderer.preProcessElCicdDefsMapNames" (list $ $.Values $.Values.elCicdDefs) }}
   {{- include "elcicd-renderer.mergeElCicdDefs" (list $ $.Values $.Values.elCicdDefs "" "") }}
 
   {{- $_ := set $.Values.elCicdDefs "HELM_RELEASE_NAME" $.Release.Name }}

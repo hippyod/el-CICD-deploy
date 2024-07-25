@@ -1,67 +1,108 @@
 === Deployment Profiles
-In <<User-defined Variables>>, we demonstrated how to define and reference your own variables. In this part of the tutorial you'll learn about deployment profiles, and how they can be used to redefine variables and determine what is ultimately rendered.
+In <<User-defined Variables>>, we demonstrated how to define and reference your own variables. In this part of the tutorial you'll learn about deployment profiles, and how they can be used to add, remove, or redefine variables, as well determine which el-CICD Chart templates are rendered.
 
-. Open your favorite file editor, enter the following YAML, and save it as `elcicd-demo-4.yaml`:
-+
-```
+While the previous parts of the tutorial have focused on el-CICD Chart's strengths with regards to templating, readability, and conciseness, it's the deployment profiles that truly give el-CICD Chart its power.  This ability makes it easy for users to quickly and easily define deployments across numerous environments.  Use cases include supporting deployments to different:
+
+* https://en.wikipedia.org/wiki/Software_development_process[SDLC] environments; e.g.:
+** Development
+** Test
+** Production
+* Different locales, for language and/or regulatory support; e.g.:
+** United States versus European Union with different banking and privacy regulations
+** Canadian companies are required to support French and English configurations
+
+Any collection of similar deployments can be grouped into a single deployment, re-user the shared configuration, and separate the differences with deployment profiles.
+
+The following example demonstrates deploying a default English version of an application versus a multi-lingual deployment.
+
+====
+.Features demonstrated
+* Defining and deploying with arbitrary el-CICD Chart deployment profiles.
+* Generating mutliple copies of templates with the `objName` matrix.
+* Overriding el-CICD Chart variables with deployment profiles and template variable maps.
+====
+
+==== Create the deployment definition with two deployment profiles
+
+Create and save the following file and name it `elcicd-demo-4.yaml`:
+
+[source,YAML,linenums]
+----
 elCicdDefs:
+  MULTI_LINGUAL_PROFILE: multi-lingual
   INDEX_HTML_NAME: index.html
   DEFAULT_PAGE_CONTENT: <h1>Howdy from $<OBJ_NAME> in release $<HELM_RELEASE_NAME>!<h1>
   PAGE_CONTENT: $<DEFAULT_PAGE_CONTENT>
-  HTML_PAGE: |-
-    <!DOCTYPE html>
-    <html>
-      <body>
-        $<PAGE_CONTENT>
-      </body>
-    </html>
-  HTML_PAGE_LABEL:
-    html-page
+  HTML_PAGE: <!DOCTYPE html><html><body>$<PAGE_CONTENT></body></html>
 
-elCicdDefs-multi-lingual:
-  PAGE_CONTENT:  |-
-    <h1>
-      <a href="$<ENGLISH>"> English </a><br/>
-      <a href="$<ESPANOL>"> Español  </a>
-    </h1>
+elCicdDefs-$<MULTI_LINGUAL_PROFILE>:
+  PAGE_CONTENT: <h1><a href="$<ENGLISH>">English</a>&nbsp;<a href="$<ESPANOL>">Español</a></h1>
   ENGLISH: english.html
   ESPANOL: espanol.html
 
 elCicdTemplates:
-- templateNames:
-  - deployment
-  - service
-  - ingress
-  mustHaveAnyProfile:
-  - server
+- templateNames: [deployment, service, ingress]
   image: registry.redhat.io/rhel8/httpd-24
   host: httpd-$<NAME_SPACE>.apps-crc.testing
   projectedVolumes:
   - name: $<HELM_RELEASE_NAME>
     mountPath: /var/www/html/
-    configMapsByLabels:
-      $<HTML_PAGE_LABEL>: {}
+    configMaps:
+      $<INDEX_HTML_NAME>: {}
+      $<ENGLISH>: {}
+      $<ESPANOL>: {}
+
+- templateName: configMap
+  objName: $<INDEX_HTML_NAME>
+  data:
+    $<OBJ_NAME>: $<HTML_PAGE>
 
 - templateName: configMap
   objNames:
-  - $<INDEX_HTML_NAME>
   - $<ENGLISH>
   - $<ESPANOL>
   mustHaveAnyProfile:
-  - data
-  labels:
-    $<HTML_PAGE_LABEL>: "value-does-not-matter"
+  - $<MULTI_LINGUAL_PROFILE>
   elCicdDefs-$<ENGLISH>:
     PAGE_CONTENT:  $<DEFAULT_PAGE_CONTENT>
   elCicdDefs-$<ESPANOL>:
     PAGE_CONTENT: <h1>¡Hola desde $<OBJ_NAME> en el lanzamiento $<HELM_RELEASE_NAME>!<h1>
   data:
     $<OBJ_NAME>: $<HTML_PAGE>
-```
+----
 
-==== Install the chart
+. `objNames` is one of two el-CICD Chart matrices that can be defined on an el-CICD Chart template.
+.. Each is a list that will create a copy of the template for each element in either list.
+.. The configMap template actually defines two configMap templates, `$<ENGLISH>` (`english.html) and `$<ESPANOL>` (`espanol.html`).
+.. Each new template will be named after the element in the list that created it; i.e. `objName` will be set to the element for each copy.
+. Deployment profiles are declared as part of an el-CICD Chart template and/or `elCicdDefs` definition.
+..  `elCicdDefs-$<MULTI_LINGUAL_PROFILE>` declares the `$<MULTI_LINGUAL_PROFILE>` (`multi-lingual`) profile.
++
+Variables defined under this map will only be realized when the `multi-lingual` profile is active.
+.. `mustHaveAnyProfile` similarly declares the `$<MULTI_LINGUAL_PROFILE>`.
++
+The `$<ENGLISH>` (`english.html`) and `$<ESPANOL>` (`espanol.html`) configMap templates will only be processed when the `multi-lingual` profile is active..
+. el-Cicd Chart variables are overridden based on more specific `elCicdDefs` maps.
+.. Variable maps declared for specific profiles or objNames using variables may only use variable defined in the top-level, basic `elCicdDefs` map.
++
+Variable values defined within a specific el-CICD Chart template will be ignored in this case.
+.. `elCicdDefs` maps can be declared for specific profiles or `objNames`.
+.. Order of precedence for variable value assignment, from least to greatest.
++
+NOTE: This list is not comprehensive.
++
+... `elCicdDefs`
+... `elCicdDefs-<__profile-name__>`: variables defined when deployment profile __profile-name__ is active.
+... `elCicdDefs-<__objName__>`: variables defined for el-CICD Chart templates with a matching an `objName` of __objName__.
+.. Variable maps may be defined within a specific el-CICD Template.
++
+Maps defined within an el-CICD Chart Template will take precedence over all their top-level counterparts.
 
-:helm-update-command: helm upgrade --install --atomic --history-max=0 -n elcicd-chart-demo --create-namespace -f elcicd-demo-4.yaml elcicd-chart-demo-data elcicd-charts/elcicd-chart
+==== Deploy the httpd server without an active deployment profile
+
+These steps will have results that look identical to the <<User-defined Variables>> demonstration in every way, because there is no active profile.
+
+:helm-update-command: helm upgrade --install --atomic --history-max=0 -n elcicd-chart-demo --create-namespace -f elcicd-demo-4.yaml elcicd-chart-demo elcicd-charts/elcicd-chart
 :result-image: deployment-profiles-default-screenshot.png
 :helm-manifest-file: deployment-profiles-default-manifest
 :kubectl-get-file: deployment-profiles-default-kubectl-get
@@ -82,6 +123,8 @@ include::general-steps/verify-httpd-reachable.adoc[]
 include::general-steps/uninstall-chart.adoc[]
 
 ==== Install the httpd server with the `multi-lingual` deployment profile
+
+el-CICD Chart deployment profiles are defined in `elCicdProfiles` as a list.  It only makes sense to define the active profile list outside of the deployment definition and at deployment time, or that would defeat their purpose.  The `helm update --install` command is modified to apply deployment profile `--set elCicdProfiles='{multi-lingual}'` clause.
 
 :helm-update-command: helm upgrade --install --atomic --history-max=0 -n elcicd-chart-demo --create-namespace --set elCicdProfiles='{multi-lingual}' -f elcicd-demo-4.yaml elcicd-chart-demo elcicd-charts/elcicd-chart
 :result-image: deployment-profiles-multi-lingual-screenshot.png

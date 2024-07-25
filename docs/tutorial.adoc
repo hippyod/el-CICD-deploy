@@ -1,6 +1,7 @@
 = el-CICD Chart Tutorial
 :source-highlighter: rouge
 :sectnums:
+:sectnumlevels: 4
 :toc:
 
 Prerequisites::
