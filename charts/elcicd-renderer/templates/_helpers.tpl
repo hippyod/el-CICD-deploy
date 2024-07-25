@@ -168,7 +168,7 @@
   {{- $skippedList := list }}
   {{- $resultKey := uuidv4 }}
   {{- range $template := $templates }}
-    {{- define "elcicd-renderer.processFilteringLists" (list . $template $resultKey) }}
+    {{- include "elcicd-renderer.processFilteringLists" (list . $template $resultKey) }}
 
     {{- $hasMatchingProfile := not $template.mustHaveAnyProfile }}
     {{- range $profile := $template.mustHaveAnyProfile }}
