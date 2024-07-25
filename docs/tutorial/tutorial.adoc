@@ -42,8 +42,6 @@ include::sections/user-defined-variables.adoc[]
 
 include::sections/deployment-profiles.adoc[]
 
-include::sections/free-form-templates.adoc[]
-
 === Remove the el-CICD Chart repo
 
 ```

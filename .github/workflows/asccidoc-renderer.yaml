@@ -28,11 +28,11 @@ jobs:
       - name: Build HTML
         uses: tonynv/asciidoctor-action@master
         with:
-          program: "asciidoctor -D . -w -t docs/tutorial/tutorial.adoc"
+          program: "asciidoctor -D ./docs -w -t docs/tutorial/tutorial.adoc"
 
       - name: Add and commit
         run: |
-          git add ./tutorial.html
+          git add ./docs/tutorial.html
 
           git config --global user.email "elcicd@donotreply.org"
           git config --global user.name "elcicd"

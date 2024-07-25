@@ -1,88 +1,33 @@
 = el-CICD Chart
-:toc:
+
+.Status
+****
+While el-CICD Chart has been used extensively within the larger el-CICD project for two years, **we still consider this an alpha product**.  This sub-project is currently being tested, documented, and packaged for wider release, and we are targeting fall of 2024, at which time we will promote it to being feature complete and a beta release.
+
+**Feedback is needed and would be appreciated.  Please work through the tutorial (nothing but Helm and a Kubernetes cluster required) and let us know what you think.**
+****
+
+== Reference Documentation
+
+link:https://htmlpreview.github.io/?https://github.com/elcicd/el-CICD-deploy/blob/main/tutorial.html[el-CICD Chart Tutorial]::
+
+el-CICD Chart User Guide [**Coming Soon**]::
+
+{empty}
 
 == Overview
 
-Helm is an excellent packaging and deployment tool, which makes sense given that that is the tool's focus.  What it is not as good at is its templating and configuration management capabilities.  Helm also expects the end users to have a significant understanding of Kubernetes, which for many can be a steep barrier of entry, especially for those whose role didn't traditionally involve deployments.  el-CICD Charts was created to overcome these difficulties by simplifying template creation, putting the focus squarely on configuration management, and making deployments to Kubernetes more accessible.
+Helm is an excellent packaging and deployment tool, which makes sense given that that is the tool's focus.  What it is not as good at is its templating and configuration management capabilities.  Helm also expects the end users to have a significant understanding of Kubernetes, which for many can be a steep barrier of entry, especially for those whose role didn't traditionally involve deployments.
 
-==== Goal
+el-CICD Chart was created to overcome these difficulties.  It offers the following features:
 
-That end users should be able to focus on and easily manage the configuration of their applications across multiple deployment environments, and not on writing Helm templates or trying to adapt to Helm's lack of configuration management to support their deployments.
+* `values.yaml` variables and parameterization
+* Configuration management through user-defined profiles
+* Pre-defined Kubernetes resources
+* **NO** need for Helm templates
+* 100% Helm compatible (**no need for extra plugins**)
 
-=== Design Principles
-
-el-CICD Chart was designed with the following principles in mind:
-
-* **KISS** - Defining templates and managing configurations across multiple deployment environments should be as simple as possible.
-* **DRY** - Reduce the amount of boilerplate needed to manage multiple deployments.
-* **Modular**- Support simple and complex configurations equally.
-* **Accessible** - It should easy to learn and use, with little to no Kubernetes experience necessary.
-* **Extensible** - Whatever needs to be rendered, YAML or raw text, should be supported.
-
-=== Features
-
-el-CICD Chart has the following features:
-
-==== Single Source of Truth (values.yaml)
-
-Templates and configuration only need to be defined in Helm values.yaml file(s).  No additional Helm templates are necessary.
-
-==== el-CICD Chart Templates
-
-Templates are defined the the values.yaml file(s) as el-CICD Chart templates.  They are simpler to define and less verbose versus Helm templates.  They can be any form of YAML or even raw text making el-CICD very extensible.
-
-===== Pre-defined Kubernetes Resources
-
-Most Kubernetes resources related to application deployment are defined in el-CICD.  Many have reasonable, pre-defined values to further reduce the amount of boilerplate needed to define a Kubernetes resource.  Many also have helper settings that make things like defining volumes and volumeMounts less verbose and easier.
-
-==== Variables and Parameters
-
-Variables and parameters can be defined in the values.yaml file(s) or on the command line, and used in el-CICD Chart templates.
-
-==== Deployment Profiles
-
-Deployments profiles can be defined in values.yaml file(s).  Depending on the active profile(s) an el-CICD Chart is rendered with, variables can change their value and el-CICD Chart templates can be rendered or skipped, thus directly supporting configuration management.
-
-==== Parameters in Values Files
-el-CICD supports defining variables and parameters **_inside_** values files.
-
-NOTE: el-CICD variables can only be used with el-CICD templates.  There are other ways to leverage the el-CICD charts for Helm templates that are not part of the el-CICD Chart template framework.  See <<Use cases>> for more information.
-
-==== Profiles
-
-el-CICD Chart support the concept of one or more profiles during rendering.  Profiles can influence the values of variables within the values files, as well as whether templates are rendered or not.
-
-==== Copy Utilities
-
-el-CICD Chart has a number of utilities for generating or copying templates and Kubernetes resources within and across namespaces, thus reducing the amount of boilerplate necessary.
-
-==== Debugging
-
-el-CICD has few utility settings to help with debugging values.yaml file(s) written for el-CICD Chart.
-
-=== Use Cases
-
-el-CICD Chart attempts to solve the following use cases.  If the first example, It's about taking inexperienced and experienced developers alike and getting them up and defining deployments to Kubernetes across multiple environments quickly and easily.  In the first use case, ease of use and getting user inexperienced with deployments and/or Kubernetes was the motivation.  In the latter two examples, the motivation was defining and managing multiple configurations with minimal effort.
-
-==== Application Developers
-
-Application developers have not traditionally been involved with deploying their applications, so asking them to learn and understand Kubernetes can be daunting for many reasons.  el-CICD Chart was initially conceived with the application developer in mind, which meant it had to minimize as much as possible the amount of Kubernetes knowledge necessary and still be a productive tool for the end user.
-
-==== Software Development Lifecycle Support
-
-Almost every software development lifecycle contains a number of different deployment environments.  For example, most enterprise software projects will have at least a development, testing, and production environment, and even the most simple software project will informally have a development versus release (production) environment.  In practice, each different environments almost certainly means a different configuration.
-
-==== Multiple Production Environments
-
-Oftentimes when software is put into production there's more than one instance of the application that needs to be deployed, each with a different configuration.  These different deployment configurations might represent different locales, regulatory regions, and/or specific business use cases.  Whatever the reason, defining the overall configuration and their differences should be easy.
-
-== Quick Start
-
-To get a quick taste of how to define deployments and quickly deploy an application using el-CICD Chart, please see the link:docs/tutorial.adoc[el-CICD Chart Quick Start Guide].
-
-== Usage
-
-To learn how to define el-CICD Chart deployments, please see the link:docs/user-guide.adoc[el-CICD Chart User Guide].
+We believe these innovations make Helm accessible and let Helm do what it does best, while enabling user to easily, quickly, and concisely define multiple deployment configurations.
 
 == Licensing
 
