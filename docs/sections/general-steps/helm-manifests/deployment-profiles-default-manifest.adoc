@@ -6,19 +6,13 @@ metadata:
   labels:
     app.kubernetes.io/instance: elcicd-chart-demo
     app.kubernetes.io/managed-by: Helm
-    elcicd.io/selector: config-map-objname
+    elcicd.io/selector: index.html
     helm.sh/chart: elcicd-chart-0.1.0
-  name: config-map-objname
+  name: index.html
   namespace: elcicd-chart-demo
 data:
-  index.html: |-
-    <!DOCTYPE html>
-    <html>
-      <body>
-        <h1>config-map-objname defined in elcicd-demo-3.yaml in release elcicd-chart-demo says Howdy!</h1>
-      </body>
-    </html>
-# Rendered el-CICD Chart Template -> "configMap" config-map-objname
+  index.html: <!DOCTYPE html><html><body><h1>Howdy from index.html in release elcicd-chart-demo!<h1></body></html>
+# Rendered el-CICD Chart Template -> "configMap" index.html
 ---
 # Source: elcicd-chart/templates/render.yaml
 apiVersion: v1
@@ -99,7 +93,7 @@ spec:
         projected:
           sources:
           - configMap:
-              name: config-map-objname
+              name: index.html
 # Rendered el-CICD Chart Template -> "deployment" elcicd-chart-demo
 ---
 # Source: elcicd-chart/templates/render.yaml
@@ -133,3 +127,4 @@ spec:
 ---
 # Source: elcicd-chart/templates/render.yaml
 # Profiles: []
+# EXCLUDED BY PROFILES: configMap -> objNames: [$<ENGLISH> $<ESPANOL>]

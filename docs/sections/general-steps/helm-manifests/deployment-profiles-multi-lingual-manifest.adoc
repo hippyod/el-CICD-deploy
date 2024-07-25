@@ -6,19 +6,45 @@ metadata:
   labels:
     app.kubernetes.io/instance: elcicd-chart-demo
     app.kubernetes.io/managed-by: Helm
-    elcicd.io/selector: config-map-objname
+    elcicd.io/selector: index.html
     helm.sh/chart: elcicd-chart-0.1.0
-  name: config-map-objname
+  name: index.html
   namespace: elcicd-chart-demo
 data:
-  index.html: |-
-    <!DOCTYPE html>
-    <html>
-      <body>
-        <h1>config-map-objname defined in elcicd-demo-3.yaml in release elcicd-chart-demo says Howdy!</h1>
-      </body>
-    </html>
-# Rendered el-CICD Chart Template -> "configMap" config-map-objname
+  index.html: <!DOCTYPE html><html><body><h1><a href="english.html">English</a>&nbsp;<a
+    href="espanol.html">Español</a></h1></body></html>
+# Rendered el-CICD Chart Template -> "configMap" index.html
+---
+# Source: elcicd-chart/templates/render.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/instance: elcicd-chart-demo
+    app.kubernetes.io/managed-by: Helm
+    elcicd.io/selector: english.html
+    helm.sh/chart: elcicd-chart-0.1.0
+  name: english.html
+  namespace: elcicd-chart-demo
+data:
+  english.html: <!DOCTYPE html><html><body><h1>Howdy from english.html in release elcicd-chart-demo!<h1></body></html>
+# Rendered el-CICD Chart Template -> "configMap" english.html
+---
+# Source: elcicd-chart/templates/render.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/instance: elcicd-chart-demo
+    app.kubernetes.io/managed-by: Helm
+    elcicd.io/selector: espanol.html
+    helm.sh/chart: elcicd-chart-0.1.0
+  name: espanol.html
+  namespace: elcicd-chart-demo
+data:
+  espanol.html: <!DOCTYPE html><html><body><h1>¡Hola desde espanol.html en el lanzamiento
+    elcicd-chart-demo!<h1></body></html>
+# Rendered el-CICD Chart Template -> "configMap" espanol.html
 ---
 # Source: elcicd-chart/templates/render.yaml
 apiVersion: v1
@@ -99,7 +125,11 @@ spec:
         projected:
           sources:
           - configMap:
-              name: config-map-objname
+              name: english.html
+          - configMap:
+              name: espanol.html
+          - configMap:
+              name: index.html
 # Rendered el-CICD Chart Template -> "deployment" elcicd-chart-demo
 ---
 # Source: elcicd-chart/templates/render.yaml
@@ -132,4 +162,4 @@ spec:
 # Rendered el-CICD Chart Template -> "ingress" elcicd-chart-demo
 ---
 # Source: elcicd-chart/templates/render.yaml
-# Profiles: []
+# Profiles: [multi-lingual]

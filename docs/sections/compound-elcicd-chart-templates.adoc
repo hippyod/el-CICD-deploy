@@ -4,16 +4,16 @@
 :helm-manifest-file: compound-template-manifest
 :kubectl-get-file: compound-template-kubectl-get
 
+.Features demonstrated
+****
+* Defining compound el-CICD Chart templates.
+****
+
 In <<el-CICD Chart Templates>>, we demonstrated how concise and modular el-CICD Chart templates can be when defining deployments.  We will now show how to combine el-CICD Chart templates into single, __compound template__ for even more concise deployment definitions.
 
-====
-.Features demonstrated
-* Defining compound el-CICD Chart templates.
-
 TIP: **Any el-CICD Chart built-in template can be compounded into a single template definition as long as any overlapping helper attributes refer to the same data.**
-====
 
-. Create and save the following file and name it `elcicd-demo-2.yaml`:
+. Create and save the following file, and name it `elcicd-demo-2.yaml`:
 +
 [source,YAML,linenums]
 ----

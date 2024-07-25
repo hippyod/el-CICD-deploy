@@ -4,16 +4,16 @@
 :helm-manifest-file: elcicd-chart-template-manifest
 :kubectl-get-file: elcicd-chart-template-kubectl-get
 
+.Features demonstrated
+****
+* Defining and deploying with arbitrary el-CICD Chart deployment profiles.
+* `elCicdDefs-*` variable map definitions.
+* Using el-CICD Chart matrices to create copies of the same el-CICD Chart template.
+****
+
 The el-CICD Chart aims to define basic Kubernetes resources for application deployments out-of-the-box and provide as many reasonable defaults as possible to reduce the amount of boilerplate required by the end user.  The el-CICD Chart also aims to do away with the need to write Helm (Go) templates, and instead adheres to more standard YAML with only minor enhancements.
 
-====
-.Features demonstrated
-* Built-in el-CICD Chart templates.
-* el-CICD Chart template helper attributes.
-* Built-in el-CICD Chart variables and how to reference them.
-
-NOTE: The example below is purposefully contrived to be purposefully more complicated than necessary.  In this case the Ingress will be communicating with the Service over port 8081, and the Service will forward incoming requests to Apache Web Server container over port 8080.  Next part of the tutorial will make more clear why we are making this more complicated than necessary.
-====
+NOTE: The example below is purposefully contrived to be purposefully more complicated than necessary.  In this case the Ingress will be communicating with the Service over port 8081, and the Service will forward incoming requests to Apache Web Server container over port 8080.  The next part of the tutorial will make it clear why we are making this more complicated than necessary.
 
 . Open your favorite file editor, enter the following YAML, and save it as `elcicd-demo-1.yaml`:
 +

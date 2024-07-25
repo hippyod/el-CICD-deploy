@@ -7,7 +7,7 @@ $ helm repo add elcicd-charts \
   https://raw.githubusercontent.com/elcicd/el-CICD-deploy/main/charts/
 $ helm repo update
 ```
-Output:::
+Output::
 ```
 "elcicd-charts" has been added to your repositories
 ```

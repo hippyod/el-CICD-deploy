@@ -4,14 +4,14 @@
 :helm-manifest-file: user-defined-variables-manifest
 :kubectl-get-file: user-defined-variables-kubectl-get
 
-Both <<el-CICD Chart Templates>> and <<Compound el-CICD Chart Templates>> made use of el-CICD Chart's built-in variables to help define their host domain.  This part of the tutorial will focus on user-defined variables.
-
-====
 .Features demonstrated
+****
 * Defining arbitrary el-CICD Chart variables in deployment definitions.
 * Using el-CICD Chart variables as templates for other values or even scripts.
 * Easily mounting ConfigMaps with the projectedVolumes helper attribute.
-====
+****
+
+Both <<el-CICD Chart Templates>> and <<Compound el-CICD Chart Templates>> made use of el-CICD Chart's built-in variables to help define their host domain.  This part of the tutorial will focus on user-defined variables.
 
 . Create and save the following file and name it `elcicd-demo-3.yaml`:
 +
@@ -19,7 +19,19 @@ Both <<el-CICD Chart Templates>> and <<Compound el-CICD Chart Templates>> made u
 ----
 elCicdDefs:
   INDEX_HTML_NAME: index.html
+  DEFAULT_PAGE_CONTENT: <h1>Howdy from $<OBJ_NAME> in release $<HELM_RELEASE_NAME>!<h1>
+  PAGE_CONTENT: $<DEFAULT_PAGE_CONTENT>
+  HTML_PAGE: <!DOCTYPE html><html><body>$<PAGE_CONTENT></body></html>
+
+  INDEX_HTML_NAME: index.html
   PAGE_CONTENT: <h1>Howdy from $<OBJ_NAME> in release $<HELM_RELEASE_NAME>!<h1>
+  HTML_PAGE: |-
+    <!DOCTYPE html>
+    <html>
+      <body>
+        <h1>$<PAGE_CONTENT></h1>
+      </body>
+    </html>
 
 elCicdTemplates:
 - templateNames: [deployment, service, ingress]
@@ -34,7 +46,7 @@ elCicdTemplates:
 - templateName: configMap
   objName: $<INDEX_HTML_NAME>
   data:
-    $<OBJ_NAME>: <!DOCTYPE html><html><body>$<PAGE_CONTENT></body></html>
+    $<OBJ_NAME>: $<HTML_PAGE>
 ----
 
 .. All el-CICD Chart variables are defined under maps starting with `elCicdDefs`.
