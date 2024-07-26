@@ -1,12 +1,12 @@
 = el-CICD Chart
 
 
-====
 
 [.text-center]
 [discrete]
 == Status
 
+====
 While el-CICD Chart has been used extensively within the larger el-CICD project for two years, **we still consider this an alpha product**.  This sub-project is currently being tested, documented, and packaged for wider release, and we are targeting fall of 2024, at which time we will promote it to being feature complete and a beta release.
 
 **Feedback is needed and would be appreciated.  Please work through the tutorial (nothing but Helm and a Kubernetes cluster required) and let us know what you think.**
