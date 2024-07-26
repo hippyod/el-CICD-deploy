@@ -1,6 +1,7 @@
 = el-CICD Chart
+:important-caption: :heavy_exclamation_mark:
 
-[NOTE]
+[IMPORTANT]
 ====
 [discrete]
 == Status
