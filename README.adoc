@@ -1,11 +1,7 @@
 = el-CICD Chart
 
-
-
-
-[STATUS]
+[NOTE]
 ====
-[.text-center]
 [discrete]
 == Status
 
