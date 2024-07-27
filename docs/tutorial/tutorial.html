@@ -433,6 +433,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 #footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
 @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
 pre.rouge table td { padding: 5px; }
 pre.rouge table pre { margin: 0; }
@@ -960,7 +961,7 @@ affinity: {}</code></pre>
 <table>
 <tr>
 <td class="icon">
-<div class="title">Important</div>
+<i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
 All commands used below will refer to <code>kubectl</code>, but if on OpenShift <code>oc</code> will work just as well.
@@ -1028,7 +1029,7 @@ Update Complete. ⎈Happy Helming!⎈</code></pre>
 <table>
 <tr>
 <td class="icon">
-<div class="title">Note</div>
+<i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
 The example below is purposefully contrived to be purposefully more complicated than necessary.  In this case the Ingress will be communicating with the Service over port 8081, and the Service will forward incoming requests to Apache Web Server container over port 8080.  The next part of the tutorial will make it clear why we are making this more complicated than necessary.
@@ -1039,38 +1040,28 @@ The example below is purposefully contrived to be purposefully more complicated 
 <h4 id="_create_and_save_the_following_file_as_elcicd_demo_1_yaml" class="discrete">Create and save the following file as <code>elcicd-demo-1.yaml</code></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="YAML"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-</pre></td><td class="code"><pre>elCicdTemplates: # <b class="conum">(1)</b>
-- templateName: deployment # <b class="conum">(2)</b>
+<pre>elCicdTemplates: <i class="conum" data-value="1"></i><b>(1)</b>
+- templateName: deployment <i class="conum" data-value="2"></i><b>(2)</b>
   image: registry.redhat.io/rhel8/httpd-24
 
-- templateName: service # <b class="conum">(2)</b>
-  port: 8081 # <b class="conum">(3)</b>
-  targetPort: 8080 # <b class="conum">(3)</b>
+- templateName: service <i class="conum" data-value="2"></i><b>(2)</b>
+  port: 8081 <i class="conum" data-value="3"></i><b>(3)</b>
+  targetPort: 8080 <i class="conum" data-value="3"></i><b>(3)</b>
 
-- templateName: ingress # <b class="conum">(2)</b>
-  host: httpd-$&lt;HELM_RELEASE_NAMESPACE&gt;.apps-crc.testing <b class="conum">(4)</b>
-  port: 8081 # <b class="conum">(3)</b>
-</pre></td></tr></tbody></table></code></pre>
+- templateName: ingress <i class="conum" data-value="2"></i><b>(2)</b>
+  host: httpd-$&lt;HELM_RELEASE_NAMESPACE&gt;.apps-crc.testing <i class="conum" data-value="4"></i><b>(4)</b>
+  port: 8081 <i class="conum" data-value="3"></i><b>(3)</b></pre>
 </div>
 </div>
 <div class="colist arabic">
-<ol>
-<li>
-<p>All el-CICD Chart templates are defined in a list called <code>elCicdTemplates</code>.</p>
-</li>
-<li>
-<p>By convention, there is a one-to-one relation between el-CICD Chart templates the Kubernetes resources they render.</p>
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>All el-CICD Chart templates are defined in a list called <code>elCicdTemplates</code>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>By convention, there is a one-to-one relation between el-CICD Chart templates the Kubernetes resources they render.
 <div class="olist lowerroman">
 <ol class="lowerroman" type="i">
 <li>
@@ -1086,10 +1077,11 @@ The example below is purposefully contrived to be purposefully more complicated 
 <p>el-CICD Chart templates are all lower camel case.</p>
 </li>
 </ol>
-</div>
-</li>
-<li>
-<p><em>Helper attributes</em> are el-CICD Chart template top level keys; e.g. some standard el-CICD attributes every template has:</p>
+</div></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td><em>Helper attributes</em> are el-CICD Chart template top level keys; e.g. some standard el-CICD attributes every template has:
 <div class="olist lowerroman">
 <ol class="lowerroman" type="i">
 <li>
@@ -1102,10 +1094,11 @@ The example below is purposefully contrived to be purposefully more complicated 
 <p><code>template</code>: custom el-CICD template definitions when built-in templates aren&#8217;t used.</p>
 </li>
 </ol>
-</div>
-</li>
-<li>
-<p><code>$&lt;HELM_RELEASE_NAMESPACE&gt;</code> references a built-in el-CICD Chart variable.</p>
+</div></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td><code>$&lt;HELM_RELEASE_NAMESPACE&gt;</code> references a built-in el-CICD Chart variable.
 <div class="olist lowerroman">
 <ol class="lowerroman" type="i">
 <li>
@@ -1118,9 +1111,9 @@ The example below is purposefully contrived to be purposefully more complicated 
 <p>el-CICD Chart conventions define variables using upper snake case, similar to Shell.</p>
 </li>
 </ol>
-</div>
-</li>
-</ol>
+</div></td>
+</tr>
+</table>
 </div>
 <h4 id="_tutorial_steps" class="discrete">Tutorial steps</h4>
 <div class="sidebarblock">
@@ -1358,7 +1351,7 @@ Get the value of the host from the Ingress, and verify the Apache Web Server is 
 <table>
 <tr>
 <td class="icon">
-<div class="title">Note</div>
+<i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
 If not using CRC, you&#8217;ll definitely need to run the <code>kubectl get</code> command above.
@@ -1423,7 +1416,7 @@ Uninstall the chart.</p>
 <table>
 <tr>
 <td class="icon">
-<div class="title">Tip</div>
+<i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
 <strong>Any el-CICD Chart built-in template can be compounded into a single template definition as long as any overlapping helper attributes refer to the same data.</strong>
@@ -1441,18 +1434,19 @@ Uninstall the chart.</p>
 5
 6
 </pre></td><td class="code"><pre>elCicdTemplates:
-- templateNames: [deployment, service, ingress] # <b class="conum">(1)</b>
+- templateNames: [deployment, service, ingress] <i class="conum" data-value="1"></i><b>(1)</b>
   image: registry.redhat.io/rhel8/httpd-24
   host: httpd-$&lt;HELM_RELEASE_NAMESPACE&gt;.apps-crc.testing
-  port: 8081 # <b class="conum">(2)</b>
-  targetPort: 8080 # <b class="conum">(2)</b>
+  port: 8081 <i class="conum" data-value="2"></i><b>(2)</b>
+  targetPort: 8080 <i class="conum" data-value="2"></i><b>(2)</b>
 </pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="colist arabic">
-<ol>
-<li>
-<p>Compound templates are listed under the <code>templateNames</code> attribute, versus the <code>templateName</code> for a single attribute.</p>
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Compound templates are listed under the <code>templateNames</code> attribute, versus the <code>templateName</code> for a single attribute.
 <div class="olist loweralpha">
 <ol class="loweralpha" type="a">
 <li>
@@ -1462,10 +1456,11 @@ Uninstall the chart.</p>
 <p>The <code>templateName</code> attribute is merely a convenience when rendering a single template.</p>
 </li>
 </ol>
-</div>
-</li>
-<li>
-<p>In compound templates, all helper attributes are shared among the el-CICD templates.</p>
+</div></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>In compound templates, all helper attributes are shared among the el-CICD templates.
 <div class="olist loweralpha">
 <ol class="loweralpha" type="a">
 <li>
@@ -1481,15 +1476,15 @@ Uninstall the chart.</p>
 <p><code>targetPort</code> is shared by the service and deployment templates, and take precedence over the <code>port</code> attribute when defined.</p>
 </li>
 </ol>
-</div>
-</li>
-</ol>
+</div></td>
+</tr>
+</table>
 </div>
 <div class="admonitionblock note">
 <table>
 <tr>
 <td class="icon">
-<div class="title">Note</div>
+<i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
 In <a href="#_el_cicd_chart_templates">el-CICD Chart Templates</a>, we promised to explain why we contrived a different port and target port as a tutorial contrivance, and it was to demonstrate how overlapping helper attributes would behave in compound templates.
@@ -1733,7 +1728,7 @@ Get the value of the host from the Ingress, and verify the Apache Web Server is 
 <table>
 <tr>
 <td class="icon">
-<div class="title">Note</div>
+<i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
 If not using CRC, you&#8217;ll definitely need to run the <code>kubectl get</code> command above.
@@ -1836,7 +1831,7 @@ Uninstall the chart.</p>
 28
 29
 30
-</pre></td><td class="code"><pre>elCicdDefs: # <b class="conum">(1)</b>
+</pre></td><td class="code"><pre>elCicdDefs: <i class="conum" data-value="1"></i><b>(1)</b>
   INDEX_HTML_NAME: index.html
   DEFAULT_PAGE_CONTENT: &lt;h1&gt;Howdy from $&lt;OBJ_NAME&gt; in release $&lt;HELM_RELEASE_NAME&gt;!&lt;h1&gt;
   PAGE_CONTENT: $&lt;DEFAULT_PAGE_CONTENT&gt;
@@ -1856,23 +1851,24 @@ elCicdTemplates:
 - templateNames: [deployment, service, ingress]
   image: registry.redhat.io/rhel8/httpd-24
   host: httpd-$&lt;NAME_SPACE&gt;.apps-crc.testing
-  projectedVolumes: # <b class="conum">(2)</b>
+  projectedVolumes: <i class="conum" data-value="2"></i><b>(2)</b>
   - name: $&lt;HELM_RELEASE_NAME&gt;
     mountPath: /var/www/html/
     configMaps:
       $&lt;INDEX_HTML_NAME&gt;: {}
 
 - templateName: configMap
-  objName: $&lt;INDEX_HTML_NAME&gt; # <b class="conum">(3)</b>
+  objName: $&lt;INDEX_HTML_NAME&gt; <i class="conum" data-value="3"></i><b>(3)</b>
   data:
-    $&lt;OBJ_NAME&gt;: $&lt;HTML_PAGE&gt; # <b class="conum">(3)</b>
+    $&lt;OBJ_NAME&gt;: $&lt;HTML_PAGE&gt; <i class="conum" data-value="3"></i><b>(3)</b>
 </pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="colist arabic">
-<ol>
-<li>
-<p>All el-CICD Chart variables are defined under maps starting with <code>elCicdDefs</code>.</p>
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>All el-CICD Chart variables are defined under maps starting with <code>elCicdDefs</code>.
 <div class="olist loweralpha">
 <ol class="loweralpha" type="a">
 <li>
@@ -1911,10 +1907,11 @@ elCicdTemplates:
 </div>
 </li>
 </ol>
-</div>
-</li>
-<li>
-<p><code>projectedVolumes</code> is a helper attribute for generating <a href="https://kubernetes.io/docs/concepts/storage/projected-volumes/">projectedVolumes</a>.</p>
+</div></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td><code>projectedVolumes</code> is a helper attribute for generating <a href="https://kubernetes.io/docs/concepts/storage/projected-volumes/">projectedVolumes</a>.
 <div class="olist loweralpha">
 <ol class="loweralpha" type="a">
 <li>
@@ -1927,10 +1924,11 @@ elCicdTemplates:
 <p>Per the projectedVolume standard, any number of ConfigMaps, Secrets, etc., can be listed.</p>
 </li>
 </ol>
-</div>
-</li>
-<li>
-<p><code>objName</code> is a helper attribute that will render as the name of a resource or resources; i.e.<code>metadata.name</code>.</p>
+</div></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td><code>objName</code> is a helper attribute that will render as the name of a resource or resources; i.e.<code>metadata.name</code>.
 <div class="olist loweralpha">
 <ol class="loweralpha" type="a">
 <li>
@@ -1940,9 +1938,9 @@ elCicdTemplates:
 <p><code>objName</code> and <code>OBJ_NAME</code> will default to the chart&#8217;s release name, <code>HELM_RELEASE_NAME</code>, if left undefined by the user.</p>
 </li>
 </ol>
-</div>
-</li>
-</ol>
+</div></td>
+</tr>
+</table>
 </div>
 <h4 id="_tutorial_steps_3" class="discrete">Tutorial steps</h4>
 <div class="sidebarblock">
@@ -2214,7 +2212,7 @@ Get the value of the host from the Ingress, and verify the Apache Web Server is 
 <table>
 <tr>
 <td class="icon">
-<div class="title">Note</div>
+<i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
 If not using CRC, you&#8217;ll definitely need to run the <code>kubectl get</code> command above.
@@ -2323,7 +2321,7 @@ Uninstall the chart.</p>
   PAGE_CONTENT: $&lt;DEFAULT_PAGE_CONTENT&gt;
   HTML_PAGE: &lt;!DOCTYPE html&gt;&lt;html&gt;&lt;body&gt;$&lt;PAGE_CONTENT&gt;&lt;/body&gt;&lt;/html&gt;
 
-elCicdDefs-$&lt;MULTI_LINGUAL_PROFILE&gt;: # <b class="conum">(1)</b>
+elCicdDefs-$&lt;MULTI_LINGUAL_PROFILE&gt;: <i class="conum" data-value="1"></i><b>(1)</b>
   PAGE_CONTENT: &lt;h1&gt;&lt;a href="$&lt;ENGLISH&gt;"&gt;English&lt;/a&gt;&amp;nbsp;&lt;a href="$&lt;ESPANOL&gt;"&gt;Español&lt;/a&gt;&lt;/h1&gt;
   ENGLISH: english.html
   ESPANOL: espanol.html
@@ -2346,23 +2344,24 @@ elCicdTemplates:
     $&lt;OBJ_NAME&gt;: $&lt;HTML_PAGE&gt;
 
 - templateName: configMap
-  objNames: # <b class="conum">(3)</b>
+  objNames: <i class="conum" data-value="3"></i><b>(3)</b>
   - $&lt;ENGLISH&gt;
   - $&lt;ESPANOL&gt;
   mustHaveAnyProfile:
-  - $&lt;MULTI_LINGUAL_PROFILE&gt; # <b class="conum">(1)</b>
-  elCicdDefs-$&lt;ENGLISH&gt;: # <b class="conum">(2)</b>
+  - $&lt;MULTI_LINGUAL_PROFILE&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+  elCicdDefs-$&lt;ENGLISH&gt;: <i class="conum" data-value="2"></i><b>(2)</b>
     PAGE_CONTENT:  $&lt;DEFAULT_PAGE_CONTENT&gt;
-  elCicdDefs-$&lt;ESPANOL&gt;: # <b class="conum">(2)</b>
+  elCicdDefs-$&lt;ESPANOL&gt;: <i class="conum" data-value="2"></i><b>(2)</b>
     PAGE_CONTENT: &lt;h1&gt;¡Hola desde $&lt;OBJ_NAME&gt; en el lanzamiento $&lt;HELM_RELEASE_NAME&gt;!&lt;h1&gt;
   data:
     $&lt;OBJ_NAME&gt;: $&lt;HTML_PAGE&gt;</code></pre>
 </div>
 </div>
 <div class="colist arabic">
-<ol>
-<li>
-<p>Deployment profiles are declared whenever an el-CICD Chart template and/or <code>elCicdDefs</code> variable map is marked for them.</p>
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Deployment profiles are declared whenever an el-CICD Chart template and/or <code>elCicdDefs</code> variable map is marked for them.
 <div class="olist loweralpha">
 <ol class="loweralpha" type="a">
 <li>
@@ -2408,10 +2407,11 @@ elCicdTemplates:
 </div>
 </li>
 </ol>
-</div>
-</li>
-<li>
-<p>el-Cicd Chart variables are overridden based on more specific <code>elCicdDefs</code> variable maps.</p>
+</div></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>el-Cicd Chart variables are overridden based on more specific <code>elCicdDefs</code> variable maps.
 <div class="olist loweralpha">
 <ol class="loweralpha" type="a">
 <li>
@@ -2456,10 +2456,11 @@ elCicdTemplates:
 </div>
 </li>
 </ol>
-</div>
-</li>
-<li>
-<p><code>objNames</code> is one of two el-CICD Chart matrices that can be defined on an el-CICD Chart template.</p>
+</div></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td><code>objNames</code> is one of two el-CICD Chart matrices that can be defined on an el-CICD Chart template.
 <div class="olist loweralpha">
 <ol class="loweralpha" type="a">
 <li>
@@ -2472,9 +2473,9 @@ elCicdTemplates:
 <p>This deployment definition will result in two configMap templates, <code>$&lt;ENGLISH&gt;</code> (<code>english.html) and `$&lt;ESPANOL&gt;</code> (<code>espanol.html</code>).</p>
 </li>
 </ol>
-</div>
-</li>
-</ol>
+</div></td>
+</tr>
+</table>
 </div>
 <div class="sect3">
 <h4 id="_deploy_the_httpd_server_without_an_active_deployment_profile">2.5.1. Deploy the httpd server without an active deployment profile</h4>
@@ -2746,7 +2747,7 @@ Get the value of the host from the Ingress, and verify the Apache Web Server is 
 <table>
 <tr>
 <td class="icon">
-<div class="title">Note</div>
+<i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
 If not using CRC, you&#8217;ll definitely need to run the <code>kubectl get</code> command above.
@@ -3103,7 +3104,7 @@ Get the value of the host from the Ingress, and verify the Apache Web Server is 
 <table>
 <tr>
 <td class="icon">
-<div class="title">Note</div>
+<i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
 If not using CRC, you&#8217;ll definitely need to run the <code>kubectl get</code> command above.
@@ -3278,7 +3279,7 @@ Uninstall the chart.</p>
   - name: WELCOME_MSG
     value: $&lt;WELCOME_MSG&gt;
   JOB_NAMESPACE_2: elcicd-chart-demo-2
-  NAMESPACES: # <b class="conum">(1)</b>
+  NAMESPACES: <i class="conum" data-value="1"></i><b>(1)</b>
   - $&lt;HELM_RELEASE_NAMESPACE&gt;
   - $&lt;JOB_NAMESPACE_2&gt;
   COMMAND: ["bash", "-c"]
@@ -3300,17 +3301,17 @@ elCicdTemplates:
 
 - templateName: job
   objNames: $&lt;OBJ_NAMES&gt;
-  namespaces: $&lt;NAMESPACES&gt; # <b class="conum">(1)</b>
-  objName: $&lt;&gt;-helper # <b class="conum">(2)</b>
+  namespaces: $&lt;NAMESPACES&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+  objName: $&lt;&gt;-helper <i class="conum" data-value="2"></i><b>(2)</b>
   image: quay.io/centos/centos:stream9-minimal
   command: $&lt;COMMAND&gt;
   args: $&lt;JOB_SCRIPT&gt;
-  env: $&lt;ENV&gt; # <b class="conum">(5)</b>
+  env: $&lt;ENV&gt; <i class="conum" data-value="4"></i><b>(4)</b>
 
 - objNames: $&lt;OBJ_NAMES&gt;
-  namespaces: $&lt;NAMESPACES&gt; # <b class="conum">(1)</b>
-  objName: $&lt;&gt;-raw # <b class="conum">(2)</b>
-  template: # <b class="conum">(4)</b>
+  namespaces: $&lt;NAMESPACES&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+  objName: $&lt;&gt;-raw <i class="conum" data-value="2"></i><b>(2)</b>
+  template: <i class="conum" data-value="3"></i><b>(3)</b>
     apiVersion: batch/v1
     kind: Job
     spec:
@@ -3321,21 +3322,23 @@ elCicdTemplates:
             image: quay.io/centos/centos:stream9-minimal
             command: $&lt;COMMAND&gt;
             args: $&lt;JOB_SCRIPT&gt;
-            env: $&lt;ENV&gt; # <b class="conum">(5)</b>
+            env: $&lt;ENV&gt; <i class="conum" data-value="4"></i><b>(4)</b>
           restartPolicy: Never
 </pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="colist arabic">
-<ol>
-<li>
-<p>Like <code>objNames</code>, <code>namespaces</code> is a ell-CICD Chart matrix.</p>
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Like <code>objNames</code>, <code>namespaces</code> is a ell-CICD Chart matrix.
 <div class="paragraph">
 <p>Each element in the <code>namespaces</code> list will generate a copy of the el-CICD Chart template, and set <code>.metadata.namespace</code> to the element value.</p>
-</div>
-</li>
-<li>
-<p>Both <code>objNames</code> and <code>namespaces</code> can use patterns against the elements in the matrices to further specialize the values.</p>
+</div></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Both <code>objNames</code> and <code>namespaces</code> can use patterns against the elements in the matrices to further specialize the values.
 <div class="olist loweralpha">
 <ol class="loweralpha" type="a">
 <li>
@@ -3347,14 +3350,15 @@ elCicdTemplates:
 <li>
 <p>In the deployment definition above, the base name is decorated with either <code>-helper</code> or <code>-raw</code> so the pods generated from either the helper template or the raw YAML templates can be identified on site.</p>
 </li>
+<li>
+<p>In templates generated form matrices with patterns, use <code>$&lt;BASE_OBJ_NAME&gt;</code> to refer to the undecorated element from the list that generated <code>$&lt;OBJ_NAME&gt;</code>.</p>
+</li>
 </ol>
-</div>
-</li>
-<li>
-<p>The <code>$&lt;OBJ_NAME&gt;</code> built-in refers the value in <code>objName</code>.  In templates generated form matrices with patterns, use <code>$&lt;BASE_OBJ_NAME&gt;</code> to refer to the undecorated element from the list that generated <code>$&lt;OBJ_NAME&gt;</code>.</p>
-</li>
-<li>
-<p>The <code>template</code> helper attribute marks the start of the YAML defining any arbitrary YAML to be deployed to Kubernetes.</p>
+</div></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The <code>template</code> helper attribute marks the start of the YAML defining any arbitrary YAML to be deployed to Kubernetes.
 <div class="olist loweralpha">
 <ol class="loweralpha" type="a">
 <li>
@@ -3364,18 +3368,19 @@ elCicdTemplates:
 <p>The <code>metadata</code> section is optional in free form templates.  el-CICD Chart is able to generate those values regardless of whether its a helper template or raw YAML.</p>
 </li>
 </ol>
-</div>
-</li>
-<li>
-<p>Defining environment variables in a container is the same whether using helper or raw templates.</p>
-</li>
-</ol>
+</div></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Defining environment variables in a container is the same whether using helper or raw templates.</td>
+</tr>
+</table>
 </div>
 <div class="admonitionblock note">
 <table>
 <tr>
 <td class="icon">
-<div class="title">Note</div>
+<i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
 There is never a reason to use a raw template when deploying any Kubernetes resource workload to a cluster.  All of them have helper templates.  This example is for demonstration purposes only.
@@ -3865,7 +3870,7 @@ configmap/openshift-service-ca.crt   1      3d20h</code></pre>
 <table>
 <tr>
 <td class="icon">
-<div class="title">Note</div>
+<i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
 Only two of the eight jobs are displayed for brevity.
@@ -3966,7 +3971,7 @@ Uninstall the chart.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-07-27 19:16:58 UTC
+Last updated 2024-07-27 19:42:05 UTC
 </div>
 </div>
 </body>
