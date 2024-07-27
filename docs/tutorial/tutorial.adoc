@@ -28,7 +28,7 @@ include::sections/overview.adoc[]
 
 == Tutorial
 
-This tutorial will demonstrate how the el-CICD Chart can make defining and templating Kubernetes deployment definitions much easier and more readable, as well as directly supporting configuration management.
+This tutorial will demonstrate how the el-CICD Chart can make defining and templating Kubernetes deployment definitions, easier, more readable, and more concise as well as directly supporting configuration management.
 
 IMPORTANT: All commands used below will refer to `kubectl`, but if on OpenShift `oc` will work just as well.
 
@@ -42,7 +42,9 @@ include::sections/user-defined-variables.adoc[]
 
 include::sections/deployment-profiles.adoc[]
 
-=== Remove the el-CICD Chart repo
+include::sections/free-form-templates.adoc[]
+
+=== Remove the el-CICD Chart repository
 
 ```
 $ helm repo remove elcicd-charts

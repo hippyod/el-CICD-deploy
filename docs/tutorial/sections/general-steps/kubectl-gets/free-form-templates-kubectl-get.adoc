@@ -1,25 +1,10 @@
-NAME                            READY   STATUS    RESTARTS   AGE
-pod/server-1-7cc699d4c-lr599    1/1     Running   0          3m14s
-pod/server-2-584f8cfd57-72cw9   1/1     Running   0          3m14s
 
-NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/server-1   1/1     1            1           3m14s
-deployment.apps/server-2   1/1     1            1           3m14s
-
-NAME               TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)    AGE
-service/server-1   ClusterIP   10.217.4.49   <none>        8080/TCP   3m14s
-service/server-2   ClusterIP   10.217.4.59   <none>        8080/TCP   3m14s
-
-NAME                                 CLASS    HOSTS                                               ADDRESS                           PORTS     AGE
-ingress.networking.k8s.io/server-1   <none>   httpd-elcicd-chart-demo-server-1.apps-crc.testing   router-default.apps-crc.testing   80, 443   3m14s
-ingress.networking.k8s.io/server-2   <none>   httpd-elcicd-chart-demo-server-2.apps-crc.testing   router-default.apps-crc.testing   80, 443   3m14s
-
-NAME                                      HOST/PORT                                           PATH   SERVICES   PORT            TERMINATION     WILDCARD
-route.route.openshift.io/server-1-rqvhr   httpd-elcicd-chart-demo-server-1.apps-crc.testing   /      server-1   server-1-port   edge/Redirect   None
-route.route.openshift.io/server-2-9nq7k   httpd-elcicd-chart-demo-server-2.apps-crc.testing   /      server-2   server-2-port   edge/Redirect   None
+NAME                      READY   STATUS      RESTARTS   AGE
+pod/job-en-helper-kzlwx   0/1     Completed   0          23s
+pod/job-en-raw-zhx7c      0/1     Completed   0          23s
+pod/job-es-helper-tlp6b   0/1     Completed   0          23s
+pod/job-es-raw-bbpjg      0/1     Completed   0          23s
 
 NAME                                 DATA   AGE
-configmap/kube-root-ca.crt           1      4d
-configmap/openshift-service-ca.crt   1      4d
-configmap/server-1                   1      3m14s
-configmap/server-2                   1      3m14s
+configmap/kube-root-ca.crt           1      23s
+configmap/openshift-service-ca.crt   1      23s
