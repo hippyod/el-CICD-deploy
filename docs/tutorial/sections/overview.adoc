@@ -34,7 +34,7 @@ Defining and templating deployment definitions should be simple and easy.  Begin
 
 More concise::
 
-Follow the https://en.wikipedia.org/wiki/Don%27t_repeat_yourself[DRY (Don't Repeat Yourself) Principle] and aggressively and easily support and promote reuse of deployment definitions and templates.  As much as possible, define basic Kubernetes resources with reasonable defaults deployment definitions and templates are confined as much as possible to the problem at hand.
+Follow the https://en.wikipedia.org/wiki/Don%27t_repeat_yourself[DRY (Don't Repeat Yourself) Principle,window=read-later] and aggressively and easily support and promote reuse of deployment definitions and templates.  As much as possible, define basic Kubernetes resources with reasonable defaults deployment definitions and templates are confined as much as possible to the problem at hand.
 
 Support configuration management::
 
