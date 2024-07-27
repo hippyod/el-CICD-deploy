@@ -1040,7 +1040,18 @@ The example below is purposefully contrived to be purposefully more complicated 
 <h4 id="_create_and_save_the_following_file_as_elcicd_demo_1_yaml" class="discrete">Create and save the following file as <code>elcicd-demo-1.yaml</code></h4>
 <div class="listingblock">
 <div class="content">
-<pre>elCicdTemplates: <i class="conum" data-value="1"></i><b>(1)</b>
+<pre class="rouge highlight"><code data-lang="YAML"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+</pre></td><td class="code"><pre>elCicdTemplates: <i class="conum" data-value="1"></i><b>(1)</b>
 - templateName: deployment <i class="conum" data-value="2"></i><b>(2)</b>
   image: registry.redhat.io/rhel8/httpd-24
 
@@ -1050,7 +1061,8 @@ The example below is purposefully contrived to be purposefully more complicated 
 
 - templateName: ingress <i class="conum" data-value="2"></i><b>(2)</b>
   host: httpd-$&lt;HELM_RELEASE_NAMESPACE&gt;.apps-crc.testing <i class="conum" data-value="4"></i><b>(4)</b>
-  port: 8081 <i class="conum" data-value="3"></i><b>(3)</b></pre>
+  port: 8081 <i class="conum" data-value="3"></i><b>(3)</b>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -3971,7 +3983,7 @@ Uninstall the chart.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-07-27 19:42:05 UTC
+Last updated 2024-07-27 19:45:21 UTC
 </div>
 </div>
 </body>
