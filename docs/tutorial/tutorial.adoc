@@ -4,6 +4,12 @@
 :sectnumlevels: 4
 :toc:
 
+No prior knowledge of Helm is required.
+
+Time to completion::
+  
+**45-60m**
+
 Prerequisites::
 
 It is assumed the reader has at least a basic understanding of the following topics and technologies:
@@ -11,8 +17,6 @@ It is assumed the reader has at least a basic understanding of the following top
 * YAML
 * Docker/OCI images and containers
 * Application deployments in Kubernetes
-
-No prior knowledge of Helm is required.
 
 Software and tools required::
 
