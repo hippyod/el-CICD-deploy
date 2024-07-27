@@ -19,7 +19,7 @@ NOTE: The example below is purposefully contrived to be purposefully more compli
 [discrete]
 ==== Create and save the following file as `elcicd-demo-1.yaml`
 
-[source,YAML,linenums]
+[subs=+callouts]
 ----
 elCicdTemplates: # <1>
 - templateName: deployment # <2>
