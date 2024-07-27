@@ -6,7 +6,7 @@
 * Using el-CICD Chart matrices to deploy copies of the same el-CICD template across namespaces.
 ****
 
-So far this tutorial has focused on the easy deployments for applications using built-in helper el-CICD Chart templates.  Unfortunately, because Kubernetes has many dozens of resources, and it is infinitely extensible with https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/#custom-resources[Custom Resource Definitions] (CRD), creating helper templates for every resource deployable to a Kubernetes cluster is not feasible.
+So far this tutorial has focused on the easy deployments for applications using built-in helper el-CICD Chart templates.  Unfortunately, because Kubernetes has many dozens of resources, and it is infinitely extensible with https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/[Custom Resource Definitions,window=read-later] (CRD), creating helper templates for every resource deployable to a Kubernetes cluster is not feasible.
 
 To address this, el-CICD Chart templates support fully templating arbitrary YAML, and in particular Kubernetes resources.  Rather than using a named helper template with `templateName(s)`, the full YAML of the resource is written under the `template` key.  While more verbose than their helper template counterparts, they still allow for the use of el-CICD Chart variables, deployment profiles, and matrices; thus, they will still be able to take advantage of the most powerful features of the el-CICD Chart, user-defined variables and deployment profiles in the values.yaml file(s).
 

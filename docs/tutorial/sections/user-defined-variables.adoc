@@ -63,7 +63,7 @@ elCicdTemplates:
 ... Variable names can be dynamically generated
 .... `$<HELM_RELEASE_NAME>` is another built-in el-CICD Chart variable that corresponds to `.Release.Name` in a Helm template.
 .... $<HELM_RELEASE_NAME>_foo: some-value` will generate a new value derived from the name of the release.
-<2> `projectedVolumes` is a helper attribute for generating https://kubernetes.io/docs/concepts/storage/projected-volumes/[projectedVolumes].
+<2> `projectedVolumes` is a helper attribute for generating https://kubernetes.io/docs/concepts/storage/projected-volumes/[projectedVolumes,window=read-later].
 .. In this example it will generate a `volume` entry for ConfigMap in the Deployment.
 .. It will also create a volumeMount of the `volume` on the container at the given `mountPath`.
 .. Per the projectedVolume standard, any number of ConfigMaps, Secrets, etc., can be listed.

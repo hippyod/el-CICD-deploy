@@ -42,6 +42,6 @@ Deployments of applications in different configurations and environments is stan
 
 Extensible::
 
-Kubernetes is very extensible, as the abundance of https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/#custom-resources[Custom Resource Definitions] illustrates.  Deployment definitions should be able include all of them easily without requiring new code.
+Kubernetes is very extensible, as the abundance of https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/[Custom Resource Definitions,window=read-later] illustrates.  Deployment definitions should be able include all of them easily without requiring new code.
 
 The following tutorial will demonstrate how el-CICD Chart realizes these enhancements.
