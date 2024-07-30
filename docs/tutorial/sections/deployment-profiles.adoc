@@ -10,7 +10,7 @@
 In <<User-defined Variables>>, we demonstrated how to define and reference your own variables in your deployment definitions. In this part of the tutorial you'll learn about deployment profiles.  While the previous parts of the tutorial have focused on el-CICD Chart's strengths with regards to templating, readability, and conciseness, it's the deployment profiles that give el-CICD Chart its power.  This feature makes it much, much easier for users to manage a deployment definition across numerous environments with minimal configuration, because whole swaths of variable definitions and templates can be configured with under a single profile.
 
 Example use cases for deployment profiles::
-* https://en.wikipedia.org/wiki/Software_development_process[SDLC] 
+* https://en.wikipedia.org/wiki/Software_development_process[SDLC,window=read-later] 
 +
 Development, test, and production environments almost always vary in how they're configured for deployment.
 * Different locales
