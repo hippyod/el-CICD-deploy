@@ -1,0 +1,220 @@
+= el-CICD Chart Reference Documentation
+:toc:
+:toclevels: 3
+
+
+== Overview
+
+Helm is an excellent package management tool for Kubernetes, but it falls short when it comes to defining Kubernetes manifests.  Creating templates in Helm can be difficult to learn and master, and it provides no support for basic Kubernetes resources or configuration management.
+
+el-CICD Chart is a 100% compatible Helm chart that aims to be the only Helm chart needed for deployments.  No other tool is required than Helm, and el-CICD Chart uses strict YAML, as required by Helm, for defining it's deployment definitions; i.e. deployments defined using el-CICD Chart are just values.yaml files.
+
+el-CICD Chart is an overlay that does away with the need for Go templates and replaces it with a much simpler and -- in some cases -- more flexible alternative.
+
+=== Motivations
+
+When it came to defining templates in Helm, we found the following issues:
+
+Verbose::
+
+Helm templates and associated values files are verbose, and assume a good understanding of the Kubernetes resources required when creating templates.  Multiple copies of the same resource type with varying structural content can require multiple copies of the same, verbose boilerplate, because reuse of YAML is not directly supported, either.
+
+Obtuse::
+
+Go Template syntax and the supporting Sprig library is not very user friendly, which can be a steep learning curve even for experienced developers.
+
+Brittle::
+
+Configuration management isn't supported by Helm.  If structural changes are needed depending on the deployment context, charts can require significant rework to support each environment and/or configuration.
+
+It's code::
+
+Helm templates are code.  This means Helm charts need to be tested as if they are software, and any changes to the templates in chart also require testing.  This testing is separate from whatever they are meant to deploy.
+
+=== Solutions
+
+el-CICD Chart intends to solve the problems with Go templates by doing away with them.  Using el-CICD Chart, values.yaml file(s) becomes to primary for templating and defining deployments.  To that end, el-CICD Chart implements and adds the following features to values.yaml files:
+
+* Variables
+
+Rather than defined Go template variables, el-CICD Chart proposes defining variables for reuse in the values.yaml file(s).  Variables can hole any type that a Helm template variable can, plus the variables can be templates themselves; i.e. they can contain references to other variables.
+
+* Templates
+
+Templates should be defined as needed in the values.yaml file(s).  el-CICD Chart templates can template any YAML resource.
+
+* Deployment Profiles
+
+In order to support configuration management, el-CICD Chart supports __deployment profiles__.  These are simply an ordered list of tags that can be used to determine the value of a variable or whether a template should be rendered or not at deployment time.
+
+* Helper templates
+
+For common deployment problems, pre-defined templates are defined to further reduce the amount of boilerplate needed.  These pre-built templates can be used as many times necessary for multiple deployments of the same type with different configurations, or with the help of matrices to deploy multiple copies within or across namespaces.
+
+We feel adding these easy to use features to values.yaml files will significantly reduce the amount of boilerplate necessary to define Kubernetes deployments, as well as significantly reduce the learning curve needed to write them. 
+
+NOTE: For the remainder of this document, we will refer to values.yaml file(s) as a __deployment definition__.  In el-CICD Chart, these are the only files required for deploying to Kubernetes.
+
+== Deployment definitions
+
+The basic data required for creating a deployment definition consists of templates, variables, defaults, and deployment profiles.  The basic structure of an el-CICD Chart deployment definition is as follows:
+
+[source,YAML,linenums]
+----
+elCicdDefs(-*): # <1>
+  <SOME_VARIABLE_NAME>: <some-value>
+  ...
+
+elCicdTemplates(-*): # <2>
+- template(Name): <some-template>
+  ...
+----
+<1> elCicdDefs or elCicdDefs-* are maps of variables and their values.
+.. Variables can be any valid YAML string.
+.. Variable values can be any valid YAML value.
+.. Variables can reference other variables.
+<2> elCicdTemplates or elCicdTemplates-* are lists of el-CICD Chart templates.
+.. Templates can be either built-in el-CICD Chart templates referenced by name (templateName), or are expressed as the complete YAML to be rendered (template).
+.. Variables can be referenced within templates.
+
+ Deployment profiles are optionally defined on the command line in a list using the `elCicdProfiles` variable:
+
+`helm upgrade --install --set elCicdProfiles='{<list of zero or more profiles}' ...`
+
+=== Templates
+
+==== Helper attributes
+
+==== Matrices
+
+==== Helper Templates
+
+===== Compound Helper Templates
+
+===== Default Values
+
+==== Raw Templates
+
+=== Deployment Profiles
+
+**__Deployment profiles__** are the primary mechanism by which el-CICD Chart supports configuration management within a deployment definition.  They are defined as a list, `elCicdProfiles`, typically on the command line.  A profile in the list is said to be __active__ when rendering el-CICD Chart.  If more than one profile is active at a time, precedence is given from least to greatest in the order of the list.
+
+Within a deployment definition, variables and templates are tagged with profiles, and then processed based on which profiles are active or not; i.e. deployment profiles are used to determine the values of variables and whether a template is rendered or not.  Because of this, a single deployment definition can hold multiple different deployment configurations with ease.
+
+See <<Profile specific overrides>> to understand how variables values are determined based on the active profile(s).
+
+See <<Template filtering>> to understand how templates are rendered or not based on the active profile(s).
+
+==== Template filtering
+
+=== Variables
+
+In traditional Helm, values.yaml are static YAML files, and logic and variables are defined in the templates of the chart.  el-CICD Chart does away with the need to write Helm (Go) templates, and implements defining variables in values.yaml; i.e. deployment definitions.
+
+==== Defining
+
+Variables are defined in YAML maps named starting with `elCicdDefs` either at the root of a document or the root of an <<Templates,el-CICD Template>>, and may contain any valid YAML syntax and type.
+
+.Variable definitions by type
+[source,YAML,linenums]
+----
+elCicdDefs:
+  STRING: string
+
+  LONGER_STRING: |-
+    long
+    multiline
+    text
+
+  BOOLEAN: true
+
+  NUMBER: 10
+
+  MAP:
+    foo: bar
+
+  LIST:
+  - foo
+  - bar
+
+----
+
+===== Naming and conventions
+
+Variable names may be word character and the dash, `-`, character, although the `-` character cannot start or end a variable name.  The https://pkg.go.dev/regexp/syntax[regular expression] for a variable name is
+
+`[\w]+?(?:[-][\w]+?)*`
+
+By convention, variables are named as UPPER_SNAKE_CASE, similar to  scripting in shell.
+
+==== Referencing
+
+Given a variable SOME_VARIABLE, variables are referenced with the following syntax:
+
+`$<...>`
+
+Escaping a variable:
+
+`\$<...>`
+
+Because of the way Helm works, the `elCicdDef` maps are read in in full with the rest of the deployment definition, and each variable reference value is only then calculated; therefore, variables do **NOT** have to be defined before being referenced.
+
+.Variables referencing other variables
+[source,YAML,linenums]
+----
+elCicdDefs:
+  OTHER_VARIABLE: $<VARIABLE> # <2>
+
+  VARIABLE: some-name # <1>
+
+  $<OTHER_VARIABLE>: final-value # <3>
+
+  ESCAPED_VARIABLE: \$<LITERAL_VALUE>
+----
+<1> `VARIABLE` has the value of `some-name`.
+<2> `OTHER_VARIABLE` references `VARIABLE`, and therefore has the value `some-name`.
+<3> `OTHER_VARIABLE` is referenced as the key to a variable; therefore, a variable is defined as `some-name` with the value `final-value`.
+<4> `ESCAPED_VARIABLE` has the string value "`$<LITERAL_VALUE>`", which is **NOT** a variable refrence, because of the `\` in front of the `$` escaping it.
+
+
+==== Built-in variables
+
+el-CICD Chart
+
+===== Helm built-in variables
+
+el-CICD Chart has a few built-in variables derived from https://helm.sh/docs/chart_template_guide/builtin_objects/[Helm's built-in objects].  
+
+.el-CICD Chart Helm Built-in variable examples
+[source,YAML,linenums]
+----
+elCicdDefs:
+  MY_RELEASE_NAME: $<HELM_RELEASE_NAME> # <1>
+  MY_RELEASE_NAMESPACE: $<HELM_RELEASE_NAMESPACE> # <2>
+----
+<1> `HELM_RELEASE_NAME` is equivalent to `.Release.Name`, the release name when deployed
+<2> `HELM_RELEASE_NAME` is equivalent to `.Release.Namespace`, the release namespace when deployed
+
+===== Template built-in variables
+
+==== Overriding
+
+== Alternative use-cases and utilities
+
+=== copyResources
+
+=== FILE and CONFIG variables
+
+=== Third party Helm charts
+
+=== Kustomize
+
+=== YAML templates
+
+== API Reference
+
+=== Built-in Variables
+
+=== Built-in Defaults
+
+=== Kubernetes Templates
