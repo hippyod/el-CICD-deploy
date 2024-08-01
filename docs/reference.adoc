@@ -47,13 +47,13 @@ Templates should be defined as needed in the values.yaml file(s).  el-CICD Chart
 
 In order to support configuration management, el-CICD Chart supports __deployment profiles__.  These are simply an ordered list of tags that can be used to determine the value of a variable or whether a template should be rendered or not at deployment time.
 
-* Helper templates
+* Built-in templates
 
 For common deployment problems, pre-defined templates are defined to further reduce the amount of boilerplate needed.  These pre-built templates can be used as many times necessary for multiple deployments of the same type with different configurations, or with the help of matrices to deploy multiple copies within or across namespaces.
 
 We feel adding these easy to use features to values.yaml files will significantly reduce the amount of boilerplate necessary to define Kubernetes deployments, as well as significantly reduce the learning curve needed to write them. 
 
-NOTE: For the remainder of this document, we will refer to values.yaml file(s) as a __deployment definition__.  In el-CICD Chart, these are the only files required for deploying to Kubernetes.
+NOTE: For the remainder of this document, we will refer to values.yaml file(s) as a __deployment definition__.  These are the only files required for deploying to Kubernetes, because el-CICD Chart does the rest.
 
 == Deployment definitions
 
@@ -76,6 +76,7 @@ elCicdTemplates(-*): # <2>
 <2> elCicdTemplates or elCicdTemplates-* are lists of el-CICD Chart templates.
 .. Templates can be either built-in el-CICD Chart templates referenced by name (templateName), or are expressed as the complete YAML to be rendered (template).
 .. Variables can be referenced within templates.
+. 
 
  Deployment profiles are optionally defined on the command line in a list using the `elCicdProfiles` variable:
 
@@ -83,17 +84,112 @@ elCicdTemplates(-*): # <2>
 
 === Templates
 
+el-CICD templates are defined as a list of maps:
+
+[source,YAML,linenums]
+----
+elCicdTemplates(-*): # <1>
+- templateName: <some-template>  # <2>
+  ...
+- template: # <3>
+    <full-yaml-definition>
+  ...
+----
+<1> Name of list, prefixed by `elCicdTemplates`, of el-CICD Chart templates.
+<2> el-CICD Chart template using a built-in helper template.
+<3> el-CICD Chart template defined by its full YAML definition.
+
+In order to support multiple values.yaml files for flexibility and modularity when rendering deployment definitions with Helm, multiple `elCicdTemplates` lists may be created.  Each el-CICD Chart templates list must be `elCicdTemplates` or start with `elCicdTemplates-`.  Order is irrelevant, as they are lists and simply concatenated.  The names have no other meaning other than to keep the lists unique, or they will overwrite each other:
+
+.Example deployment definition with three elCicdTemplates lists
+[source,YAML,linenums]
+----
+elCicdTemplates:
+- templateName: <some-template>
+  ...
+
+elCicdTemplates-second-list:
+- templateName: <some-template>
+  ...
+
+elCicdTemplates-with-yaml:
+- template:
+    <full-yaml-definition>
+  ...
+----
+
+el-CICD Chart supports two types of templates:
+
+* **Built-in templates**: Templates defined el-CICD Chart with many predefined defaults and helper attributes to make rendering resources simpler and less verbose.
+* **YAML templates**: Templates of plain YAML that define all or most of resource to be rendered.
+
+Each template definition in an elCicdTemplates list must define either a `templateName`, referring to a built-in el-CICD Chart helper template, or `template`, which contain a more complete YAML definition of the resource to be rendered.
+
 ==== Helper attributes
 
-==== Matrices
+All el-CICD templates, whether YAML or helper, have a number of helper attributes.  The list and their function is as follows.
 
-==== Helper Templates
+* `rawYaml`: Only applies to YAML templates.  If `true`, do not attempt to render a `metadata` section.
+* `objName`: Name of the resource to be rendered.  For Kubernetes compatible resources, this corresponds directly to `metadata.name`.
+* `namespace`: Kubernetes namespace to deploy the resource.  Directly corresponds to `metadata.namespace`.
+* `labels`: Renders a map of labels to `metadata.labels`.
+* `annotations`: Renders a map of labels to `metadata.annotations`.
 
-===== Compound Helper Templates
+===== Matrices
+
+Matrices are a special kind of helper attribute.  They are a lists of strings, each of which is used to generate a copy of the template they belong to.  el-CICD Chart currently only supports two matrix keys:
+
+* `objNames`: Each value in the list will generate a copy of the template and set the `objName` of the copy.
+* `namespaces`: Each value in the list will generate a copy of the template and set the `namespace` of the copy.
+
+When `objNames` or `namespaces` is defined, the final value inserted into their singular helper attributes can be decorated:
+
+* `$<>`: This construct will insert the literal value from the matrix.
+* `$<#>`: This construct will insert the index of the value in the matrix list.
+
+For example, following two deployment definitions are equivalent:
+
+[source,YAML,linenums]
+----
+elCicdTemplates:
+- templateName: <some-template>
+  objNames: [foo, bar]
+  namespaces: [zip, zap]
+  objName: $<>-static-text-$<#>
+  namespace: $<>-some-text-$<#>
+----
+
+and
+
+[source,YAML,linenums]
+----
+elCicdTemplates:
+- templateName: <some-template>
+  objName: foo-static-text-1
+  namespace: zip-some-text-1
+
+- templateName: <some-template>
+  objName: bar-static-text-2
+  namespace: zip-some-text-1
+
+- templateName: <some-template>
+  objName: foo-static-text-1
+  namespace: zap-some-text-2
+
+- templateName: <some-template>
+  objName: bar-static-text-2
+  namespace: zap-some-text-2
+----
+
+==== Built-in templates
+
+el-CICD Chart defines a number of built-in template definitions in order to further reduce end-user boilerplate necessary to create deployment definitions.  Currently, the built-in templates focus on application deployments.  It is hoped that el-CICD Chart will be able to support infrastructure Kubernetes features in the future.
+
+===== Compound Built-in templates
 
 ===== Default Values
 
-==== Raw Templates
+==== YAML Templates
 
 === Deployment Profiles
 
