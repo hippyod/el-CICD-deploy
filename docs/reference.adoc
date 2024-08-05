@@ -5,15 +5,11 @@
 
 == Overview
 
-Helm is an excellent package management tool for Kubernetes, but it falls short when it comes to defining Kubernetes manifests.  Creating templates in Helm can be difficult to learn and master, and it provides no support for basic Kubernetes resources or configuration management.
+Helm is an excellent package management tool for deploying to Kubernetes, but it falls short when it comes to defining Kubernetes manifests through its templates.  Creating templates in Helm can be difficult to learn and master, has no support for Kubernetes resources, and it provides no support and is a poor tool for configuration management.
 
-el-CICD Chart is a 100% compatible Helm chart that aims to be the only Helm chart needed for deployments.  No other tool is required than Helm, and el-CICD Chart uses strict YAML, as required by Helm, for defining it's deployment definitions; i.e. deployments defined using el-CICD Chart are just values.yaml files.
+=== Issues with Helm templates
 
-el-CICD Chart is an overlay that does away with the need for Go templates and replaces it with a much simpler and -- in some cases -- more flexible alternative.
-
-=== Motivations
-
-When it came to defining templates in Helm, we found the following issues:
+A summary of the issues with Helm/Go templates is as follows:
 
 Verbose::
 
@@ -31,33 +27,37 @@ It's code::
 
 Helm templates are code.  This means Helm charts need to be tested as if they are software, and any changes to the templates in chart also require testing.  This testing is separate from whatever they are meant to deploy.
 
-=== Solutions
+=== A better way to create templates in Helm
 
-el-CICD Chart intends to solve the problems with Go templates by doing away with them.  Using el-CICD Chart, values.yaml file(s) becomes to primary for templating and defining deployments.  To that end, el-CICD Chart implements and adds the following features to values.yaml files:
+el-CICD Chart is a 100% compatible Helm chart that does away with the need for Go templates and replaces it with a much simpler and -- in some cases -- more flexible alternative for defining deployments to Kubernetes.  No other tool is required other than Helm, and el-CICD Chart uses strict YAML, for defining it's deployment definitions.  The goal is to make sure there is no need to ever define a Helm/Go template again.
 
-* Variables
+With el-CICD Chart deployment definitions -- i.e. https://helm.sh/docs/chart_template_guide/values_files/[Helm values.yaml files] -- you can do the following:
 
-Rather than defined Go template variables, el-CICD Chart proposes defining variables for reuse in the values.yaml file(s).  Variables can hole any type that a Helm template variable can, plus the variables can be templates themselves; i.e. they can contain references to other variables.
+* Define variables
 
-* Templates
+Rather than defined Go template variables, el-CICD Chart proposes defining variables for reuse in values.yaml files.  Variables can hold any type that a Helm template variable can, and because variables can reference one more variables themselves, the variables can be used as templates for data.
 
-Templates should be defined as needed in the values.yaml file(s).  el-CICD Chart templates can template any YAML resource.
+* Template
 
-* Deployment Profiles
+el-CICD Chart supports defining templates of resources in the Helm values.yaml files, without the need of defining a Go template.  el-CICD Chart templates can template is mainly used for templating Kubernetes resources, but can be used to template any YAML output.
+
+* Define deployment profiles
 
 In order to support configuration management, el-CICD Chart supports __deployment profiles__.  These are simply an ordered list of tags that can be used to determine the value of a variable or whether a template should be rendered or not at deployment time.
 
-* Built-in templates
+* Leverage built-in templates
 
 For common deployment problems, pre-defined templates are defined to further reduce the amount of boilerplate needed.  These pre-built templates can be used as many times necessary for multiple deployments of the same type with different configurations, or with the help of matrices to deploy multiple copies within or across namespaces.
 
-We feel adding these easy to use features to values.yaml files will significantly reduce the amount of boilerplate necessary to define Kubernetes deployments, as well as significantly reduce the learning curve needed to write them. 
-
-NOTE: For the remainder of this document, we will refer to values.yaml file(s) as a __deployment definition__.  These are the only files required for deploying to Kubernetes, because el-CICD Chart does the rest.
+These easy to use features to values.yaml files significantly reduce the amount of boilerplate necessary to define Kubernetes deployments, as well as significantly reduce the learning curve needed to write them. 
 
 == Deployment definitions
 
-The basic data required for creating a deployment definition consists of templates, variables, defaults, and deployment profiles.  The basic structure of an el-CICD Chart deployment definition is as follows:
+In el-CICD Chart, a collection of one or more https://helm.sh/docs/chart_template_guide/values_files/[Helm values.yaml files] defining a deployment will be referred to as a **__deployment definition__**.  These are the only files required for deploying to Kubernetes, because el-CICD Chart Go templates as processed by Helm do the rest.
+
+The basic data required for creating a deployment definition consists of templates for defining what is rendered through Helm, variables for defining reusable data to be used in templates, and deployment profiles to support using a single deployment definition for many different configurations.  el-CICD Chart adds default resource template definitions with reasonable default values in order to further reduce boilerplate for to make things easier.
+
+The basic structure of an el-CICD Chart deployment definition is as follows:
 
 [source,YAML,linenums]
 ----
@@ -66,21 +66,28 @@ elCicdDefs(-*): # <1>
   ...
 
 elCicdTemplates(-*): # <2>
-- template(Name): <some-template>
+- template(Name): <built-in-template-name>
   ...
 ----
 <1> elCicdDefs or elCicdDefs-* are maps of variables and their values.
 .. Variables can be any valid YAML string.
-.. Variable values can be any valid YAML value.
-.. Variables can reference other variables.
+.. Variable values can be any valid YAML type.
+.. Variables can incorporate other variable references within them.
 <2> elCicdTemplates or elCicdTemplates-* are lists of el-CICD Chart templates.
 .. Templates can be either built-in el-CICD Chart templates referenced by name (templateName), or are expressed as the complete YAML to be rendered (template).
 .. Variables can be referenced within templates.
-. 
 
- Deployment profiles are optionally defined on the command line in a list using the `elCicdProfiles` variable:
+=== Deployment Profiles
 
-`helm upgrade --install --set elCicdProfiles='{<list of zero or more profiles}' ...`
+**__Deployment profiles__** are the primary mechanism by which el-CICD Chart supports configuration management within a deployment definition.  The list of profiles during a deployment is held in `elCicdProfiles`.  A profile in the `elCicdProfiles` list is said to be __active__ when rendering an el-CICD Chart.
+
+Deployment profiles are generally defined on the command line in a list using the `elCicdProfiles` variable:
+
+`helm upgrade --install --set elCicdProfiles='{<profile-1>,...,<profile-n>}' ...`
+
+Within a deployment definition, profiles are defined as either a discriminator for a map of <<Variables,variables>> or as condition for <<Template filtering>>, filtering templates>>.  Deployment profiles determine which values are applied to <<Profile specific,variables>> and whether a <<Template Filtering,template>> is rendered or not.  This feature is how a single deployment definition can hold multiple different configurations.
+
+The default deployment profile is an empty list; i.e. no active profiles.  If more than one profile is active at a time, precedence is defined as least to greatest in the order of the list per Helm conventions.
 
 === Templates
 
@@ -89,7 +96,7 @@ el-CICD templates are defined as a list of maps:
 [source,YAML,linenums]
 ----
 elCicdTemplates(-*): # <1>
-- templateName: <some-template>  # <2>
+- templateName: <built-in-template-name>  # <2>
   ...
 - template: # <3>
     <full-yaml-definition>
@@ -99,17 +106,22 @@ elCicdTemplates(-*): # <1>
 <2> el-CICD Chart template using a built-in helper template.
 <3> el-CICD Chart template defined by its full YAML definition.
 
-In order to support multiple values.yaml files for flexibility and modularity when rendering deployment definitions with Helm, multiple `elCicdTemplates` lists may be created.  Each el-CICD Chart templates list must be `elCicdTemplates` or start with `elCicdTemplates-`.  Order is irrelevant, as they are lists and simply concatenated.  The names have no other meaning other than to keep the lists unique, or they will overwrite each other:
+In order to support multiple values.yaml files for flexibility and modularity when rendering deployment definitions with Helm, multiple `elCicdTemplates` lists may be created.  Each el-CICD Chart templates list must be be named as either: 
+
+* `elCicdTemplates`, or
+* `elCicdTemplates-`
+
+The order the lists appear in is irrelevant.  Multiple lists are concatenated.  Each list name should be unique per deployment definitions, or the Helm rules for merging values.yaml files will have the last named list as the only one that will be processed.  The text after `elCicdTemplates-` can be any valid YAML string.
 
 .Example deployment definition with three elCicdTemplates lists
 [source,YAML,linenums]
 ----
 elCicdTemplates:
-- templateName: <some-template>
+- templateName: <built-in-template-name>
   ...
 
 elCicdTemplates-second-list:
-- templateName: <some-template>
+- templateName: <built-in-template-name>
   ...
 
 elCicdTemplates-with-yaml:
@@ -118,41 +130,95 @@ elCicdTemplates-with-yaml:
   ...
 ----
 
+==== Types of templates
+
 el-CICD Chart supports two types of templates:
 
-* **Built-in templates**: Templates defined el-CICD Chart with many predefined defaults and helper attributes to make rendering resources simpler and less verbose.
+* **Built-in templates**: Templates defined within el-CICD Chart with many predefined defaults and helper attributes to make rendering resources simpler and less verbose.
++
+Built-in templates use the <<Built-in templates,`templateName`>> key to use a single built-in, and <<Compound Built-in templates,`templateNames`>> to use more than one in a template definition.
 * **YAML templates**: Templates of plain YAML that define all or most of resource to be rendered.
-
-Each template definition in an elCicdTemplates list must define either a `templateName`, referring to a built-in el-CICD Chart helper template, or `template`, which contain a more complete YAML definition of the resource to be rendered.
++
+YAML templates use the `template` key to define a full YAML template.
 
 ==== Helper attributes
 
-All el-CICD templates, whether YAML or helper, have a number of helper attributes.  The list and their function is as follows.
+All el-CICD templates, whether YAML or helper, have a number of helper attributes.  Helper attributes are any attributes not under the `template` key.  The list and their function is as follows.
 
-* `rawYaml`: Only applies to YAML templates.  If `true`, do not attempt to render a `metadata` section.
-* `objName`: Name of the resource to be rendered.  For Kubernetes compatible resources, this corresponds directly to `metadata.name`.
-* `namespace`: Kubernetes namespace to deploy the resource.  Directly corresponds to `metadata.namespace`.
-* `labels`: Renders a map of labels to `metadata.labels`.
-* `annotations`: Renders a map of labels to `metadata.annotations`.
+* `**rawYaml**`: Only applies to YAML templates.  If `true`, el-CICD Chart will not attempt to render the required Kubernetes field `kind`, `apiVersion`, or the `metadata` map.
+* `**objName**`: Name of the resource to be rendered.  For Kubernetes compatible resources, this corresponds directly to `metadata.name`.
+* `**namespace**`: Kubernetes namespace to deploy the resource.  Directly corresponds to `metadata.namespace`.
+* `**labels**`: Renders a map of labels to `metadata.labels`.
+* `**annotations**`: Renders a map of labels to `metadata.annotations`.
 
-===== Matrices
+All `metadata` values are ignored if `rawYaml` is true.
 
-Matrices are a special kind of helper attribute.  They are a lists of strings, each of which is used to generate a copy of the template they belong to.  el-CICD Chart currently only supports two matrix keys:
+===== Template filtering
 
-* `objNames`: Each value in the list will generate a copy of the template and set the `objName` of the copy.
-* `namespaces`: Each value in the list will generate a copy of the template and set the `namespace` of the copy.
+**__Filters__** are special types of helper attributes the determine whether a template is rendered or not.  Each is a list of one or more profiles.  The act of defining an element in any of the lists below is onw way in which profiles are defined in deployment definitions.
 
-When `objNames` or `namespaces` is defined, the final value inserted into their singular helper attributes can be decorated:
+* `**mustHaveAnyProfile**`: at least one profile in this list must be an active profile for the template to render.
+* `**mustHaveEveryProfile**`: every profile in this list must be active for the template to render.
+* `**mustNotHaveAnyProfile**`: none of the profiles in this list can be active for the template to render.
+* `**mustNotHaveEveryProfile**`: if every profile in this list is active at the same time, do not render the template. 
 
-* `$<>`: This construct will insert the literal value from the matrix.
-* `$<#>`: This construct will insert the index of the value in the matrix list.
+Each of the above may be used in combination with each other; however, their order of precedence is not defined.
 
-For example, following two deployment definitions are equivalent:
+.Example of template filtering
+
+Given `elCicdProfiles='{profile-1,profile-3}'`; i.e. `profile-1` and `profile-3` are active:
 
 [source,YAML,linenums]
 ----
 elCicdTemplates:
-- templateName: <some-template>
+- templateName: <built-in-template-name>
+  objName: obj-1
+  mustHaveAnyProfile: [profile-1, profile-2] # <1>
+  ...
+
+elCicdTemplates-with-yaml:
+- mustHaveEveryProfile: [profile-1, profile-2] # <2>
+  objName: obj-2
+  template:
+    <full-yaml-definition>
+  ...
+
+elCicdTemplates-second-list:
+- templateName: <built-in-template-name>
+  objName: obj-3
+  mustNotHaveAnyProfile: [profile-1, profile-2] # <3>
+  ...
+
+elCicdTemplates-with-yaml:
+- mustNotHaveEveryProfile: [profile-1, profile-2, profile-3] # <4>
+  objName: obj-4
+  template:
+    <full-yaml-definition>
+  ...
+----
+<1> `mustHaveAnyProfile` requires either profile-1 or profile-3 to be active, so `obj-1` **IS** rendered.
+<2> `mustHaveEveryProfile` requires both profile-1 and profile-2 to be active, so `obj-2` is **NOT** rendered.
+<3> `mustNotHaveAnyProfile` requires neither profile-1 or profile-2 to be active, , so `obj-3` is **NOT** rendered.
+<4> `mustNotHaveEveryProfile` requires profile-1, profile-2, and profile-3 to not all be active at the same time, so `obj-4` **IS** rendered.
+
+===== Matrices
+
+**__Matrices__** are a special kind of helper attribute.  A matrix is a lists of strings, and el-CICD Chart will generate a copy of the template for each element in the matrix.  el-CICD Chart currently only supports two matrix keys:
+
+* `objNames`: Each element in the list will generate a copy of the template and set the `objName` of the copy.
+* `namespaces`: Each value in the list will generate a copy of the template and set the `namespace` of the copy.
+
+In conjunction with their associated matrix, the `objName` and `namespace` attributes can used to define how the final value will be rendered with the following patterns:
+
+* `$<>`: Insert the literal value from the matrix.
+* `$<#>`: Insert the index of the value in the matrix list.
+
+For example, using the above patterns, the following two deployment definitions are equivalent:
+
+[source,YAML,linenums]
+----
+elCicdTemplates:
+- templateName: <built-in-template-name>
   objNames: [foo, bar]
   namespaces: [zip, zap]
   objName: $<>-static-text-$<#>
@@ -164,48 +230,149 @@ and
 [source,YAML,linenums]
 ----
 elCicdTemplates:
-- templateName: <some-template>
+- templateName: <built-in-template-name>
   objName: foo-static-text-1
   namespace: zip-some-text-1
 
-- templateName: <some-template>
+- templateName: <built-in-template-name>
   objName: bar-static-text-2
   namespace: zip-some-text-1
 
-- templateName: <some-template>
+- templateName: <built-in-template-name>
   objName: foo-static-text-1
   namespace: zap-some-text-2
 
-- templateName: <some-template>
+- templateName: <built-in-template-name>
   objName: bar-static-text-2
   namespace: zap-some-text-2
 ----
 
 ==== Built-in templates
 
-el-CICD Chart defines a number of built-in template definitions in order to further reduce end-user boilerplate necessary to create deployment definitions.  Currently, the built-in templates focus on application deployments.  It is hoped that el-CICD Chart will be able to support infrastructure Kubernetes features in the future.
+el-CICD Chart defines a number of pre-defined templates defined in order to further reduce end-user boilerplate necessary to create deployment definitions, and these are referred to as **__built-in templates__**.  By convention, the names of built-in templates reflect the Kubernetes object they are to render; e.g. `deployment` for Deployment and `horizontalPodAutoscaler` for a HorizontalPodAutoscaler.  Built-in templates define themselves with the `templateName` key.
+
+NOTE: Currently, the built-in templates focus on application deployments.  It is hoped that el-CICD Chart will be able to support infrastructure Kubernetes features in the future.  
+
+.ConfigMap built-in template
+[source,YAML,linenums]
+----
+elCicdTemplates:
+- templateName: configMap # <1>
+  objName: my-configmap # <2>
+  labels: # <3>
+    my-label: my-app
+  data: # <4>
+    a-key: a-value
+----
+<1> Built-in template to render.
+<2> Eventual name of the rendered object.
+<3> Helper attribute defining the labels to be rendered.
+<4> `configMap` specific helper attribute for rendering the ConfigMap data.
+
+.ConfigMap rendered from built-in template
+[source,YAML,linenums]
+----
+apiVersion: v1 # <1>
+kind: ConfigMap # <1>
+metadata: # <1>
+  name: my-configmap  # <2>
+  labels: # <3>
+    my-label: my-app
+data:  # <4>
+  a-key: a-value
+----
+<1> ConfigMap `apiVersion`, `kind`, and `metadata` map for a Kubernetes object from the built-in `configMap` template.
+<2> `metadata.name` generated from `objName`.
+<3> `metadata.labels` generated from `labels`.
+<4> `data` generated from `data`.
+
+Some built-in templates only include helper attributes that reflect their normal attributes, such as the ConfigMap example above.  Some built-ins have a few helper attributes that significantly reduce the amount a boilerplate needed to define a complete object.  For a complete list of all built-ins and their helper attributes, see the <<Kubernetes Templates>>.
 
 ===== Compound Built-in templates
 
+In order to reduce excess boilerplate, el-CICD Chart allows defining **__compound built-in templates__**.  Compound built-in templates combine more than one built-in template definitions into a single definition with each individual built-in re-using any shared helper attributes.  Compound built-in templates are defined as a list of one more strings under the `templateNames`.
+
+.Deployment and Service as individual built-in templates
+[source,YAML,linenums]
+----
+elCicdTemplates:
+- templateName: deployment # <1>
+  objName: my-app
+  image: <some-image>
+  port: 8080 # <2>
+  
+- templateName: service # <1>
+  objName: my-app
+  port: 8081 # <2>
+  targetPort: 8080 # <3>
+----
+<1> `templateName` of the `deployment` and `service` built-in templates individually defined.
+<2> `port` is different on each individual template, because they are defined slightly differently for the Service and the Deployment.
+<3> `targetPort` needs to match the `deployment` port.
+
+.Deployment and Service as compound built-in templates
+[source,YAML,linenums]
+----
+elCicdTemplates:
+- templateNames: [deployment, service] # <1>
+  objName: my-app
+  image: <some-image>
+  port: 8081 # <2>
+  targetPort: 8080 # <2>
+----
+<1> `templateNames` defines this template as representing both a service and a deployment.
++
+TIP: We take advantage of the fact that YAML is a superset of JSON and use JSON-like notation here, because it looks more concise than a YAML list.
+<2> `port` is still defined for the `service`.
+<3> `targetPort` is also a helper attribute of `deployment` that has precedence over a `port` definition, making this compound template equivalent to the two individually defined templates in the previous example.
+
 ===== Default Values
+
+Many built-in templates have reasonable default values defined in order to further reduce boilerplate; e.g. if the `port` and `targetPort` are the same and the default values are sufficient, and the release name is sufficient as a `metadata.name`:
+
+.Deployment and Service as compound built-in templates
+[source,YAML,linenums]
+----
+elCicdTemplates:
+- templateNames: [deployment, service]
+  image: <some-image>
+----
+
+The above is the minimal amount that's needed in a deployment definition for a simple deployment of an application to a Kubernetes cluster using el-CICD Chart.
 
 ==== YAML Templates
 
-=== Deployment Profiles
+If more complex template definition are required, or a built-in template doesn't exist, a YAML template can be defined.  YAML templates are just fully defined objects.  While more verbose than using simpler built-in templates, Kubernetes is infinitely extensible with https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/[Custom Resource Definitions] (CRD's), and YAML templates means that no matter what CRD's are introduced now or int the future el-CICD Chart deployment definitions can adapt without needing to resort to needing to create Helm/Go templates.
 
-**__Deployment profiles__** are the primary mechanism by which el-CICD Chart supports configuration management within a deployment definition.  They are defined as a list, `elCicdProfiles`, typically on the command line.  A profile in the list is said to be __active__ when rendering el-CICD Chart.  If more than one profile is active at a time, precedence is given from least to greatest in the order of the list.
+For example, https://argo-cd.readthedocs.io/en/stable/[ArgoCD] is a popular GitOps solution for managing deployments to Kubernetes cluster, but el-CICD Chart currently has no built-in templates to support an ArgoCD https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/#applications[Application], but with YAML templates this isn't an issue:
 
-Within a deployment definition, variables and templates are tagged with profiles, and then processed based on which profiles are active or not; i.e. deployment profiles are used to determine the values of variables and whether a template is rendered or not.  Because of this, a single deployment definition can hold multiple different deployment configurations with ease.
+.Defining an ArgoCD Application for my-app
+[source,YAML,linenums]
+----
+elCicdTemplates:
+- template:
+    apiVersion: argoproj.io/v1alpha1
+    kind: Application
+    metadata:
+      name: my-application-name
+      namespace: argocd
+    spec:
+      project: default
+      source:
+        repoURL: https://my-git-server.com/my-org/my-app.git
+        targetRevision: HEAD
+        path: my-app
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: my-app-namespace
+----
 
-See <<Profile specific overrides>> to understand how variables values are determined based on the active profile(s).
-
-See <<Template filtering>> to understand how templates are rendered or not based on the active profile(s).
-
-==== Template filtering
+Built-in templates are a convenience, and not a necessity.  Anywhere a built-in template is used a YAML template can be substituted, and vice versa if a built-in template exists for the object being rendered; however, if a `templateName` or `templateNames` are defined, `template` will be ignored.
 
 === Variables
 
-In traditional Helm, values.yaml are static YAML files, and logic and variables are defined in the templates of the chart.  el-CICD Chart does away with the need to write Helm (Go) templates, and implements defining variables in values.yaml; i.e. deployment definitions.
+In traditional Helm, https://helm.sh/docs/chart_template_guide/values_files/[Helm values.yaml files] are static YAML files that are fed to a chart consisting of 
+Helm/Go templates and processed to produce resource definitions for deployment.  el-CICD Chart does away with the need to write Helm/Go templates, and instead implements a means for defining variables in values.yaml files; i.e. deployment definitions.
 
 ==== Defining
 
@@ -217,7 +384,7 @@ Variables are defined in YAML maps named starting with `elCicdDefs` either at th
 elCicdDefs:
   STRING: string
 
-  LONGER_STRING: |-
+  MULTILINE_STRING: |-
     long
     multiline
     text
@@ -232,20 +399,32 @@ elCicdDefs:
   LIST:
   - foo
   - bar
-
 ----
 
-===== Naming and conventions
-
-Variable names may be word character and the dash, `-`, character, although the `-` character cannot start or end a variable name.  The https://pkg.go.dev/regexp/syntax[regular expression] for a variable name is
+Variable names must start and end with an alphanumeric characterand followed with any combination of alphanumeric characters or single dashes, `-`.  The https://pkg.go.dev/regexp/syntax[regular expression] for a variable name is
 
 `[\w]+?(?:[-][\w]+?)*`
 
-By convention, variables are named as UPPER_SNAKE_CASE, similar to  scripting in shell.
+By convention, variables are named as UPPER_SNAKE_CASE, similar to scripting in shell.
+
+.Example valid and invalid variables
+[source,YAML,linenums]
+----
+elCicdDefs:
+  VALID_VAR: is-valid
+  valid-VAR: is-valid
+  1-valid-var: is-valid
+
+  -invalid-var: dash-at-the-beginning
+  INVALID_VAR-: dash-at-the-end
+  INVALID--VAR: double-dashes-middle-of-definition
+----
+
+TIP: Invalid variable definitions that are valid YAML are simply ignored.  It is not el-CICD Chart's place to flag valid YAML, and it should be pretty easy to debug any issues by looking at the eventual output.
 
 ==== Referencing
 
-Given a variable SOME_VARIABLE, variables are referenced with the following syntax:
+Variables are referenced with the following syntax:
 
 `$<...>`
 
@@ -253,49 +432,127 @@ Escaping a variable:
 
 `\$<...>`
 
-Because of the way Helm works, the `elCicdDef` maps are read in in full with the rest of the deployment definition, and each variable reference value is only then calculated; therefore, variables do **NOT** have to be defined before being referenced.
+This notation was chosen for two reasons:
 
-.Variables referencing other variables
+* No scripting languages use it, making the templating of scripts within an deployment definition straightforward.
+* Variables and their references are valid YAML both as keys in maps and as values in strings, maps, and lists.  Helm requires that values.yaml files (and therefore el-CICD Chart deployment definitions) be valid YAML.
+
+Because of the way Helm works, `elCicdDefs` variable maps are read in completely with the rest of the deployment definition, and each final variable reference value is only determined during processing; therefore, variables do **NOT** have to be defined before being referenced.
+
+.Example of variables referencing other variables
 [source,YAML,linenums]
 ----
 elCicdDefs:
-  OTHER_VARIABLE: $<VARIABLE> # <2>
+  OTHER_VARIABLE: $<VARIABLE> # <1>
 
-  VARIABLE: some-name # <1>
+  VARIABLE: some-name # <2>
 
   $<OTHER_VARIABLE>: final-value # <3>
 
-  ESCAPED_VARIABLE: \$<LITERAL_VALUE>
+  ESCAPED_VARIABLE: \$<LITERAL_VALUE> # <4>
+
+  FOO: foo
+  BAR: bar
+  $<$<FOO>$<BAR>>: dynamic-$<FOO>$<BAR>-value # <5>
 ----
-<1> `VARIABLE` has the value of `some-name`.
-<2> `OTHER_VARIABLE` references `VARIABLE`, and therefore has the value `some-name`.
+<1> `OTHER_VARIABLE` references `VARIABLE` (defined two immediately aferwards), and therefore has the value `some-name`.
+<2> `VARIABLE` has the value of `some-name`.
 <3> `OTHER_VARIABLE` is referenced as the key to a variable; therefore, a variable is defined as `some-name` with the value `final-value`.
 <4> `ESCAPED_VARIABLE` has the string value "`$<LITERAL_VALUE>`", which is **NOT** a variable refrence, because of the `\` in front of the `$` escaping it.
-
+<5> `FOO` and `BAR` are dynamically used to define the variable `foobar`, with a value of `dynamic-foobar-value`
 
 ==== Built-in variables
 
-el-CICD Chart
+el-CICD Chart defines a number of built-in variables for use in templates, Helm and template.
 
 ===== Helm built-in variables
 
 el-CICD Chart has a few built-in variables derived from https://helm.sh/docs/chart_template_guide/builtin_objects/[Helm's built-in objects].  
 
-.el-CICD Chart Helm Built-in variable examples
+.el-CICD Chart Helm built-in variable examples
 [source,YAML,linenums]
 ----
 elCicdDefs:
   MY_RELEASE_NAME: $<HELM_RELEASE_NAME> # <1>
   MY_RELEASE_NAMESPACE: $<HELM_RELEASE_NAMESPACE> # <2>
 ----
-<1> `HELM_RELEASE_NAME` is equivalent to `.Release.Name`, the release name when deployed
-<2> `HELM_RELEASE_NAME` is equivalent to `.Release.Namespace`, the release namespace when deployed
+<1> `**HELM_RELEASE_NAME**` is equivalent to `.Release.Name`, the release name when deployed
+<2> `**HELM_RELEASE_NAME**` is equivalent to `.Release.Namespace`, the release namespace when deployed
 
 ===== Template built-in variables
 
-==== Overriding
+Each template has it's own set of built-in variables set when being processed for use in deployment definitions:
+
+.el-CICD Chart template built-in variable examples
+[source,YAML,linenums]
+----
+elCicdDefs:
+  MY_OBJ_NAME: $<OBJ_NAME> # <1>
+  MY_BASE_OBJ_NAME: $<BASE_OBJ_NAME> # <2>
+  MY_NAME_SPACE: $<NAME_SPACE> # <3>
+  MY_BASE_NAME_SPACE: $<BASE_NAME_SPACE> # <4>
+----
+<1> `**OBJ_NAME**`: value of the `objName` helper attribute.
+<2> `**BASE_OBJ_NAME**`: value of an element from the `objNames` <<Matrices,matrix>>.  Will default to the value of `OBJ_NAME` if `objNames` is undefined.
+<3> `**NAME_SPACE**`: namespace the resource will be deployed to.  Defaults to `HELM_RELEASE_NAMESPACE`.
+<4> `**BASE_NAME_SPACE**`: value of an element from the `namespaces` matrix.  Will default to `NAME_SPACE` is `namespaces` is undefined.
+
+==== Scoping
+
+`elCicdDefs` variable maps may be assigned scope with up to two labels delimited by a dash, `-`.  `elCicdDefs` may also be scoped globally for all templates, or for a particular template.  Where they are referenced also affects their final values.
+
+===== Defining scoped variable maps 
+
+Scoping labels are matched against the following, in order of precedence:
+
+* **Profile**: a given profile.
+* **Base object names**: The value of `BASE_OBJ_NAME`; i.e. the element in the `objNames` matrix that generated the copy of the template.
+* **Object name**: the value of `OBJ_NAME` in a template; i.e. `objName`.
+
+{empty}
+
+Order of precedence::
+
+Order of precedence determines which value is assigned a variable in case the variable is defined in multiple variable maps.
+
+From least to greatest:
+
+. `**elCicdDefs**`: default.
+. `**elCicdDefs-<profile>**`: for conflicts between profiles, deployment profiles precedence is from least to greatest in the `elCicdProfiles` list.
+. `**elCicdDefs-<BASE_OBJ_NAME>`: element as defined in an `objNames` list.
+. `**elCicdDefs-<objName>**`: `objName` values.
+. `**elCicdDefs-<profile>-<BASE_OBJ_NAME>**`: element as defined in an `objNames` list for a specific profile.
+. `**elCicdDefs-<profile>-<objName>**`: `objName` values for a specific profile.
+
+The same collection of lists may be defined globally, or under a specific a template with the same order of precedence.  All variable maps defined in a template will have precedence over a globally defined variable map.
+
+.`elCicdDefs` scoping label examples
+[source,YAML,linenums]
+----
+elCicdDefs: {} # <1>
+
+elCicdDefs-scoping_label: {} # <2>
+
+elCicdDefs-scoping_label-scoping_label2: {} # <3>
+
+elCicdTemplates:
+- templateName: configMap  # <4>
+    elCicdDefs: {}
+    elCicdDefs-scoping_label: {}
+    elCicdDefs-scoping_label-scoping_label2: {}
+----
+<1> Default `elCidDefs` variable maps.  Contains default variables and their values.
+<2> Scoped `elCicdDefs` variable map that will be processed is the active profile or an object or base object name is matched against `scoping_label`.
+<3> Scoped `elCicdDefs` variable map that will be processed if `scoping_label` is an active profile __and__ the template being processed has an object or base object name of `scoping_label2`.
+<4> All the `elCicdDefs` variable maps are analyzed the same as the global ones, except for the `configMap` template only.
+
+===== Default helper attributes
+
+All helper attributes on templates can reference variables, but default helper attributes are only able to reference globall defined variables, and not template specific variables.
 
 == Alternative use-cases and utilities
+
+=== projectedVolumes
 
 === copyResources
 
@@ -304,8 +561,6 @@ elCicdDefs:
 === Third party Helm charts
 
 === Kustomize
-
-=== YAML templates
 
 == API Reference
 
