@@ -48,7 +48,7 @@
   {{- $objName := index . 4 }}
 
   {{- range $profile := $.Values.elCicdProfiles }}
-    {{- if not (regexMatch $.Values.__EC_PROFILE_NAMING_REGEX $profile) }}
+    {{- if not (regexMatch $.Values.__EC_PROFILE_REGEX $profile) }}
       {{- fail (printf "profile \"%s\" does match regex naming requirements , \"%s\"" $profile $.Values.__EC_PROFILE_NAMING_REGEX) }}
     {{- end }}
     {{- $profileDefs := get $elCicdDefsMap (printf "elCicdDefs-%s" $profile) }}
@@ -61,7 +61,7 @@
   {{- end }}
 
   {{- if $objName }}
-    {{- if not (regexMatch $.Values.__EC_PROFILE_NAMING_REGEX $objName) }}
+    {{- if not (regexMatch $.Values.__EC_OBJNAME_REGEX $objName) }}
       {{- fail (printf "objName \"%s\" does match regex naming requirements , \"%s\"" $profile $.Values.__EC_PROFILE_NAMING_REGEX) }}
     {{- end }}
     {{- $objNameDefs := get $elCicdDefsMap (printf "elCicdDefs-%s" $objName) }}

@@ -30,13 +30,13 @@ The part of the tutorial will demonstrate deploying a default English and a mult
 [source,YAML]
 ----
 elCicdDefs:
-  MULTI_LINGUAL_PROFILE: multi-lingual
+  MULTI_LINGUAL_PROFILE: MULTI_LINGUAL
   INDEX_HTML_NAME: index.html
   DEFAULT_PAGE_CONTENT: <h1>Howdy from $<OBJ_NAME> in release $<HELM_RELEASE_NAME>!<h1>
   PAGE_CONTENT: $<DEFAULT_PAGE_CONTENT>
   HTML_PAGE: <!DOCTYPE html><html><body>$<PAGE_CONTENT></body></html>
 
-elCicdDefs|$<MULTI_LINGUAL_PROFILE>: # <1>
+elCicdDefs-$<MULTI_LINGUAL_PROFILE>: # <1>
   PAGE_CONTENT: <h1><a href="$<ENGLISH>">English</a>&nbsp;<a href="$<ESPANOL>">Español</a></h1>
   ENGLISH: english.html
   ESPANOL: espanol.html
@@ -64,9 +64,9 @@ elCicdTemplates:
   - $<ESPANOL>
   mustHaveAnyProfile:
   - $<MULTI_LINGUAL_PROFILE> # <1>
-  elCicdDefs|$<ENGLISH>: # <2>
+  elCicdDefs-$<ENGLISH>: # <2>
     PAGE_CONTENT:  $<DEFAULT_PAGE_CONTENT>
-  elCicdDefs|$<ESPANOL>: # <2>
+  elCicdDefs-$<ESPANOL>: # <2>
     PAGE_CONTENT: <h1>¡Hola desde $<OBJ_NAME> en el lanzamiento $<HELM_RELEASE_NAME>!<h1>
   data:
     $<OBJ_NAME>: $<HTML_PAGE>
