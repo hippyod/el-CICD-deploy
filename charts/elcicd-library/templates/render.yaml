@@ -1,0 +1,10 @@
+{{/*
+Default YAML file for using el-CICD Chart.  Calls the entry point template for el-CICD Chart, "elcicd-renderer.render".
+*/}}
+
+{{- if eq .Values.outputValuesYaml true }}
+  {{- $_ := unset .Values "outputValuesYaml" }}
+  {{- .Values | toYaml }}
+{{- else }}
+  {{- include "elcicd-renderer.render" . }}
+{{- end }}
