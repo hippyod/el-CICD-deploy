@@ -27,10 +27,16 @@ jobs:
       with:
         ref: gh-pages
 
+    - name: Merge main -> gh-pages
+      uses: devmasx/merge-branch@master
+      with:
+        type: now
+        from_branch: main
+        target_branch: gh-pages
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Configure Git
       run: |
-        git fetch ${{ github.repository }} main
-        git merge main
         git config --global user.name "${{ github.repository_owner }}"
         git config --global user.email "${{ github.repository_owner }}@donotreply.org"
 
