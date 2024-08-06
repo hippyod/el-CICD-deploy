@@ -162,4 +162,4 @@ spec:
 # Rendered el-CICD Chart Template -> "ingress" elcicd-chart-demo
 ---
 # Source: elcicd-chart/templates/render.yaml
-# Profiles: [multi-lingual]
+# Profiles: [MULTI-LINGUAL]

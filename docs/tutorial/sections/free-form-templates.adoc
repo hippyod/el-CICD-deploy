@@ -51,10 +51,10 @@ elCicdDefs:
         echo ${WELCOME_MSG};
     done
 
-elCicdDefs|$<ENGLISH_JOB>:
+elCicdDefs-$<ENGLISH_JOB>:
   WELCOME_MSG: 'Howdy from $<OBJ_NAME> in release $<HELM_RELEASE_NAME>!'
 
-elCicdDef|$<ESPANOL_JOB>:
+elCicdDef-$<ESPANOL_JOB>:
   WELCOME_MSG: '¡Hola desde $<OBJ_NAME> en el lanzamiento $<HELM_RELEASE_NAME>!'
 
 elCicdTemplates:

@@ -22,7 +22,7 @@ A particular component may or may not need to be deployed as highly available an
 
 Deployment profiles are most useful whenever any significant amount of data/or and configuration within a deployment needs to change in unison based on a single deployment.
 
-The part of the tutorial will demonstrate deploying a default English and a multi-lingual deployment of our contrived web application.  Because the `multi-lingual` profile will be specified, content of index.html will change, and two extra ConfigMaps will be deployed.
+The part of the tutorial will demonstrate deploying a default English and a MULTI_LINGUAL deployment of our contrived web application.  Because the `MULTI_LINGUAL` profile will be specified, content of index.html will change, and two extra ConfigMaps will be deployed.
 
 [discrete]
 ==== Create and save the following file as `elcicd-demo-4.yaml`
@@ -72,11 +72,12 @@ elCicdTemplates:
     $<OBJ_NAME>: $<HTML_PAGE>
 ----
 <1> Deployment profiles are declared whenever an el-CICD Chart template and/or `elCicdDefs` variable map is marked for them.
-..  `elCicdDefs-$<MULTI_LINGUAL_PROFILE>` declares the `$<MULTI_LINGUAL_PROFILE>` (`multi-lingual`) profile.
-... Variables defined under this map will only be realized when the `multi-lingual` profile is active.
+.. Deployment profiles must consist of upper case alphanumeric characters, '_' or '.', and must start and end with an alphanumeric character.
+.. `elCicdDefs-$<MULTI_LINGUAL_PROFILE>` declares the `$<MULTI_LINGUAL_PROFILE>` (`MULTI_LINGUAL`) profile.
+... Variables defined under this map will only be realized when the `MULTI_LINGUAL` profile is active.
 ... `elCicdDefs` maps may only reference one profile at a time.
-.. `mustHaveAnyProfile` similarly declares the `$<MULTI_LINGUAL_PROFILE>` (`multi-lingual`) profile.
-... The `[$<ENGLISH>, $<ESPANOL>]` configMap template will only be processed when the `multi-lingual` profile is active.
+.. `mustHaveAnyProfile` similarly declares the `$<MULTI_LINGUAL_PROFILE>` (`MULTI_LINGUAL`) profile.
+... The `[$<ENGLISH>, $<ESPANOL>]` configMap template will only be processed when the `MULTI_LINGUAL` profile is active.
 ... The full list of template discriminators is
 .... `mustHaveAnyProfile`
 .... `mustHaveEveryProfile`
@@ -98,6 +99,7 @@ If a variable map name ends with `-` (e.g. `elCicdDefs-`) because a variable in 
 <3> `objNames` is one of two el-CICD Chart matrices that can be defined on an el-CICD Chart template.
 .. Matrices are lists that generate a copy of the template for each element in the list.
 .. `objName` will be assigned for each copy corresponding to an element in the `objNames` list used to generate it.
+.. All elements of the `objNames` matrix must follow the same naming rules as `.metadata.name`.
 .. This deployment definition will result in two configMap templates, `$<ENGLISH>` (`english.html) and `$<ESPANOL>` (`espanol.html`).
 
 ==== Deploy the httpd server without an active deployment profile
@@ -135,13 +137,13 @@ include::general-steps/verify-httpd-reachable.adoc[]
 . {empty}
 include::general-steps/uninstall-chart.adoc[]
 
-==== Install the httpd server with the `multi-lingual` deployment profile
-:helm-update-command: helm upgrade --install --atomic --history-max=0 -n elcicd-chart-demo --create-namespace --set elCicdProfiles='{multi-lingual}' -f elcicd-demo-4.yaml elcicd-chart-demo elcicd-charts/elcicd-chart
-:result-image: deployment-profiles-multi-lingual-screenshot.png
-:helm-manifest-file: deployment-profiles-multi-lingual-manifest
-:kubectl-get-file: deployment-profiles-multi-lingual-kubectl-get
+==== Install the httpd server with the `MULTI_LINGUAL` deployment profile
+:helm-update-command: helm upgrade --install --atomic --history-max=0 -n elcicd-chart-demo --create-namespace --set elCicdProfiles='{MULTI_LINGUAL}' -f elcicd-demo-4.yaml elcicd-chart-demo elcicd-charts/elcicd-chart
+:result-image: deployment-profiles-MULTI_LINGUAL-screenshot.png
+:helm-manifest-file: deployment-profiles-MULTI_LINGUAL-manifest
+:kubectl-get-file: deployment-profiles-MULTI_LINGUAL-kubectl-get
 
-el-CICD Chart deployment profiles are defined in `elCicdProfiles` as a list.  It only makes sense to define the active profile list outside of the deployment definition and at deployment time, or that would defeat their purpose.  The `helm update --install` command is modified to apply deployment profile `--set elCicdProfiles='{multi-lingual}'` clause.  If more than one deployment profile is specified, the order of precedence from least to greatest in determining the values of variables; e.g. if `elCicdProfiles={foo,bar}`, all values defined in the `bar` profile would take precedence over `foo`.
+el-CICD Chart deployment profiles are defined in `elCicdProfiles` as a list.  It only makes sense to define the active profile list outside of the deployment definition and at deployment time, or that would defeat their purpose.  The `helm update --install` command is modified to apply deployment profile `--set elCicdProfiles='{MULTI_LINGUAL}'` clause.  If more than one deployment profile is specified, the order of precedence is from least to greatest in determining the values of variables; e.g. if `elCicdProfiles={FOO,BAR}`, all values defined in the `BAR` profile would take precedence over `FOO`.
 
 This part of the demonstration will change the opening page to a pair of links that will take you to either English or Spanish versions of the "Howdy!" message.
 
@@ -150,7 +152,7 @@ This part of the demonstration will change the opening page to a pair of links t
 
 .What to expect
 ****
-* The deployment will take place with the `multi-lingual` deployment profile active.
+* The deployment will take place with the `MULTI_LINGUAL` deployment profile active.
 * An httpd Pod will be created and accessible from outside the cluster using a single, compound el-CICD Chart templates.
 * The el-CICD Chart templates used will include a single, compound single, compound el-CICD Chart template created from the deployment, service, and ingress.
 * A Deployment, Service, and Ingress will be deployed on the cluster using el-CICD Chart.
