@@ -42,7 +42,7 @@ jobs:
       run: |
         set -ex
         cd charts
-        CHART_DIRS='elcicd-common elcicd-renderer elcicd-kubernetes elcicd-chart'
+        CHART_DIRS='elcicd-common elcicd-renderer elcicd-kubernetes elcicd-library elcicd-chart'
         for CHART_DIR in ${CHART_DIRS}
         do
           helm package --dependency-update ./${CHART_DIR} -d .
