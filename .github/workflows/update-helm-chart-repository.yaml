@@ -50,7 +50,7 @@ jobs:
       env:
         CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
-    - name: Push Helm to GitHub OCI Registry
+    - name: Push Helm to ${{ github.repository_owner }} GitHub OCI Registry
       run: |
         set -ex
         cd charts
