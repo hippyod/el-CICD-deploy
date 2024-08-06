@@ -35,10 +35,11 @@ jobs:
         target_branch: gh-pages
         github_token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Configure Git
+    - name: Configure Git and pull latest
       run: |
         git config --global user.name "${{ github.repository_owner }}"
         git config --global user.email "${{ github.repository_owner }}@donotreply.org"
+        git pull
 
     - name: Build HTML
       uses: tonynv/asciidoctor-action@master
