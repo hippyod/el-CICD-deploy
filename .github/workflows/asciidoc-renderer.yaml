@@ -37,6 +37,7 @@ jobs:
 
     - name: Configure Git
       run: |
+        git pull
         git config --global user.name "${{ github.repository_owner }}"
         git config --global user.email "${{ github.repository_owner }}@donotreply.org"
 
