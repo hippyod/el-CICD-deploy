@@ -37,15 +37,15 @@ jobs:
 
     - name: Configure Git
       run: |
-        git config --global user.name "elcicd"
-        git config --global user.email "elcicd@donotreply.org"
+        git config --global user.name "${{ github.repository_owner }}"
+        git config --global user.email "${{ github.repository_owner }}@donotreply.org"
 
     - name: Helm Installation
       uses: azure/setup-helm@v3
       env:
         GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
-    - name: Run chart-releaser
+    - name: Run chart-releaser for ${{ github.repository }} charts
       uses: helm/chart-releaser-action@v1.6.0
       env:
         CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
