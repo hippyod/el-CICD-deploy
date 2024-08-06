@@ -54,6 +54,7 @@ jobs:
       run: |
         set -ex
         cd charts
+        git switch gh-pages
         for CHART_DIR in $(ls -d */)
         do
           echo ${{secrets.GITHUB_TOKEN}} | helm registry login -u NOT_NEEDED --password-stdin ghcr.io
