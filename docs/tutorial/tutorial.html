@@ -1944,6 +1944,9 @@ elCicdTemplates:
 <div class="olist loweralpha">
 <ol class="loweralpha" type="a">
 <li>
+<p><code>objName</code> must follow the same naming rules as <code>.metadata.name</code>.</p>
+</li>
+<li>
 <p><code>$&lt;OBJ_NAME&gt;</code> is another built-in el-CICD Chart variable referring to the el-CICD Chart template&#8217;s objName in which it is realized.</p>
 </li>
 <li>
@@ -2321,13 +2324,13 @@ Uninstall the chart.</p>
 <p>Deployment profiles are most useful whenever any significant amount of data/or and configuration within a deployment needs to change in unison based on a single deployment.</p>
 </div>
 <div class="paragraph">
-<p>The part of the tutorial will demonstrate deploying a default English and a multi-lingual deployment of our contrived web application.  Because the <code>multi-lingual</code> profile will be specified, content of index.html will change, and two extra ConfigMaps will be deployed.</p>
+<p>The part of the tutorial will demonstrate deploying a default English and a MULTI_LINGUAL deployment of our contrived web application.  Because the <code>MULTI_LINGUAL</code> profile will be specified, content of index.html will change, and two extra ConfigMaps will be deployed.</p>
 </div>
 <h4 id="_create_and_save_the_following_file_as_elcicd_demo_4_yaml" class="discrete">Create and save the following file as <code>elcicd-demo-4.yaml</code></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="YAML">elCicdDefs:
-  MULTI_LINGUAL_PROFILE: multi-lingual
+  MULTI_LINGUAL_PROFILE: MULTI_LINGUAL
   INDEX_HTML_NAME: index.html
   DEFAULT_PAGE_CONTENT: &lt;h1&gt;Howdy from $&lt;OBJ_NAME&gt; in release $&lt;HELM_RELEASE_NAME&gt;!&lt;h1&gt;
   PAGE_CONTENT: $&lt;DEFAULT_PAGE_CONTENT&gt;
@@ -2377,11 +2380,14 @@ elCicdTemplates:
 <div class="olist loweralpha">
 <ol class="loweralpha" type="a">
 <li>
-<p><code>elCicdDefs-$&lt;MULTI_LINGUAL_PROFILE&gt;</code> declares the <code>$&lt;MULTI_LINGUAL_PROFILE&gt;</code> (<code>multi-lingual</code>) profile.</p>
+<p>Deployment profiles must consist of upper case alphanumeric characters, '_' or '.', and must start and end with an alphanumeric character.</p>
+</li>
+<li>
+<p><code>elCicdDefs-$&lt;MULTI_LINGUAL_PROFILE&gt;</code> declares the <code>$&lt;MULTI_LINGUAL_PROFILE&gt;</code> (<code>MULTI_LINGUAL</code>) profile.</p>
 <div class="olist lowerroman">
 <ol class="lowerroman" type="i">
 <li>
-<p>Variables defined under this map will only be realized when the <code>multi-lingual</code> profile is active.</p>
+<p>Variables defined under this map will only be realized when the <code>MULTI_LINGUAL</code> profile is active.</p>
 </li>
 <li>
 <p><code>elCicdDefs</code> maps may only reference one profile at a time.</p>
@@ -2390,11 +2396,11 @@ elCicdTemplates:
 </div>
 </li>
 <li>
-<p><code>mustHaveAnyProfile</code> similarly declares the <code>$&lt;MULTI_LINGUAL_PROFILE&gt;</code> (<code>multi-lingual</code>) profile.</p>
+<p><code>mustHaveAnyProfile</code> similarly declares the <code>$&lt;MULTI_LINGUAL_PROFILE&gt;</code> (<code>MULTI_LINGUAL</code>) profile.</p>
 <div class="olist lowerroman">
 <ol class="lowerroman" type="i">
 <li>
-<p>The <code>[$&lt;ENGLISH&gt;, $&lt;ESPANOL&gt;]</code> configMap template will only be processed when the <code>multi-lingual</code> profile is active.</p>
+<p>The <code>[$&lt;ENGLISH&gt;, $&lt;ESPANOL&gt;]</code> configMap template will only be processed when the <code>MULTI_LINGUAL</code> profile is active.</p>
 </li>
 <li>
 <p>The full list of template discriminators is</p>
@@ -2480,6 +2486,9 @@ elCicdTemplates:
 </li>
 <li>
 <p><code>objName</code> will be assigned for each copy corresponding to an element in the <code>objNames</code> list used to generate it.</p>
+</li>
+<li>
+<p>All elements of the <code>objNames</code> matrix must follow the same naming rules as <code>.metadata.name</code>.</p>
 </li>
 <li>
 <p>This deployment definition will result in two configMap templates, <code>$&lt;ENGLISH&gt;</code> (<code>english.html) and `$&lt;ESPANOL&gt;</code> (<code>espanol.html</code>).</p>
@@ -2801,9 +2810,9 @@ Uninstall the chart.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_install_the_httpd_server_with_the_multi_lingual_deployment_profile">2.5.2. Install the httpd server with the <code>multi-lingual</code> deployment profile</h4>
+<h4 id="_install_the_httpd_server_with_the_multi_lingual_deployment_profile">2.5.2. Install the httpd server with the <code>MULTI_LINGUAL</code> deployment profile</h4>
 <div class="paragraph">
-<p>el-CICD Chart deployment profiles are defined in <code>elCicdProfiles</code> as a list.  It only makes sense to define the active profile list outside of the deployment definition and at deployment time, or that would defeat their purpose.  The <code>helm update --install</code> command is modified to apply deployment profile <code>--set elCicdProfiles='{multi-lingual}'</code> clause.  If more than one deployment profile is specified, the order of precedence from least to greatest in determining the values of variables; e.g. if <code>elCicdProfiles={foo,bar}</code>, all values defined in the <code>bar</code> profile would take precedence over <code>foo</code>.</p>
+<p>el-CICD Chart deployment profiles are defined in <code>elCicdProfiles</code> as a list.  It only makes sense to define the active profile list outside of the deployment definition and at deployment time, or that would defeat their purpose.  The <code>helm update --install</code> command is modified to apply deployment profile <code>--set elCicdProfiles='{MULTI_LINGUAL}'</code> clause.  If more than one deployment profile is specified, the order of precedence is from least to greatest in determining the values of variables; e.g. if <code>elCicdProfiles={FOO,BAR}</code>, all values defined in the <code>BAR</code> profile would take precedence over <code>FOO</code>.</p>
 </div>
 <div class="paragraph">
 <p>This part of the demonstration will change the opening page to a pair of links that will take you to either English or Spanish versions of the "Howdy!" message.</p>
@@ -2815,7 +2824,7 @@ Uninstall the chart.</p>
 <div class="ulist">
 <ul>
 <li>
-<p>The deployment will take place with the <code>multi-lingual</code> deployment profile active.</p>
+<p>The deployment will take place with the <code>MULTI_LINGUAL</code> deployment profile active.</p>
 </li>
 <li>
 <p>An httpd Pod will be created and accessible from outside the cluster using a single, compound el-CICD Chart templates.</p>
@@ -2846,7 +2855,7 @@ Uninstall the chart.</p>
 Install the <code>elcicd-chart-demo</code> release in the <code>elcicd-chart-demo</code> namespace using the el-CICD Chart:</p>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code>$ helm upgrade --install --atomic --history-max=0 -n elcicd-chart-demo --create-namespace --set elCicdProfiles='{multi-lingual}' -f elcicd-demo-4.yaml elcicd-chart-demo elcicd-charts/elcicd-chart</code></pre>
+<pre class="rouge highlight"><code>$ helm upgrade --install --atomic --history-max=0 -n elcicd-chart-demo --create-namespace --set elCicdProfiles='{MULTI_LINGUAL}' -f elcicd-demo-4.yaml elcicd-chart-demo elcicd-charts/elcicd-chart</code></pre>
 </div>
 </div>
 <div class="dlist">
@@ -2881,171 +2890,7 @@ View the manifests that generated by el-CICD Chart from the <code>helm upgrade -
 <div class="content">
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code>---
-# Source: elcicd-chart/templates/render.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  labels:
-    app.kubernetes.io/instance: elcicd-chart-demo
-    app.kubernetes.io/managed-by: Helm
-    elcicd.io/selector: index.html
-    helm.sh/chart: elcicd-chart-0.1.0
-  name: index.html
-  namespace: elcicd-chart-demo
-data:
-  index.html: &lt;!DOCTYPE html&gt;&lt;html&gt;&lt;body&gt;&lt;h1&gt;&lt;a href="english.html"&gt;English&lt;/a&gt;&amp;nbsp;&lt;a
-    href="espanol.html"&gt;Español&lt;/a&gt;&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;
-# Rendered el-CICD Chart Template -&gt; "configMap" index.html
----
-# Source: elcicd-chart/templates/render.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  labels:
-    app.kubernetes.io/instance: elcicd-chart-demo
-    app.kubernetes.io/managed-by: Helm
-    elcicd.io/selector: english.html
-    helm.sh/chart: elcicd-chart-0.1.0
-  name: english.html
-  namespace: elcicd-chart-demo
-data:
-  english.html: &lt;!DOCTYPE html&gt;&lt;html&gt;&lt;body&gt;&lt;h1&gt;Howdy from english.html in release elcicd-chart-demo!&lt;h1&gt;&lt;/body&gt;&lt;/html&gt;
-# Rendered el-CICD Chart Template -&gt; "configMap" english.html
----
-# Source: elcicd-chart/templates/render.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  labels:
-    app.kubernetes.io/instance: elcicd-chart-demo
-    app.kubernetes.io/managed-by: Helm
-    elcicd.io/selector: espanol.html
-    helm.sh/chart: elcicd-chart-0.1.0
-  name: espanol.html
-  namespace: elcicd-chart-demo
-data:
-  espanol.html: &lt;!DOCTYPE html&gt;&lt;html&gt;&lt;body&gt;&lt;h1&gt;¡Hola desde espanol.html en el lanzamiento
-    elcicd-chart-demo!&lt;h1&gt;&lt;/body&gt;&lt;/html&gt;
-# Rendered el-CICD Chart Template -&gt; "configMap" espanol.html
----
-# Source: elcicd-chart/templates/render.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    app.kubernetes.io/instance: elcicd-chart-demo
-    app.kubernetes.io/managed-by: Helm
-    elcicd.io/selector: elcicd-chart-demo
-    helm.sh/chart: elcicd-chart-0.1.0
-  name: elcicd-chart-demo
-  namespace: elcicd-chart-demo
-spec:
-  selector:
-    elcicd.io/selector: elcicd-chart-demo
-  ports:
-  - name: elcicd-chart-demo-port
-    port: 8080
-    protocol: TCP
-# Rendered el-CICD Chart Template -&gt; "service" elcicd-chart-demo
----
-# Source: elcicd-chart/templates/render.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    app.kubernetes.io/instance: elcicd-chart-demo
-    app.kubernetes.io/managed-by: Helm
-    elcicd.io/selector: elcicd-chart-demo
-    helm.sh/chart: elcicd-chart-0.1.0
-  name: elcicd-chart-demo
-  namespace: elcicd-chart-demo
-spec:
-  revisionHistoryLimit: 0
-  selector:
-    matchExpressions:
-    - key: elcicd.io/selector
-      operator: Exists
-    matchLabels:
-      elcicd.io/selector: elcicd-chart-demo
-  template:
-    metadata:
-      labels:
-        app.kubernetes.io/instance: elcicd-chart-demo
-        app.kubernetes.io/managed-by: Helm
-        elcicd.io/selector: elcicd-chart-demo
-        helm.sh/chart: elcicd-chart-0.1.0
-      name: elcicd-chart-demo
-      namespace: elcicd-chart-demo
-    spec:
-      containers:
-      - name: elcicd-chart-demo
-        image: registry.redhat.io/rhel8/httpd-24
-        imagePullPolicy: Always
-        ports:
-        - name: default-port
-          containerPort: 8080
-          protocol: TCP
-        resources:
-          limits: {}
-          requests: {}
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-            - ALL
-        volumeMounts:
-        - mountPath: /var/www/html/
-          name: elcicd-chart-demo
-          readOnly: false
-      imagePullSecrets: []
-      securityContext:
-        runAsNonRoot: true
-        seccompProfile:
-          type: RuntimeDefault
-      volumes:
-      - name: elcicd-chart-demo
-        projected:
-          sources:
-          - configMap:
-              name: english.html
-          - configMap:
-              name: espanol.html
-          - configMap:
-              name: index.html
-# Rendered el-CICD Chart Template -&gt; "deployment" elcicd-chart-demo
----
-# Source: elcicd-chart/templates/render.yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  annotations:
-    kubernetes.io/ingress.allow-http: "false"
-  labels:
-    app.kubernetes.io/instance: elcicd-chart-demo
-    app.kubernetes.io/managed-by: Helm
-    elcicd.io/selector: elcicd-chart-demo
-    helm.sh/chart: elcicd-chart-0.1.0
-  name: elcicd-chart-demo
-  namespace: elcicd-chart-demo
-spec:
-  rules:
-  - host: httpd-elcicd-chart-demo.apps-crc.testing
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: elcicd-chart-demo
-            port:
-              number: 8080
-  tls:
-  - secretName:
-# Rendered el-CICD Chart Template -&gt; "ingress" elcicd-chart-demo
----
-# Source: elcicd-chart/templates/render.yaml
-# Profiles: [multi-lingual]</code></pre>
+<pre class="rouge highlight"><code>Unresolved directive in sections/general-steps/view-chart-manifests.adoc - include::helm-manifests/deployment-profiles-MULTI_LINGUAL-manifest.adoc[]</code></pre>
 </div>
 </div>
 </div>
@@ -3065,27 +2910,7 @@ View the running <code>elcicd-chart-demo</code> resources in the cluster:</p>
 <dd>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code>NAME                                READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/elcicd-chart-demo   1/1     1            1           5m23s
-
-NAME                                           DESIRED   CURRENT   READY   AGE
-replicaset.apps/elcicd-chart-demo-58494f8c55   1         1         1       5m23s
-
-NAME                                     READY   STATUS    RESTARTS   AGE
-pod/elcicd-chart-demo-58494f8c55-5tp6x   1/1     Running   0          5m23s
-
-NAME                                 DATA   AGE
-configmap/english.html               1      5m23s
-configmap/espanol.html               1      5m23s
-configmap/index.html                 1      5m23s
-configmap/kube-root-ca.crt           1      2d1h
-configmap/openshift-service-ca.crt   1      2d1h
-
-NAME                        TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)    AGE
-service/elcicd-chart-demo   ClusterIP   10.217.5.97   &lt;none&gt;        8080/TCP   5m23s
-
-NAME                                          CLASS    HOSTS                                      ADDRESS                           PORTS     AGE
-ingress.networking.k8s.io/elcicd-chart-demo   &lt;none&gt;   httpd-elcicd-chart-demo.apps-crc.testing   router-default.apps-crc.testing   80, 443   5m23s</code></pre>
+<pre class="rouge highlight"><code>Unresolved directive in sections/general-steps/view-running-resources.adoc - include::kubectl-gets/deployment-profiles-MULTI_LINGUAL-kubectl-get.adoc[]</code></pre>
 </div>
 </div>
 </dd>
@@ -3126,7 +2951,7 @@ If not using CRC, you&#8217;ll definitely need to run the <code>kubectl get</cod
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="sections/general-steps/images/deployment-profiles-multi-lingual-screenshot.png" alt="deployment profiles multi lingual screenshot">
+<img src="sections/general-steps/images/deployment-profiles-MULTI_LINGUAL-screenshot.png" alt="deployment profiles MULTI LINGUAL screenshot">
 </div>
 </div>
 </dd>
@@ -3304,7 +3129,7 @@ Uninstall the chart.</p>
 elCicdDefs-$&lt;ENGLISH_JOB&gt;:
   WELCOME_MSG: 'Howdy from $&lt;OBJ_NAME&gt; in release $&lt;HELM_RELEASE_NAME&gt;!'
 
-elCicdDefs-$&lt;ESPANOL_JOB&gt;:
+elCicdDef-$&lt;ESPANOL_JOB&gt;:
   WELCOME_MSG: '¡Hola desde $&lt;OBJ_NAME&gt; en el lanzamiento $&lt;HELM_RELEASE_NAME&gt;!'
 
 elCicdTemplates:
@@ -3983,7 +3808,7 @@ Uninstall the chart.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-07-30 14:21:00 UTC
+Last updated 2024-08-06 21:28:55 UTC
 </div>
 </div>
 </body>
