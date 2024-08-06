@@ -76,7 +76,8 @@
   {{- $_ := set $.Values "__EC_UNESCAPED_REGEX" "$<" }}
   {{- $_ := set $.Values "__EC_PARAM_REGEX" "(?:^|[^\\\\])\\$<([\\w]+?(?:[-][\\w]+?)*)>" }}
 
-  {{- $_ := set $.Values "__EC_PROFILE_NAMING_REGEX" "[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*" }}
+  {{- $_ := set $.Values "__EC_OBJ_NAME_REGEX" "[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*" }}
+  {{- $_ := set $.Values "__EC_PROFILE_REGEX" "[A-Z]+(?:[._][A-Z]+)*" }}
 {{- end }}
 
 {{/*
