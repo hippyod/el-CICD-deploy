@@ -29,7 +29,7 @@ jobs:
 
     - name: Configure Git
       run: |
-        git status
+        git fetch main
         git merge main
         git config --global user.name "${{ github.repository_owner }}"
         git config --global user.email "${{ github.repository_owner }}@donotreply.org"
